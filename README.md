@@ -1,6 +1,10 @@
 # French Alone · 하루 5분 프랑스어
 
-[앱 바로 열기](https://bonjour-french-sidebatch.mullaemi.chatgpt.site)
+## 앱 바로 실행
+
+**[프랑스어 공부 앱 열기 →](https://bonjour-french-sidebatch.mullaemi.chatgpt.site)**
+
+앱 주소: https://bonjour-french-sidebatch.mullaemi.chatgpt.site
 
 한국어 사용자에게 맞춘 입문 프랑스어 학습 웹앱입니다. 회원가입이나 API 키 없이 바로 시작합니다.
 
