@@ -29,6 +29,16 @@ npm start
 
 http://localhost:4173 에 접속합니다. 또는 `dist/`를 정적 웹 호스팅에 올릴 수 있습니다. ES 모듈을 사용하므로 HTML을 파일로 직접 여는 대신 HTTP 서버로 실행해 주세요.
 
+## GitHub Pages 배포
+
+GitHub Pages 배포 워크플로를 준비했습니다. 최초 활성화 전에는 위의 공개 앱 링크를 사용해 주세요.
+
+1. [Settings → Pages](https://github.com/sidebatch/french-alone/settings/pages)에서 **Build and deployment → Source → GitHub Actions**를 선택합니다.
+2. [Deploy GitHub Pages](https://github.com/sidebatch/french-alone/actions/workflows/pages.yml)에서 **Run workflow**를 실행합니다.
+3. 배포가 성공하면 `https://sidebatch.github.io/french-alone/`에서 앱을 사용할 수 있습니다. 이후 `main` 브랜치의 앱 파일을 수정하면 자동 배포합니다.
+
+워크플로는 테스트를 통과한 `dist/`만 공개합니다. 저장소가 비공개이면 해당 계정 요금제가 비공개 저장소의 Pages를 지원해야 합니다. Pages 설정에 공개 전환 또는 요금제 변경 안내가 나오는 경우, 저장소 소스 공개 여부는 소유자가 직접 결정해 주세요.
+
 ## 검증
 
 ```sh
