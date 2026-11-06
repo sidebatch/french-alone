@@ -7,7 +7,7 @@
   "scripts": {
     "start": "python3 -m http.server 4173 --directory dist",
     "test": "node --test",
-    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js"
+    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js && node --check dist/practice-data.js && node --check dist/practice-core.js && node --check dist/practice.js"
   },
   "devDependencies": { "jsdom": "^26.1.0" }
 }
