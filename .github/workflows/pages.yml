@@ -45,3 +45,8 @@ jobs:
       - name: Deploy public app
         id: deployment
         uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Check public PWA installation files
+        run: node scripts/check-deployment.mjs
+        env:
+          APP_URL: ${{ steps.deployment.outputs.page_url }}
