@@ -2,9 +2,9 @@
 
 ## 앱 바로 실행
 
-**[프랑스어 공부 앱 열기 →](https://bonjour-french-sidebatch.mullaemi.chatgpt.site)**
+**[프랑스어 공부 앱 열기 →](https://sidebatch.github.io/french-alone/)**
 
-앱 주소: https://bonjour-french-sidebatch.mullaemi.chatgpt.site
+앱 주소: https://sidebatch.github.io/french-alone/
 
 로그인 없이 누구나 사용할 수 있는 공개 앱입니다. 학습 진도와 단어장은 각자의 브라우저에 저장됩니다.
 
@@ -31,13 +31,11 @@ http://localhost:4173 에 접속합니다. 또는 `dist/`를 정적 웹 호스�
 
 ## GitHub Pages 배포
 
-GitHub Pages 배포 워크플로를 준비했습니다. 최초 활성화 전에는 위의 공개 앱 링크를 사용해 주세요.
+GitHub Pages로 공개 배포된 앱입니다: https://sidebatch.github.io/french-alone/
 
-1. [Settings → Pages](https://github.com/sidebatch/french-alone/settings/pages)에서 **Build and deployment → Source → GitHub Actions**를 선택합니다.
-2. [Deploy GitHub Pages](https://github.com/sidebatch/french-alone/actions/workflows/pages.yml)에서 **Run workflow**를 실행합니다.
-3. 배포가 성공하면 `https://sidebatch.github.io/french-alone/`에서 앱을 사용할 수 있습니다. 이후 `main` 브랜치의 앱 파일을 수정하면 자동 배포합니다.
+`main` 브랜치의 `dist/` 또는 패키지 설정을 수정하면 테스트를 통과한 앱을 자동 배포합니다. [Deploy GitHub Pages](https://github.com/sidebatch/french-alone/actions/workflows/pages.yml)에서 배포 결과를 확인하거나 **Run workflow**로 수동 배포할 수 있습니다.
 
-워크플로는 테스트를 통과한 `dist/`만 공개합니다. 저장소가 비공개이면 해당 계정 요금제가 비공개 저장소의 Pages를 지원해야 합니다. Pages 설정에 공개 전환 또는 요금제 변경 안내가 나오는 경우, 저장소 소스 공개 여부는 소유자가 직접 결정해 주세요.
+워크플로는 앱 실행에 필요한 `dist/`만 공개합니다. 학습 기록은 방문자의 브라우저에 저장하며, GitHub 계정 로그인은 필요하지 않습니다.
 
 ## 검증
 
@@ -70,4 +68,4 @@ tests/
 .openai/hosting.json  Sites 배포 설정
 ```
 
-런타임 의존성이나 별도 빌드 과정 없이 `dist/` 그대로 배포합니다. Sites용 소스 연결과 별도로 GitHub 저장소에서도 동일한 소스를 관리합니다.
+런타임 의존성이나 별도 빌드 과정 없이 `dist/` 그대로 GitHub Pages에 배포합니다.
