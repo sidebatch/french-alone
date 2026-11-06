@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { practicePacks, practiceQuestions } from '../dist/practice-data.js';
-import { PRACTICE_KEY, freshPractice, readPractice, normalizeAnswer, isCorrect, addDays, dueQuestions, reviewDeck, nextPack, recordPractice, independentSentences } from '../dist/practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, normalizeAnswer, isCorrect, addDays, dueQuestions, reviewDeck, nextPack, recordPractice, independentSentences } from '../dist/practice-core.js';
 
 const resultsFor = pack => pack.questions.map(q=>({id:q.id,correct:true,independent:q.kind==='input'}));
 test('three authored rounds move from a model to unsupported recall and novel combinations',()=>{
@@ -55,4 +55,17 @@ test('practice history survives reload and discards corrupt or obsolete saved fi
   assert.deepEqual(readPractice(storage),state);
   state.cards['unknown-1']={due:'2026-11-07'};state.cards['want-1'].due='2026-99-99';state.runs.push({date:'2026-11-06',packId:'unknown'});
   const loaded=readPractice(storage);assert.equal(loaded.cards['unknown-1'],undefined);assert.equal(loaded.cards['want-1'],undefined);assert.equal(loaded.runs.length,1);
+});
+
+test('paused practice validates its sequence, answers and hint state before restoring',()=>{
+  const ids=practicePacks[0].questions.map(q=>q.id);
+  const paused={packId:'want',questionIds:ids,index:1,results:[{id:ids[0],correct:true,independent:false}],updatedAt:10,continued:false,current:{draft:'veux',choice:null,tiles:[],selected:[],status:'correct',hints:1,hadError:false}};
+  const read=sessions=>readPracticeDrafts({getItem:key=>{assert.equal(key,PRACTICE_DRAFT_KEY);return JSON.stringify({version:1,sessions});}});
+  assert.equal(read({want:paused}).want.current.hints,1);
+  assert.equal(read({want:paused}).want.current.status,'correct');
+  assert.equal(read({want:{...paused,current:{...paused.current,draft:'not French'}}}).want.current.status,'idle');
+  assert.deepEqual(read({want:{...paused,questionIds:[...ids].reverse()}}),{});
+  assert.deepEqual(read({want:{...paused,index:30}}),{});
+  assert.deepEqual(read({want:{...paused,results:[]}}),{});
+  assert.deepEqual(readPracticeDrafts({getItem:()=>'{bad json'}),{});
 });

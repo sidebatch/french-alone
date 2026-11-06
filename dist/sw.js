@@ -1,8 +1,8 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-06-pwa-1';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-06-release-1.1.0';
 const APP_FILES = [
-  './', './index.html', './style.css', './pwa.css', './app.js', './core.js', './data.js',
+  './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
   './practice.js', './practice-core.js', './practice-data.js', './pwa.js',
   './manifest.webmanifest', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
@@ -29,9 +29,9 @@ self.addEventListener('message', event => {
 });
 async function networkFirst(request, canonicalURL) {
   let cache;
-  try { cache = await caches.open(CACHE_NAME); } catch { return fetch(request); }
+  try { cache = await caches.open(CACHE_NAME); } catch { return fetch(request, { cache: 'no-cache' }); }
   try {
-    const response = await fetch(request);
+    const response = await fetch(request, { cache: 'no-cache' });
     if (response.ok) {
       try { await cache.put(canonicalURL, response.clone()); } catch { /* Online lessons still work if storage is full. */ }
       return response;

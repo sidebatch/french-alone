@@ -4,17 +4,18 @@ import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 import { today, STORAGE_KEY } from '../dist/core.js';
 import { practicePacks, questionById } from '../dist/practice-data.js';
-import { PRACTICE_KEY, freshPractice, recordPractice, addDays } from '../dist/practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDays } from '../dist/practice-core.js';
 
 let fixtureNumber=0;
-async function setup(initialPractice) {
+async function setup(initialPractice,initialDrafts) {
   const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
-  const dom=new JSDOM(html,{url:'https://sidebatch.github.io/french-alone/',pretendToBeVisual:true});
+  const dom=new JSDOM(html,{url:'https://sidebatch.github.io/french-alone/',pretendToBeVisual:true,runScripts:'outside-only'});
   Object.assign(globalThis,{window:dom.window,document:dom.window.document,location:dom.window.location});
   dom.window.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};
   dom.window.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
   dom.window.scrollTo=()=>{};
   if(initialPractice)dom.window.localStorage.setItem(PRACTICE_KEY,JSON.stringify(initialPractice));
+  if(initialDrafts)dom.window.localStorage.setItem(PRACTICE_DRAFT_KEY,JSON.stringify(initialDrafts));
   const errors=[];dom.window.addEventListener('error',event=>errors.push(event.error));
   await import(`../dist/app.js?practice-test=${++fixtureNumber}`);
   const $=selector=>document.querySelector(selector);
@@ -67,4 +68,47 @@ test('revealing an answer never counts as independent and due review removes the
   f.click('[data-action="practice-hint"]');f.click('[data-action="practice-hint"]');assert.ok(f.$('[data-action="practice-next"]'));f.click('[data-action="practice-next"]');
   while(f.current())f.answer();
   const result=f.saved().runs.at(-1);assert.equal(result.packId,'review');assert.equal(result.independent,9);assert.equal(result.correct,9);assert.equal(result.transfer,false);assert.equal(f.errors.length,0);
+});
+
+test('closing and reopening the app restores typed text, hints and score exactly once',async()=>{
+  const f=await setup();f.click('.hero [data-action="practice-start"]');f.answer();
+  f.click('[data-action="practice-hint"]');
+  const input=f.$('#practice-input');input.value='veu';input.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
+  f.click('#study-dialog [data-action="close"]');
+  assert.ok(f.$('.hero [data-action="practice-resume"]'));
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  assert.equal(drafts.sessions.want.index,1);assert.equal(drafts.sessions.want.current.hints,1);
+  const restored=await setup(undefined,drafts);restored.click('.hero [data-action="practice-resume"]');
+  assert.equal(restored.current().id,'want-2');assert.equal(restored.$('#practice-input').value,'veu');assert.ok(restored.$('.practice-hint'));
+  restored.type('veux');restored.click('[data-action="practice-next"]');while(restored.current())restored.answer();
+  assert.equal(restored.saved().runs.length,1);assert.equal(restored.saved().runs[0].independent,5);
+  assert.equal(JSON.parse(restored.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY)).sessions.want,undefined);
+  restored.click('[data-action="practice-close"]');assert.equal(restored.$('.hero [data-action="practice-resume"]'),null);
+});
+
+test('different course drafts do not overwrite each other and reset clears all paused work',async()=>{
+  const f=await setup();
+  for(const id of ['want','can']){f.click(`.practice-pack[data-id="${id}"]`);f.answer();f.click('#study-dialog [data-action="close"]');}
+  let drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));assert.equal(drafts.sessions.want.index,1);assert.equal(drafts.sessions.can.index,1);
+  f.click('.practice-pack[data-id="want"]');assert.equal(f.current().id,'want-2');f.click('#study-dialog [data-action="close"]');
+  f.click('.header-settings');assert.equal(f.$('#study-dialog').dataset.view,'settings');f.click('[data-action="reset-confirm"]');f.click('[data-action="reset"]');
+  drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));assert.deepEqual(drafts.sessions,{});assert.equal(f.errors.length,0);
+});
+
+test('a partially arranged sentence resumes with its original tile order and selection',async()=>{
+  const f=await setup();f.click('.hero [data-action="practice-start"]');for(let i=0;i<3;i++)f.answer();
+  assert.equal(f.current().id,'want-4');f.pick('Je');f.pick('veux');f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  const restored=await setup(undefined,drafts);restored.click('.hero [data-action="practice-resume"]');
+  assert.equal(restored.current().id,'want-4');assert.equal(restored.$('.tile-answer').querySelectorAll('.word-tile').length,2);
+  restored.pick('rester');restored.pick('ici');restored.click('[data-action="practice-check"]');restored.click('[data-action="practice-next"]');
+  assert.equal(restored.current().id,'want-5');assert.equal(restored.errors.length,0);
+});
+
+test('settings open installation help through the existing PWA controls',async()=>{
+  const f=await setup();assert.ok(f.dom.window.document.documentElement.classList.contains('app-ready'));
+  f.dom.window.eval(await readFile(new URL('../dist/pwa.js',import.meta.url),'utf8'));
+  f.click('.header-settings');f.click('[data-action="install-help"]');
+  assert.equal(f.$('#study-dialog').open,false);assert.equal(f.$('#install-dialog').open,true);
+  f.$('#pwa-close').click();assert.equal(f.$('#install-dialog').open,false);f.dom.window.close();
 });

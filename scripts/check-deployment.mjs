@@ -22,7 +22,7 @@ async function check() {
     ensure(bytes[0]===137 && bytes[1]===80 && bytes[2]===78 && bytes[3]===71,'Invalid public PNG icon');
     ensure(u32(bytes,16)===size && u32(bytes,20)===size,'Public install icon has the wrong dimensions');
   }
-  const paths=['./app.js','./core.js','./data.js','./practice.js','./practice-core.js','./practice-data.js','./style.css','./pwa.css','./pwa.js','./sw.js','./icons/apple-touch-icon.png'];
+  const paths=['./app.js','./core.js','./data.js','./practice.js','./practice-core.js','./practice-data.js','./style.css','./pwa.css','./product.css','./pwa.js','./sw.js','./icons/apple-touch-icon.png'];
   await Promise.all(paths.map(path=>get(path)));
   console.log('Public PWA verified: '+base.href+' · manifest, icons and all lesson/offline files are reachable');
 }

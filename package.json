@@ -1,6 +1,6 @@
 {
-  "name": "bonjour-french",
-  "version": "1.0.0",
+  "name": "french-alone",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "하루 5분, 한국어로 시작하는 프랑스어 학습 앱",

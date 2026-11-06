@@ -59,3 +59,14 @@ test('waiting updates do not reload or activate until the learner explicitly cho
   assert.equal(f.messages.length,1);assert.equal(f.messages[0].type,'ACTIVATE_UPDATE');assert.equal(f.$('#pwa-update-button').disabled,true);
   f.w.close();
 });
+
+test('startup failures offer a recovery action without replacing an app that is ready',()=>{
+  for(const ready of [false,true]){
+    const dom=new JSDOM(html,{url:'https://sidebatch.github.io/french-alone/',runScripts:'outside-only'}),w=dom.window;
+    w.matchMedia=()=>({matches:false,addEventListener(){}});
+    w.HTMLDialogElement.prototype.showModal=function(){};w.HTMLDialogElement.prototype.close=function(){};
+    if(ready)w.document.documentElement.classList.add('app-ready');
+    let recovery;w.setTimeout=callback=>{recovery=callback;return 1;};w.eval(source);recovery();
+    assert.equal(Boolean(w.document.getElementById('pwa-retry')),!ready);w.close();
+  }
+});

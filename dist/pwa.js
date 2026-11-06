@@ -64,6 +64,13 @@
   const displayMode = window.matchMedia && window.matchMedia('(display-mode: standalone)');
   if (displayMode && displayMode.addEventListener) displayMode.addEventListener('change', renderInstalled);
   renderInstalled(); renderOffline();
+  window.setTimeout(() => {
+    if(document.documentElement.classList.contains('app-ready'))return;
+    const main=document.getElementById('main');
+    if(!main)return;
+    main.innerHTML='<div class="app-loading app-load-error" role="alert"><span aria-hidden="true">b.</span><h1>잠시 연결을 확인해 주세요.</h1><p>학습 화면을 불러오지 못했어요.<br>인터넷 연결을 확인하고 다시 열어 주세요.</p><button id="pwa-retry" class="primary-button" type="button">다시 열기</button></div>';
+    document.getElementById('pwa-retry').addEventListener('click',()=>window.location.reload());
+  },12000);
 
   function offerUpdate(reg) {
     if (reg.waiting && window.navigator.serviceWorker.controller) updateBar.hidden = false;
