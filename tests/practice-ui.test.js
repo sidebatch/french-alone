@@ -43,7 +43,7 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   assert.equal(saved().cards['want-2'].strength,0);assert.equal(saved().cards['want-10'].strength,1);
   const baseline=JSON.parse(f.dom.window.localStorage.getItem(STORAGE_KEY));assert.equal(Object.values(baseline.activity)[0].xp,70);assert.equal(Object.values(baseline.activity)[0].words,4);
   click('[data-action="practice-more"]');assert.equal(current().id,'can-1');click('#study-dialog [data-action="close"]');assert.equal(saved().runs.length,1);
-  assert.equal($('#study-dialog').open,false);
+  assert.equal($('#study-dialog').open,false);assert.match($('.goal-ring').textContent,/1.*1판/);assert.match($('.goal-copy').textContent,/목표 달성/);
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });
 
