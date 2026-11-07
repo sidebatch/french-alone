@@ -1,7 +1,7 @@
 import { phrases, lessons } from './data.js';
 export const STORAGE_KEY = 'bonjour-french-v1';
 export const today = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-export const freshState = () => ({ version: 1, completed: [], mastered: [], favorites: [], mistakes: [], activity: {}, slow: false });
+export const freshState = () => ({ version: 1, completed: [], mastered: [], favorites: [], mistakes: [], activity: {}, slow: false, effects: true, lessonProgress: {} });
 export function readState(storage) {
   try {
     const raw = JSON.parse(storage.getItem(STORAGE_KEY));
@@ -14,6 +14,20 @@ export function readState(storage) {
       if (/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(value?.xp) && value.xp >= 0) state.activity[date] = {xp:value.xp, words:Number.isFinite(value.words) ? Math.max(0,value.words) : 0};
     }
     state.slow = raw.slow === true;
+    state.effects = raw.effects !== false;
+    if(raw.lessonProgress && typeof raw.lessonProgress === 'object' && !Array.isArray(raw.lessonProgress)) {
+      for(const lesson of lessons) {
+        const entry=raw.lessonProgress[lesson.id], deck=phrases.filter(p=>p.lessonId===lesson.id);
+        if(!entry || state.completed.includes(lesson.id) || !['learn','quiz'].includes(entry.phase) || !Number.isInteger(entry.index))continue;
+        const specs=Array.isArray(entry.questions)&&entry.questions.length===deck.length ? entry.questions : [];
+        const validSpecs=specs.length===deck.length && new Set(specs.map(q=>q?.id)).size===deck.length && specs.every(q=>deck.some(p=>p.id===q.id) && Array.isArray(q.choices) && q.choices.length===4 && new Set(q.choices).size===4 && q.choices.includes(q.id) && q.choices.every(id=>ids.has(id)));
+        const phase=entry.phase==='quiz'&&validSpecs?'quiz':'learn';
+        const answers=phase==='quiz' && Array.isArray(entry.answers) ? entry.answers.filter(a=>deck.some(p=>p.id===a?.id)&&typeof a.correct==='boolean').slice(0,deck.length) : [];
+        const index=Math.max(0,Math.min(deck.length-1,entry.index));
+        const selected=phase==='quiz'&&typeof entry.selected==='string'&&specs[index].choices.includes(entry.selected)?entry.selected:null;
+        state.lessonProgress[lesson.id]={phase,index,answers,selected,questions:phase==='quiz'?specs:[]};
+      }
+    }
     return state;
   } catch { return freshState(); }
 }
