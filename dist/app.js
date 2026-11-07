@@ -201,7 +201,7 @@ document.addEventListener('click',event=>{
     case 'next-question':
       if(session?.phase!=='quiz'||session.selected===null)break;
       if(session.index<session.questions.length-1){session.index++;session.selected=null;saveLessonDraft();}
-      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';delete state.lessonProgress[session.lesson.id];persist();}
+      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';if(session.result.passed)delete state.lessonProgress[session.lesson.id];else state.lessonProgress[session.lesson.id]={phase:'quiz',index:0,selected:null,answers:[],questions:session.questions.map(q=>({id:q.phrase.id,choices:q.choices.map(p=>p.id)}))};persist();}
       renderSession();break;
     case 'retry':if(session?.lesson)startLesson(session.lesson.id);break;
     case 'review-lesson':if(session?.deck)startReview(session.deck);break;
