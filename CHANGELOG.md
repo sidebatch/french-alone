@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 — 2026-11-07
+
+- Fit sentence practice to the visible viewport above the mobile keyboard, including browser panning and content-resize fallbacks.
+- Keep the question and answer together when input focus automatically scrolls the practice body.
+- Remove the repeated typing instructions and compact the focused header and controls.
+- Add a dedicated round-completion screen with a short confetti animation, completion seal, actual results and earned XP.
+- Respect reduced motion and the saved learning sound preference, and announce completion through focus.
+- Preserve learning storage and duplicate-reward protection; cache the new viewport module for offline use.
+
 ## 1.2.0 — 2026-11-07
 
 - Clarify lesson states (not started, in progress and completed), with per-lesson progress bars.

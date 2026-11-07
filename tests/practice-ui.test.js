@@ -39,6 +39,9 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   pick('Je');click('[data-action="practice-unpick"]');assert.equal(document.querySelectorAll('.tile-answer .word-tile').length,0);
   answer();
   while(current())answer();
+  assert.match($('.practice-completion .dialog-title').textContent,/한 판 해냈어요/);
+  assert.equal(document.activeElement,$('.practice-completion .dialog-title'));
+  assert.match($('.completion-reward').textContent,/\+70 XP/);
   assert.match($('.result-stats').textContent,/4 \/ 6/);assert.match($('.practice-takeaway').textContent,/Je veux continuer/);
   assert.equal(saved().runs.length,1);assert.equal(saved().runs[0].independent,4);assert.equal(saved().runs[0].xp,70);assert.equal(saved().runs[0].transfer,true);
   assert.equal(saved().cards['want-2'].strength,0);assert.equal(saved().cards['want-10'].strength,1);
@@ -58,6 +61,7 @@ test('all three authored rounds can be completed using apostrophes and preserve 
   assert.equal(f.saved().runs.length,3);
   const restored=await setup(f.saved());assert.equal(restored.$('.hero [data-action="practice-start"]').dataset.id,'want');
   restored.click('.practice-pack[data-id="want"]');while(restored.current())restored.answer();
+  assert.equal(restored.$('.completion-reward').textContent,'복습 완료');
   assert.equal(restored.saved().runs.at(-1).xp,0);assert.equal(restored.saved().runs.at(-1).transfer,false);assert.equal(restored.errors.length,0);
 });
 

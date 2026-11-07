@@ -41,10 +41,7 @@
 .attempt-word.ok{background:#e4f2e1;color:#366542}
 .attempt-word.needs-work{background:#f9dfd8;color:#9a392f;text-decoration:underline wavy #bd6255;text-underline-offset:5px}
 .answer-attempt small{color:#885b4e;font-size:11px}
-.typing-hint{display:none;color:#5f7058;font-size:11px;margin:7px 0}
-#study-dialog.typing-focused .typing-hint{display:block}
 #study-dialog.typing-focused .practice-input{border-color:#6da27e;box-shadow:0 0 0 3px #b9d8c153}
-#study-dialog.typing-focused .practice-body{scroll-padding-bottom:100px}
 #study-dialog[data-view="phrase"]{height:min(640px,86dvh);overflow:hidden}
 #study-dialog[data-view="phrase"] .dialog-body{overflow-y:auto}
 .phrase-detail-body .big-french{margin:24px 0 10px}
@@ -57,16 +54,58 @@
   .lesson-status-key>span{flex:1;justify-content:space-between;padding:10px;font-size:10px;white-space:nowrap}
   .lesson-status-key b{font-size:12px}
   #study-dialog[data-view="phrase"]{inset:auto 0 0;margin:0;width:100%;max-width:none;height:min(650px,88dvh);max-height:88dvh;border:0;border-radius:22px 22px 0 0}
-  #study-dialog.typing-focused .practice-model{padding:9px 13px;margin-bottom:10px}
-  #study-dialog.typing-focused .practice-model>b{font-size:18px}
-  #study-dialog.typing-focused .practice-model>p{display:none}
-  #study-dialog.typing-focused .practice-prompt{font-size:18px;margin:5px 0}
-  #study-dialog.typing-focused .practice-cue{font-size:24px;margin:8px 0 12px}
-  #study-dialog.typing-focused .practice-body{padding-top:12px}
-  #study-dialog.typing-focused .practice-input{font-size:18px;min-height:54px}
-  #study-dialog.typing-focused .practice-footer{padding-top:9px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
   .answer-reveal{padding:14px}
   .mistake-summary li{display:block}
   .mistake-summary li span{display:block;margin-top:4px}
 }
 @media(prefers-reduced-motion:reduce){.lesson-card{transition:none}}
+
+/* A dedicated finish moment, with a clear way back to the day. */
+#study-dialog .practice-completion{position:relative;background:radial-gradient(ellipse at 50% 0,#e7efdc 0,transparent 64%),var(--paper);padding:30px 36px}
+.completion-hero{position:relative;z-index:1;animation:completion-arrive .45s ease-out both}
+.completion-seal{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;width:102px;height:102px;margin:6px auto 24px;border-radius:50%;background:#344f42;color:#f6f7e8;box-shadow:0 9px 24px #344f4220;animation:completion-seal .6s cubic-bezier(.2,.8,.3,1.2) both}
+.completion-seal:before{content:'';position:absolute;inset:-8px;border:1px solid #aac091;border-radius:50%}
+.completion-seal svg{width:38px;height:38px;stroke-width:2.4}
+.completion-seal span{font-size:10px;letter-spacing:2px}
+.completion-eyebrow{font-size:12px;color:#5e7352;margin:0 0 8px}
+.completion-hero .dialog-title{font-size:30px;letter-spacing:-1px;margin:0 0 16px;outline:none}
+.completion-reward{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:10px;color:#456443;font-family:'DM Sans','Noto Sans KR',sans-serif;font-size:19px;font-weight:700}
+.completion-reward>span{font-size:10px;font-weight:500;border-left:1px solid #bac9ad;padding-left:10px;color:#627551}
+#study-dialog .practice-completion .result-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:25px 0 22px;padding:20px 0;border-top:1px solid #dce5d3;border-bottom:1px solid #dce5d3;position:relative}
+.practice-completion .result-stats strong{font-size:26px;color:#3f6046}
+.practice-completion .result-stats span{margin:6px auto 0;color:#617257}
+.practice-completion .practice-takeaway{position:relative;background:#ffffff9c;border-color:#dce5d3;padding:18px}
+.practice-completion .practice-takeaway>span{color:#67775d;font-size:10px;margin-bottom:9px}
+.practice-completion .practice-takeaway>b{font-size:26px;color:#48653e}
+.practice-completion .practice-takeaway>p{color:#617257;font-size:12px;margin:9px 0 0}
+.completion-confetti{position:absolute;inset:0 0 auto;height:330px;overflow:hidden;pointer-events:none}
+.completion-confetti i{position:absolute;left:var(--x);top:-16px;display:block;width:7px;height:12px;border-radius:2px;background:var(--color);opacity:0;animation:completion-confetti 1.6s ease-out var(--delay) both}
+.completion-confetti i:nth-child(3n){width:8px;height:8px;border-radius:50%}
+@keyframes completion-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes completion-seal{from{opacity:0;transform:scale(.72) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes completion-confetti{0%{opacity:0;transform:translate(0,-10px) rotate(0)}12%{opacity:1}75%{opacity:.85}100%{opacity:0;transform:translate(var(--drift),320px) rotate(var(--spin))}}
+
+@media(max-width:760px){
+  #study-dialog[data-view="practice"]{position:fixed;inset:var(--study-top,0px) 0 auto;height:var(--study-height,100dvh);max-height:var(--study-height,100dvh)}
+  #study-dialog.typing-focused .dialog-header{padding:8px 16px;min-height:52px}
+  #study-dialog.typing-focused .autosave-label{display:none}
+  #study-dialog.typing-focused .practice-body{padding:12px 20px 16px;scroll-padding:12px;scroll-behavior:auto}
+  #study-dialog.typing-focused .practice-model{padding:9px 13px;margin-bottom:10px}
+  #study-dialog.typing-focused .practice-model>b{font-size:18px}
+  #study-dialog.typing-focused .practice-model>p{display:none}
+  #study-dialog.typing-focused .practice-prompt{font-size:18px;line-height:1.5;margin:0 0 5px}
+  #study-dialog.typing-focused .practice-glossary{padding:0;margin:0 0 4px;font-size:11px;line-height:1.6}
+  #study-dialog.typing-focused .practice-cue{font-size:26px;line-height:1.4;margin:8px 0 12px}
+  #study-dialog.typing-focused .practice-input{font-size:18px;min-height:52px;padding:10px 14px;scroll-margin:0}
+  #study-dialog.typing-focused .practice-help{margin-top:10px}
+  #study-dialog.typing-focused .practice-footer{min-height:64px;padding:9px 20px}
+  #study-dialog.typing-focused .practice-footer .primary-button{min-height:44px;padding:10px 16px}
+  #study-dialog .practice-completion{padding:26px 24px}
+  .completion-seal{width:92px;height:92px;margin-bottom:23px}
+  .completion-hero .dialog-title{font-size:28px}
+  .practice-completion .practice-takeaway>b{font-size:25px}
+}
+@media(prefers-reduced-motion:reduce){
+  .completion-confetti{display:none}
+  .completion-hero,.completion-seal{animation:none}
+}

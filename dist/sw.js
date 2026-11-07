@@ -1,9 +1,9 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-07-release-1.2.0';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-07-release-1.2.1';
 const APP_FILES = [
   './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
-  './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css',
+  './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
   './manifest.webmanifest', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
