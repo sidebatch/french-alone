@@ -104,3 +104,20 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
   f.click('#study-dialog [data-action="close"]');
   assert.match(f.$('.app-version-footer').textContent,/© 2026 sidebatch/);
 });
+
+test('a failed lesson stays in progress and restarts its quiz, not the intro',async()=>{
+  const f=await setup();f.nav('lessons');f.click('.lesson-card[data-id="greetings"]');
+  for(let i=0;i<6;i++)f.click('[data-action="next-learn"]');
+  for(let i=0;i<6;i++){
+    const q=phrases.find(p=>p.fr===f.$('.big-french').textContent);
+    const wrong=[...document.querySelectorAll('[data-action="answer"]')].find(b=>b.dataset.id!==q.id);
+    f.click(wrong);f.click('[data-action="next-question"]');
+  }
+  assert.match(f.$('#dialog-content').textContent,/다시 도전/);
+  assert.equal(f.saved().lessonProgress.greetings.phase,'quiz');
+  f.click('#study-dialog [data-action="close"]');f.nav('lessons');
+  assert.ok(f.$('.lesson-card[data-id="greetings"].status-in-progress'));
+  f.click('.lesson-card[data-id="greetings"]');
+  assert.match(f.$('#dialog-content').textContent,/한마디 퀴즈/);
+  assert.equal(f.errors.length,0);
+});
