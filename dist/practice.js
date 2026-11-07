@@ -1,8 +1,8 @@
 import { practicePacks, questionById } from './practice-data.js';
-import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, nextPack, independentSentences, isCorrect, recordPractice } from './practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, nextPack, independentSentences, isCorrect, recordPractice, normalizeAnswer } from './practice-core.js';
 import { shuffle } from './core.js';
 
-export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, onFinish, onSaveError }) {
+export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError }) {
   let state = readPractice(storage), drafts = readPracticeDrafts(storage), session = null, saveFailed = false;
   const save = () => {try {storage.setItem(PRACTICE_KEY,JSON.stringify(state));} catch {if(!saveFailed)onSaveError();saveFailed=true;}};
   const saveDrafts = () => {try {storage.setItem(PRACTICE_DRAFT_KEY,JSON.stringify({version:1,sessions:drafts}));} catch {if(!saveFailed)onSaveError();saveFailed=true;}};
@@ -35,6 +35,14 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     session.draft='';session.selected=[];session.hints=0;session.hadError=false;session.status='idle';session.message='';session.choice=null;
     session.tiles=shuffle(active().tiles||[]);
   }
+  function wrongWords(question) {
+    if(session.status!=='wrong'||question.kind!=='input')return '';
+    const attempt=(session.draft||'').trim().split(/\s+/),expected=question.answer.trim().split(/\s+/);
+    return '<div class="answer-attempt" role="status"><b>입력한 답 살펴보기</b><div lang="fr">'+attempt.map((word,i)=>{
+      const ok=normalizeAnswer(word)===normalizeAnswer(expected[i]||'');
+      return '<mark class="attempt-word '+(ok?'ok':'needs-work')+'">'+escape(word)+'</mark>';
+    }).join(' ')+'</div><small>붉은 단어의 철자·순서를 확인하고 다시 입력하세요.</small></div>';
+  }
   function render() {
     if(!session)return;
     if(session.summary)return renderResult();
@@ -46,7 +54,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     else if(q.kind==='order') interaction=`<div class="tile-answer" aria-label="선택한 단어"><span class="visually-hidden">누른 단어를 다시 누르면 취소돼요.</span>${session.selected.length?session.selected.map((index,i)=>`<button class="word-tile selected" data-action="practice-unpick" data-index="${i}" ${done?'disabled':''} aria-label="${escape(session.tiles[index])} 선택 취소">${escape(session.tiles[index])}</button>`).join(''):'<span class="tile-placeholder">문장 완성</span>'}</div><div class="tile-pool" aria-label="문장을 만들 단어">${session.tiles.map((tile,i)=>`<button class="word-tile" data-action="practice-pick" data-index="${i}" ${done||session.selected.includes(i)?'disabled':''}>${escape(tile)}</button>`).join('')}</div>`;
     else interaction=`<form id="practice-form"><label class="visually-hidden" for="practice-input">${q.cue?'빈칸에 들어갈 말':'프랑스어 문장'} 입력</label><input id="practice-input" class="practice-input" lang="fr" type="text" maxlength="180" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="${q.cue?'답 입력':'프랑스어 문장'}" value="${escape(session.draft)}" ${done?'disabled':''}></form>`;
     const feedback=done?`<div class="practice-feedback ${session.status==='revealed'?'assisted':''}" role="status" tabindex="-1"><b>${icon(session.status==='revealed'?'book':'check')}${session.status==='revealed'?'정답 확인':q.kind==='input'&&!session.hints&&!session.hadError?'정답':'완성'}</b><p lang="fr">${escape(q.full)}</p><details class="answer-detail"><summary>해설</summary><p>${escape(q.note)}</p></details><button class="sound-button" data-action="practice-sound">${icon('sound')}발음 듣기</button></div>`:`<div class="practice-feedback pending ${session.status==='wrong'?'assisted':''}" role="status">${escape(session.message||'')}</div>`;
-    content.innerHTML=`${dialogHeader(session.title,(session.index+1)/session.deck.length*100,`${session.index+1} / ${session.deck.length}`,!saveFailed)}<div class="dialog-body practice-body" data-practice-question="${q.id}">${q.transfer?'<div class="practice-stage"><b>새 문장</b></div>':''}${model}<h3 class="practice-prompt">${escape(q.ko)}</h3>${q.glossary?`<p class="practice-glossary">${escape(q.glossary)}</p>`:''}${q.cue?`<p class="practice-cue" lang="fr">${escape(q.cue).replace('___','<span class="blank-space">···</span>')}</p>`:''}${interaction}${!done&&session.hints?`<div class="practice-hint" role="status">${escape(q.hint)}</div>`:''}${feedback}${!done?`<div class="practice-help"><button class="text-link" data-action="practice-hint">${icon('sparkles')}${session.hints?'정답 보기':'힌트'}</button><button class="text-link" data-action="practice-sound">${icon('sound')}소리 힌트</button></div>`:''}</div><div class="dialog-footer practice-footer">${done?`<button class="primary-button" data-action="practice-next">${session.index===session.deck.length-1?'결과 보기':'다음'}${icon('arrow')}</button>`:q.kind!=='choice'?`<button class="primary-button" ${q.kind==='input'?'type="submit" form="practice-form"':'data-action="practice-check"'} ${q.kind==='order'&&session.selected.length!==session.tiles.length?'disabled':''}>확인${icon('check')}</button>`:''}</div>`;
+    content.innerHTML=`${dialogHeader(session.title,(session.index+1)/session.deck.length*100,`${session.index+1} / ${session.deck.length}`,!saveFailed)}<div class="dialog-body practice-body" data-practice-question="${q.id}">${q.transfer?'<div class="practice-stage"><b>새 문장</b></div>':''}${model}<h3 class="practice-prompt">${escape(q.ko)}</h3>${q.glossary?`<p class="practice-glossary">${escape(q.glossary)}</p>`:''}${q.cue?`<p class="practice-cue" lang="fr">${escape(q.cue).replace('___','<span class="blank-space">···</span>')}</p>`:''}${interaction}${wrongWords(q)}${q.kind==='input'&&!done?'<p class="typing-hint">입력 후 Enter 또는 확인을 누르세요.</p>':''}${!done&&session.hints?`<div class="practice-hint" role="status">${escape(q.hint)}</div>`:''}${feedback}${!done?`<div class="practice-help"><button class="text-link" data-action="practice-hint">${icon('sparkles')}${session.hints?'정답 보기':'힌트'}</button><button class="text-link" data-action="practice-sound">${icon('sound')}소리 힌트</button></div>`:''}</div><div class="dialog-footer practice-footer">${done?`<button class="primary-button" data-action="practice-next">${session.index===session.deck.length-1?'결과 보기':'다음'}${icon('arrow')}</button>`:q.kind!=='choice'?`<button class="primary-button" ${q.kind==='input'?'type="submit" form="practice-form"':'data-action="practice-check"'} ${q.kind==='order'&&session.selected.length!==session.tiles.length?'disabled':''}>확인${icon('check')}</button>`:''}</div>`;
     focusDialog();
     if(session.status==='wrong')content.querySelector('#practice-input')?.focus({preventScroll:true});
     if(done)content.querySelector('[data-action="practice-next"]')?.focus({preventScroll:true});
@@ -56,8 +64,8 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     if(!session||session.summary||['correct','revealed'].includes(session.status))return;
     const q=active(),value=q.kind==='choice'?session.choice:q.kind==='order'?session.selected.map(i=>session.tiles[i]).join(' '):session.draft;
     if(!value?.trim()){session.message='답을 입력해 주세요.';render();return;}
-    if(isCorrect(q,value)){session.status='correct';session.message='';}
-    else {session.hadError=true;session.status='wrong';session.hints=Math.max(1,session.hints);session.message='다시 시도해 보세요.';}
+    if(isCorrect(q,value)){session.status='correct';session.message='';playFeedback('correct');}
+    else {session.hadError=true;session.status='wrong';session.hints=Math.max(1,session.hints);session.message='다시 시도해 보세요. 빨간 부분을 확인하세요.';playFeedback('wrong');}
     render();
   }
   function advance() {
@@ -93,6 +101,8 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
       case 'practice-next':advance();break;
     }
   });
+  document.addEventListener('focusin',event=>{if(event.target.id==='practice-input')content.closest('dialog')?.classList.add('typing-focused');},true);
+  document.addEventListener('focusout',event=>{if(event.target.id==='practice-input')content.closest('dialog')?.classList.remove('typing-focused');},true);
   document.addEventListener('input',event=>{if(event.target.id==='practice-input'&&session&&!session.summary){session.draft=event.target.value;stash();}});
   document.addEventListener('submit',event=>{if(event.target.id==='practice-form'){event.preventDefault();check();}});
   return {
