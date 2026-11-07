@@ -98,11 +98,21 @@ function dialogHeader(title,percent=0,label='',autosave=false) {
   return `<div class="dialog-header"><h2 id="dialog-title">${title}</h2><div class="dialog-header-meta">${autosave?`<span class="autosave-label">${icon('check')}자동 저장</span>`:''}${label?`<span class="dialog-step">${label}</span>`:''}</div><button class="icon-button" data-action="close" aria-label="${autosave?'저장하고 학습 닫기':'학습 닫기'}">${icon('close')}</button></div>${percent?`<div class="progress-track dialog-progress" role="progressbar" aria-label="학습 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:''}`;
 }
 function focusDialog() {content.querySelector('.dialog-body')?.setAttribute('tabindex','-1'); content.querySelector('.dialog-body')?.focus({preventScroll:true});}
+function saveLessonDraft() {
+  if(session?.type!=='lesson' || session.phase==='result')return;
+  const current=session;
+  state.lessonProgress[current.lesson.id]={phase:current.phase,index:current.index,selected:current.selected,answers:[...current.answers],questions:current.questions.map(q=>({id:q.phrase.id,choices:q.choices.map(p=>p.id)}))};
+  persist();
+}
 function startLesson(id) {
   const lesson=lessons.find(l=>l.id===id);if(!lesson)return;
   practice.stop();dialog.dataset.view='lesson';
-  session={type:'lesson',lesson,deck:getPhrases(id),phase:'learn',index:0,answers:[],selected:null,questions:[]};
-  openDialog();renderSession();
+  const deck=getPhrases(id),saved=state.lessonProgress[id];
+  const restored=saved?.phase==='quiz' && saved.questions.length===deck.length ? saved.questions.map(q=>({phrase:phraseById(q.id),choices:q.choices.map(phraseById)})) : [];
+  const quiz=restored.length===deck.length&&restored.every(q=>q.phrase&&q.choices.every(Boolean));
+  session={type:'lesson',lesson,deck,phase:quiz?'quiz':'learn',index:saved?Math.min(deck.length-1,saved.index):0,answers:quiz?[...saved.answers]:[],selected:quiz?saved.selected:null,questions:quiz?restored:[]};
+  if(!quiz && saved?.phase==='quiz')session.index=0;
+  openDialog();saveLessonDraft();renderSession();
 }
 function renderSession() {
   if(!session)return;
@@ -114,10 +124,11 @@ function renderSession() {
   } else if(s.phase==='quiz') {
     const q=s.questions[s.index];const answered=s.selected!==null;
     const right=answered&&s.selected===q.phrase.id;
-    content.innerHTML=`${dialogHeader('한마디 퀴즈',50+(s.index+1)/s.questions.length*50,`${s.index+1} / ${s.questions.length}`)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 고르기</div><h3 class="big-french" lang="fr">${escape(q.phrase.fr)}</h3><button class="sound-button" data-action="speak" data-id="${q.phrase.id}">${icon('sound')}다시 듣기</button><div class="quiz-choices">${q.choices.map((p,i)=>`<button class="choice ${answered&&p.id===q.phrase.id?'correct':''} ${answered&&p.id===s.selected&&!right?'incorrect':''}" data-action="answer" data-id="${p.id}" ${answered?'disabled':''}><span>${i+1}</span>${escape(p.ko)}</button>`).join('')}</div><div class="quiz-feedback ${answered&&!right?'wrong':''}" role="status">${answered?(right?'정답':`정답: ${escape(q.phrase.ko)}`):''}</div></div><div class="dialog-footer"><span class="dialog-step">${s.answers.filter(a=>a.correct).length}개 정답</span><button class="primary-button" data-action="next-question" ${!answered?'disabled':''}>${s.index===s.questions.length-1?'결과 확인하기':'다음 문제'}${icon('arrow')}</button></div>`;
+    content.innerHTML=`${dialogHeader('한마디 퀴즈',50+(s.index+1)/s.questions.length*50,`${s.index+1} / ${s.questions.length}`,true)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 고르기</div><h3 class="big-french" lang="fr">${escape(q.phrase.fr)}</h3><button class="sound-button" data-action="speak" data-id="${q.phrase.id}">${icon('sound')}다시 듣기</button><div class="quiz-choices">${q.choices.map((p,i)=>`<button class="choice ${answered&&p.id===q.phrase.id?'correct':''} ${answered&&p.id===s.selected&&!right?'incorrect':''}" data-action="answer" data-id="${p.id}" ${answered?'disabled':''} aria-label="${escape(p.ko)}${answered&&p.id===q.phrase.id?', 정답':answered&&p.id===s.selected?', 내 오답':''}"><span>${i+1}</span>${escape(p.ko)}</button>`).join('')}</div>${answered?`<div class="answer-reveal ${right?'is-correct':'is-wrong'}" role="status"><strong>${right?'✓ 정답이에요':'✕ 다시 기억할 표현'}</strong><p>정답: <b>${escape(q.phrase.ko)}</b></p><details open><summary>해설</summary><p>${escape(q.phrase.note)}</p></details></div>`:''}</div><div class="dialog-footer"><span class="dialog-step">${s.answers.filter(a=>a.correct).length}개 정답</span><button class="primary-button" data-action="next-question" ${!answered?'disabled':''}>${s.index===s.questions.length-1?'결과 확인하기':'다음 문제'}${icon('arrow')}</button></div>`;
   } else if(s.phase==='result') {
     const r=s.result;
-    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="result-medal" aria-hidden="true">${r.passed?'✳':'☀'}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div></div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
+    const wrongPhrases=s.answers.filter(a=>!a.correct).map(a=>phraseById(a.id)).filter(Boolean);
+    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="result-medal" aria-hidden="true">${r.passed?'✳':'☀'}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div>${wrongPhrases.length?`<section class="mistake-summary"><strong>다시 볼 표현 ${wrongPhrases.length}개</strong><ul>${wrongPhrases.map(p=>`<li><b lang="fr">${escape(p.fr)}</b><span>${escape(p.ko)}</span></li>`).join('')}</ul><button class="secondary-button" data-action="review-mistakes">틀린 표현만 카드로 복습</button></section>`:''}</div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
   }
   focusDialog();
 }
@@ -160,6 +171,12 @@ document.addEventListener('click',event=>{
   const {action,id,value}=button.dataset;
   switch(action) {
     case 'lesson': startLesson(id);break;
+    case 'phrase-detail': {
+      const p=phraseById(id);if(!p)break;
+      practice.stop();session=null;dialog.dataset.view='phrase';openDialog();
+      content.innerHTML=`${dialogHeader('표현 자세히')}<div class="dialog-body phrase-detail-body"><span class="dialog-eyebrow">${escape(p.category)}</span><h3 class="big-french" lang="fr">${escape(p.fr)}</h3><p class="pronunciation">[ ${escape(p.pronunciation)} ]</p><p class="translation">${escape(p.ko)}</p><section class="phrase-explanation"><h4>용법 · 기억할 점</h4><p>${escape(p.note)}</p></section><div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div></div><div class="dialog-footer"><button class="primary-button" data-action="close">닫기${icon('check')}</button></div>`;
+      focusDialog();break;
+    }
     case 'close': closeDialog();break;
     case 'speak': speak(id);break;
     case 'favorite': {
@@ -174,20 +191,21 @@ document.addEventListener('click',event=>{
       if(session?.type!=='lesson'||session.phase!=='learn')break;
       if(session.index<session.deck.length-1)session.index++;
       else {session.phase='quiz';session.index=0;session.questions=makeQuestions(session.deck);}
-      renderSession();break;
-    case 'prev':if(session?.phase==='learn'&&session.index>0){session.index--;renderSession();}break;
+      saveLessonDraft();renderSession();break;
+    case 'prev':if(session?.phase==='learn'&&session.index>0){session.index--;saveLessonDraft();renderSession();}break;
     case 'answer': {
       if(session?.phase!=='quiz'||session.selected!==null)break;
       const q=session.questions[session.index];if(!q.choices.some(p=>p.id===id))break;
-      session.selected=id;session.answers.push({id:q.phrase.id,correct:id===q.phrase.id});renderSession();content.querySelector('[data-action="next-question"]')?.focus();break;
+      session.selected=id;session.answers.push({id:q.phrase.id,correct:id===q.phrase.id});saveLessonDraft();playFeedback(id===q.phrase.id?'correct':'wrong',state.effects);renderSession();content.querySelector('[data-action="next-question"]')?.focus();break;
     }
     case 'next-question':
       if(session?.phase!=='quiz'||session.selected===null)break;
-      if(session.index<session.questions.length-1){session.index++;session.selected=null;}
-      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';persist();}
+      if(session.index<session.questions.length-1){session.index++;session.selected=null;saveLessonDraft();}
+      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';delete state.lessonProgress[session.lesson.id];persist();}
       renderSession();break;
     case 'retry':if(session?.lesson)startLesson(session.lesson.id);break;
     case 'review-lesson':if(session?.deck)startReview(session.deck);break;
+    case 'review-mistakes':if(session?.type==='lesson')startReview(session.deck.filter(p=>session.answers.some(a=>a.id===p.id&&!a.correct)));break;
     case 'review':startReview();break;
     case 'flip':if(session?.type==='review'){session.flipped=!session.flipped;renderReview();}break;
     case 'review-answer': {
