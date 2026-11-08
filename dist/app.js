@@ -4,8 +4,9 @@ import { createPractice } from './practice.js';
 import { normalizeAnswer } from './practice-core.js';
 import { playFeedback } from './feedback.js';
 import { bindStudyViewport } from './study-viewport.js';
+import { mascot, companionMessage } from './companion.js';
 
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.3.1';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -20,7 +21,7 @@ let storageWarning = false;
 const practice = createPractice({
   storage, content, dialogHeader, focusDialog, icon, escape,
   openDialog:()=>{session=null;dialog.dataset.view='practice';if(window.speechSynthesis)window.speechSynthesis.cancel();openDialog();},
-  closeDialog, speak:speakText, playFeedback:kind=>playFeedback(kind,state.effects),
+  closeDialog, speak:speakText, playFeedback:kind=>playFeedback(kind,state.effects,state.effectsVolume),
   onSaveError:()=>{storageWarning=true;toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');},
   onFinish:summary=>{const activity=state.activity[today()] ||= {xp:0,words:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();}
 });
@@ -50,17 +51,29 @@ function lessonCard(lesson) {
   return `<button class="lesson-card status-${status}" data-action="lesson" data-id="${lesson.id}" aria-label="${escape(lesson.title)}, ${label}, ${pct}%"><span class="lesson-icon ${lesson.color}">${icon(lesson.icon)}</span><span class="lesson-copy"><span class="lesson-overline">LESSON ${String(index).padStart(2,'0')} · ${lesson.category}</span><h3>${escape(lesson.title)}</h3><p>${escape(lesson.subtitle)} · ${count}개 표현</p><span class="lesson-mini-track" aria-hidden="true"><span style="width:${pct}%"></span></span><small class="lesson-percent">${pct}% 학습</small></span><span class="lesson-status"><span class="lesson-badge">${label}</span>${icon(done?'check':'chevron')}</span></button>`;
 }
 function heading(title) {return `<div class="page-heading"><h1>${title}</h1><span class="date-label">${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'})}</span></div>`;}
-const parisArt = `<svg class="hero-art" viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="arch"><path d="M28 310V135a112 112 0 0 1 224 0v175Z"/></clipPath></defs><g clip-path="url(#arch)"><path fill="#f9f2dc" d="M10 10h270v320H10z"/><circle cx="205" cy="96" r="26" fill="#f3d6a1"/><path d="M0 217q82-22 160 6t140-3v100H0" fill="#d4dbba"/><path d="M0 259q112-35 300-12v73H0" fill="#c1cea3"/><path d="m140 38-4 54-17 72-43 97h18l30-60h46l30 60h18l-43-97-17-72-4-54Z" fill="#a6b28b"/><path d="M124 162h46M115 181h64M102 207h89M88 240h116" fill="none" stroke="#879971" stroke-width="5"/><path d="m142 88 13 33m-20 0 27 33m-39 10 57 39m-64 0 83 49m-23-88-58 39m64 0-85 49m61-131-28 33" fill="none" stroke="#899d74" stroke-width="2.5"/><path d="M118 269v-25a28 28 0 0 1 56 0v25" fill="#c1cea3"/><path fill="#e9d9bc" d="M-10 210h70v83h-70z"/><path fill="#b2bca2" d="m-18 209 44-38 42 38Z"/><g fill="#a0ac93"><path d="M4 222h11v17H4zm23 0h11v17H27zm-23 29h11v17H4zm23 0h11v17H27z"/></g><path fill="#e3cfb3" d="M230 194h74v99h-74z"/><path fill="#a6b294" d="m222 195 23-27h42l23 27Z"/><g fill="#a0ac93"><path d="M243 210h11v18h-11zm26 0h11v18h-11zm-26 31h11v18h-11zm26 0h11v18h-11z"/></g><path d="M-10 292q141-31 320 0v28H-10" fill="#aaba8b"/><path d="M245 274v-46m-22 30 22-17 23 17" stroke="#7c9468" stroke-width="4" fill="none"/><ellipse cx="246" cy="229" rx="23" ry="35" fill="#98aa7a"/><path d="M49 298v-48" stroke="#849869" stroke-width="4"/><ellipse cx="48" cy="245" rx="22" ry="30" fill="#91a775"/></g><path d="M28 310V135a112 112 0 0 1 224 0v175" fill="none" stroke="#d0d9bd" stroke-width="8"/><g fill="none" stroke="#889a75" stroke-width="1.7"><path d="m80 83 6 4 6-4m-39 26 5 3 5-3"/></g><path d="m272 126 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="#b7c599"/><circle cx="17" cy="180" r="4" fill="#c5ceac"/></svg>`;
 function renderHome() {
   const next=nextLesson(),doneToday=Boolean(state.activity[today()]);
   const recommendedPractice=practice.recommended(),resume=practice.resumeInfo(),due=practice.dueCount();
   const dailyPhrase=phrases[Math.floor(Date.now()/86400000)%phrases.length];
   const recommended=[next,...lessons.filter(l=>l.id!==next.id&&!state.completed.includes(l.id)),...lessons.filter(l=>l.id!==next.id&&state.completed.includes(l.id))].slice(0,2);
   const action=resume?'practice-resume':due?'practice-due':'practice-start';
-  const heroTitle=escape(resume?.title||(due?'오늘의 복습':recommendedPractice.title));
-  const heroDescription=resume?'':due?`${Math.min(10,due)}개 표현`:escape(recommendedPractice.pattern.split('+')[0].trim());
+  const heroTitle=escape(resume?.title||(due?'기억 속 문장을 꺼내볼까요?':recommendedPractice.title));
+  const heroDescription=resume?'어제의 한 걸음, 이어서 가요.':due?`복습할 표현 ${due}개`:escape(recommendedPractice.pattern.split('+')[0].trim());
   const heroButton=resume?'이어서 학습하기':due?'오늘의 복습 시작':'10문제 시작하기';
-  return `${heading('오늘')}<div class="dashboard-grid"><div class="main-column"><section class="hero" aria-label="오늘의 추천 학습"><div class="hero-copy"><span class="pill">${icon(resume?'book':due?'cards':'sparkles')}${resume?'이어서':due?'복습':'입문 A1'}</span><h2>${heroTitle}</h2>${heroDescription?`<p class="hero-target">${heroDescription}</p>`:''}<button class="primary-button" data-action="${action}" data-id="${recommendedPractice.id}">${heroButton}${icon('arrow')}</button><div class="hero-meta"><span>${icon('clock')}${resume?`${resume.index+1} / ${resume.total}문제`:'3–5분'}</span>${doneToday?`<span class="hero-goal is-done">${icon('check')}오늘 목표 달성</span>`:''}</div></div>${parisArt}</section><div class="stats-row"><div class="stat-card"><span class="stat-icon peach">${icon('flame')}</span><div><div class="stat-number">${streak(state)}<small>일</small></div><div class="stat-caption">연속 학습</div></div></div><div class="stat-card"><span class="stat-icon mint">${icon('book')}</span><div><div class="stat-number">${expressionCount()}<small>개</small></div><div class="stat-caption">익힌 표현</div></div></div><div class="stat-card"><span class="stat-icon lavender">${icon('sparkles')}</span><div><div class="stat-number">${totalXP(state)}<small>XP</small></div><div class="stat-caption">나의 경험치</div></div></div></div>${practice.renderLibrary()}<div class="section-heading"><div><h2>기초 레슨</h2></div><a class="text-link" href="#lessons">전체 보기${icon('chevron')}</a></div><div class="lesson-list">${recommended.map(lessonCard).join('')}</div></div><aside class="right-column" aria-label="나의 목표와 오늘의 표현"><section class="side-card goal-card"><h2>오늘 목표 ${icon(doneToday?'check':'sun')}</h2><div class="goal-content"><div class="goal-ring" style="--progress:${doneToday?100:0}%"><div>${doneToday?1:0}<span>/ 1판</span></div></div><div class="goal-copy"><b>${doneToday?'목표 달성':'한 판 학습'}</b></div></div><div class="goal-days">${weekDates().map((d,i)=>`<div class="day ${today(d)===today()?'today':''} ${state.activity[today(d)]?'done':''}" aria-label="${d.getMonth()+1}월 ${d.getDate()}일 ${state.activity[today(d)]?'학습 완료':'학습 기록 없음'}">${['월','화','수','목','금','토','일'][i]}<span>${state.activity[today(d)]?icon('check'):d.getDate()}</span></div>`).join('')}</div></section><section class="side-card phrase-card"><h2>오늘의 한마디 ${icon('sparkles')}</h2><p class="daily-french" lang="fr">${escape(dailyPhrase.fr)}</p><p class="daily-pronunciation">[ ${escape(dailyPhrase.pronunciation)} ]</p><p class="daily-meaning">${escape(dailyPhrase.ko)}</p><div class="phrase-actions"><button class="sound-button" data-action="speak" data-id="${dailyPhrase.id}">${icon('sound')}발음 듣기</button>${favoriteButton(dailyPhrase.id)}</div></section><a class="saved-shortcut" href="#vocabulary" data-action="open-saved"><span class="stat-icon mint">${icon('heart')}</span><div><b>나의 단어장 <span>${state.favorites.length}</span></b></div>${icon('chevron')}</a></aside></div>`;
+  return `<div class="page-heading home-heading"><div><p class="home-eyebrow">A LITTLE FRENCH, EVERY DAY</p><h1>오늘도, 한 문장.</h1><p class="home-subtitle">${doneToday?'오늘의 학습을 해냈어요. 루도 기뻐하고 있어요.':resume?'이어가던 학습이 기다리고 있어요.': '루와 함께, 프랑스어를 내 말로 만들어봐요.'}</p></div><span class="date-label">${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'})}</span></div>
+  <div class="dashboard-grid"><div class="main-column">
+    <section class="hero" aria-label="오늘의 추천 학습">
+      <div class="hero-top"><div class="hero-copy"><span class="pill">${icon(resume?'book':due?'cards':'sparkles')}${resume?'이어서 한 걸음':due?'오늘의 복습':'오늘의 추천 · A1'}</span><h2>${heroTitle}</h2><p class="hero-target" ${!resume&&!due?'lang="fr"':''}>${heroDescription}</p></div>
+      <button class="hero-companion" type="button" data-action="mascot-hello" aria-label="학습 친구 루에게 인사하기"><span class="companion-bubble" lang="fr">Bonjour !</span>${mascot(doneToday?'complete':'wave')}<span class="companion-name">함께해서 더 좋아요</span></button></div>
+      <div class="hero-action"><button class="primary-button" data-action="${action}" data-id="${recommendedPractice.id}">${heroButton}${icon('arrow')}</button><div class="hero-meta"><span>${icon('clock')}${resume?`${resume.index+1} / ${resume.total}문제 · 자동 저장됨`:'하루 3–5분이면 충분해요'}</span>${doneToday?`<span class="hero-goal is-done">${icon('check')}오늘 목표 달성</span>`:''}</div></div>
+    </section>
+    <section class="stats-row" aria-label="나의 학습 현황">${[['flame',streak(state),'일','연속 학습'],['book',expressionCount(),'개','익힌 표현'],['sparkles',totalXP(state),'XP','나의 경험치']].map(([name,n,unit,label])=>`<div class="stat-card"><span class="stat-icon">${icon(name)}</span><div><div class="stat-number">${n}<small>${unit}</small></div><div class="stat-caption">${label}</div></div></div>`).join('')}</section>
+    ${practice.renderLibrary()}
+    <section class="home-basics"><div class="section-heading"><div><p class="section-kicker">차근차근, 처음부터</p><h2>기초를 쌓아봐요</h2></div><a class="text-link" href="#lessons">전체 보기${icon('chevron')}</a></div><div class="lesson-list">${recommended.map(lessonCard).join('')}</div></section>
+  </div>
+  <aside class="right-column" aria-label="나의 목표와 오늘의 표현"><section class="side-card goal-card"><div class="goal-heading"><div><p class="section-kicker">작은 습관이 되는 중</p><h2>이번 주의 발자국</h2></div><span class="goal-tag ${doneToday?'is-done':''}">${doneToday?'오늘도 완료!':'하루 한 판'}</span></div><div class="goal-days">${weekDates().map((d,i)=>`<div class="day ${today(d)===today()?'today':''} ${state.activity[today(d)]?'done':''}" aria-label="${d.getMonth()+1}월 ${d.getDate()}일 ${state.activity[today(d)]?'학습 완료':'학습 기록 없음'}">${['월','화','수','목','금','토','일'][i]}<span>${state.activity[today(d)]?icon('check'):d.getDate()}</span></div>`).join('')}</div><p class="goal-footnote">${doneToday?'오늘의 한 판을 마쳤어요. 내일도 만나요!':'한 판을 마치면 오늘의 발자국이 남아요.'}</p></section>
+  <section class="side-card phrase-card"><span class="phrase-kicker">LE PETIT MOT DU JOUR</span><h2>오늘의 한마디</h2><p class="daily-french" lang="fr">${escape(dailyPhrase.fr)}</p><p class="daily-meaning">${escape(dailyPhrase.ko)}</p><p class="daily-pronunciation">${escape(dailyPhrase.pronunciation)}</p><div class="phrase-actions"><button class="sound-button" data-action="speak" data-id="${dailyPhrase.id}">${icon('sound')}들어보기</button>${favoriteButton(dailyPhrase.id)}</div></section>
+  <a class="saved-shortcut" href="#vocabulary" data-action="open-saved"><span class="stat-icon">${icon('heart')}</span><div><b>차곡차곡, 나의 단어장</b><p>저장한 표현 ${state.favorites.length}개</p></div>${icon('chevron')}</a></aside></div>`;
 }
 function renderLessons() {
   const visible=lessons.filter(l=>lessonFilter==='전체'||l.category===lessonFilter);
@@ -126,11 +139,11 @@ function renderSession() {
   } else if(s.phase==='quiz') {
     const q=s.questions[s.index];const answered=s.selected!==null;
     const right=answered&&s.selected===q.phrase.id;
-    content.innerHTML=`${dialogHeader('한마디 퀴즈',50+(s.index+1)/s.questions.length*50,`${s.index+1} / ${s.questions.length}`,true)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 고르기</div><h3 class="big-french" lang="fr">${escape(q.phrase.fr)}</h3><button class="sound-button" data-action="speak" data-id="${q.phrase.id}">${icon('sound')}다시 듣기</button><div class="quiz-choices">${q.choices.map((p,i)=>`<button class="choice ${answered&&p.id===q.phrase.id?'correct':''} ${answered&&p.id===s.selected&&!right?'incorrect':''}" data-action="answer" data-id="${p.id}" ${answered?'disabled':''} aria-label="${escape(p.ko)}${answered&&p.id===q.phrase.id?', 정답':answered&&p.id===s.selected?', 내 오답':''}"><span>${i+1}</span>${escape(p.ko)}</button>`).join('')}</div>${answered?`<div class="answer-reveal ${right?'is-correct':'is-wrong'}" role="status"><strong>${right?'✓ 정답이에요':'✕ 다시 기억할 표현'}</strong><p>정답: <b>${escape(q.phrase.ko)}</b></p><details open><summary>해설</summary><p>${escape(q.phrase.note)}</p></details></div>`:''}</div><div class="dialog-footer"><span class="dialog-step">${s.answers.filter(a=>a.correct).length}개 정답</span><button class="primary-button" data-action="next-question" ${!answered?'disabled':''}>${s.index===s.questions.length-1?'결과 확인하기':'다음 문제'}${icon('arrow')}</button></div>`;
+    content.innerHTML=`${dialogHeader('한마디 퀴즈',50+(s.index+1)/s.questions.length*50,`${s.index+1} / ${s.questions.length}`,true)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 고르기</div><h3 class="big-french" lang="fr">${escape(q.phrase.fr)}</h3><button class="sound-button" data-action="speak" data-id="${q.phrase.id}">${icon('sound')}다시 듣기</button><div class="quiz-choices">${q.choices.map((p,i)=>`<button class="choice ${answered&&p.id===q.phrase.id?'correct':''} ${answered&&p.id===s.selected&&!right?'incorrect':''}" data-action="answer" data-id="${p.id}" ${answered?'disabled':''} aria-label="${escape(p.ko)}${answered&&p.id===q.phrase.id?', 정답':answered&&p.id===s.selected?', 내 오답':''}"><span>${i+1}</span>${escape(p.ko)}</button>`).join('')}</div>${answered?`<div class="answer-reveal ${right?'is-correct':'is-wrong'}" role="status">${companionMessage(right?"correct":"wrong")}<strong>${right?'✓ 정답이에요':'✕ 다시 기억할 표현'}</strong><p>정답: <b>${escape(q.phrase.ko)}</b></p><details open><summary>해설</summary><p>${escape(q.phrase.note)}</p></details></div>`:''}</div><div class="dialog-footer"><span class="dialog-step">${s.answers.filter(a=>a.correct).length}개 정답</span><button class="primary-button" data-action="next-question" ${!answered?'disabled':''}>${s.index===s.questions.length-1?'결과 확인하기':'다음 문제'}${icon('arrow')}</button></div>`;
   } else if(s.phase==='result') {
     const r=s.result;
     const wrongPhrases=s.answers.filter(a=>!a.correct).map(a=>phraseById(a.id)).filter(Boolean);
-    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="result-medal" aria-hidden="true">${r.passed?'✳':'☀'}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div>${wrongPhrases.length?`<section class="mistake-summary"><strong>다시 볼 표현 ${wrongPhrases.length}개</strong><ul>${wrongPhrases.map(p=>`<li><b lang="fr">${escape(p.fr)}</b><span>${escape(p.ko)}</span></li>`).join('')}</ul><button class="secondary-button" data-action="review-mistakes">틀린 표현만 카드로 복습</button></section>`:''}</div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
+    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="lesson-companion">${companionMessage(r.passed?"complete":"wrong")}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div>${wrongPhrases.length?`<section class="mistake-summary"><strong>다시 볼 표현 ${wrongPhrases.length}개</strong><ul>${wrongPhrases.map(p=>`<li><b lang="fr">${escape(p.fr)}</b><span>${escape(p.ko)}</span></li>`).join('')}</ul><button class="secondary-button" data-action="review-mistakes">틀린 표현만 카드로 복습</button></section>`:''}</div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
   }
   focusDialog();
 }
@@ -145,7 +158,7 @@ function startReview(deck) {
 function renderReview() {
   const s=session;
   if(s.done) {
-    content.innerHTML=`${dialogHeader('복습 완료')}<div class="dialog-body center"><div class="result-medal" aria-hidden="true">✳</div><h3 class="dialog-title">복습 완료</h3><p class="explanation">${s.known} / ${s.deck.length}개 기억</p></div><div class="dialog-footer">${s.retry.length?'<button class="secondary-button" data-action="review-retry">낯선 표현만 다시</button>':''}<button class="primary-button" data-action="close">복습 마치기 ${icon('check')}</button></div>`;
+    content.innerHTML=`${dialogHeader('복습 완료')}<div class="dialog-body center"><div class="lesson-companion">${companionMessage("complete")}</div><h3 class="dialog-title">복습 완료</h3><p class="explanation">${s.known} / ${s.deck.length}개 기억</p></div><div class="dialog-footer">${s.retry.length?'<button class="secondary-button" data-action="review-retry">낯선 표현만 다시</button>':''}<button class="primary-button" data-action="close">복습 마치기 ${icon('check')}</button></div>`;
   } else {
     const p=s.deck[s.index];
     content.innerHTML=`${dialogHeader('한마디 복습',(s.index+1)/s.deck.length*100,`${s.index+1} / ${s.deck.length}`)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 떠올리기</div><button class="flashcard ${s.flipped?'is-flipped':''}" data-action="flip" aria-label="${s.flipped?'프랑스어 보기':'카드를 눌러 뜻 확인'}"><span class="big-french" ${s.flipped?'':'lang="fr"'}>${escape(s.flipped?p.ko:p.fr)}</span><span class="pronunciation">${s.flipped?escape(p.note):`[ ${escape(p.pronunciation)} ]`}</span><span class="hint">${s.flipped?'프랑스어 보기':'뜻 보기'} ↻</span></button><div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div></div><div class="dialog-footer flash-actions"><button class="secondary-button" data-action="review-answer" data-known="false" ${!s.flipped?'disabled':''}>아직 낯설어요</button><button class="primary-button" data-action="review-answer" data-known="true" ${!s.flipped?'disabled':''}>기억나요 ${icon('check')}</button></div>`;
@@ -153,7 +166,7 @@ function renderReview() {
   focusDialog();
 }
 function renderSettings() {
-  content.innerHTML=`${dialogHeader('설정')}<div class="dialog-body settings-body"><div class="settings-brand"><span class="brand-mark" aria-hidden="true">b<span>✦</span></span><div><h3>French Alone</h3><p>v${APP_VERSION} · © 2026 sidebatch</p></div></div><section class="settings-section"><h3>학습</h3><div class="settings-option"><label for="slow-speech">조금 천천히 듣기</label><input type="checkbox" role="switch" id="slow-speech" ${state.slow?'checked':''}></div><div class="settings-option"><label for="feedback-sounds">학습 효과음</label><input type="checkbox" role="switch" id="feedback-sounds" ${state.effects?'checked':''}></div><button class="settings-row-button" data-action="speak" data-id="greetings-0">${icon('sound')}소리 확인${icon('chevron')}</button><button class="settings-row-button" data-action="install-help">${icon('book')}앱 설치 · 오프라인 안내${icon('chevron')}</button></section><section class="settings-section"><h3>도움말</h3><details class="help-item"><summary>학습 기록은 어디에 저장되나요?</summary><p>진도와 단어장은 현재 기기에 저장돼요. 다른 기기와 자동으로 연결되지는 않아요. 브라우저의 데이터를 삭제하면 기록도 삭제됩니다.</p></details><details class="help-item"><summary>학습을 중간에 닫아도 되나요?</summary><p>10문제 학습은 자동 저장돼요. 홈에서 이어할 수 있어요.</p></details><details class="help-item"><summary>발음이 들리지 않아요.</summary><p>기기의 볼륨과 무음 설정을 확인해 주세요. 기기에 프랑스어 음성이 없으면 언어 설정에서 음성을 추가해야 할 수 있어요.</p></details></section><section class="settings-section settings-data"><h3>나의 학습 기록</h3>${storageWarning?'<div class="inline-alert">현재 기기에 기록을 저장하지 못하고 있어요. 브라우저 저장 공간 설정을 확인해 주세요.</div>':''}<button class="danger-button" data-action="reset-confirm">학습 기록 초기화</button><div id="reset-area"></div></section></div><div class="dialog-footer"><button class="primary-button" data-action="close">완료${icon('check')}</button></div>`;focusDialog();
+  content.innerHTML=`${dialogHeader('설정')}<div class="dialog-body settings-body"><div class="settings-brand"><span class="brand-mark" aria-hidden="true">f<span>✦</span></span><div><h3>French Alone</h3><p>v${APP_VERSION} · © 2026 sidebatch</p></div></div><section class="settings-section"><h3>학습</h3><div class="settings-option"><label for="slow-speech">조금 천천히 듣기</label><input type="checkbox" role="switch" id="slow-speech" ${state.slow?'checked':''}></div><div class="settings-option"><label for="feedback-sounds">학습 효과음</label><input type="checkbox" role="switch" id="feedback-sounds" ${state.effects?'checked':''}></div><div class="settings-sound-panel ${state.effects?"":"is-muted"}"><label class="sound-volume-label" for="effects-volume">효과음 크기<output id="effects-volume-value" for="effects-volume">${state.effectsVolume}%</output></label><input id="effects-volume" type="range" min="0" max="100" step="5" value="${state.effectsVolume}" ${state.effects?"":"disabled"}><div class="sound-previews" role="group" aria-label="효과음 미리듣기">${[["correct","정답"],["wrong","다시 도전"],["complete","완료"]].map(([kind,label])=>`<button type="button" data-action="preview-feedback" data-value="${kind}" ${state.effects&&state.effectsVolume?"":"disabled"}>${icon("sound")}${label}</button>`).join("")}</div><p class="sound-volume-note">눌러서 미리 들어보세요. 기기 음량도 함께 적용돼요.</p></div><button class="settings-row-button" data-action="speak" data-id="greetings-0">${icon('sound')}프랑스어 발음 확인${icon('chevron')}</button><button class="settings-row-button" data-action="install-help">${icon('book')}앱 설치 · 오프라인 안내${icon('chevron')}</button></section><section class="settings-section"><h3>도움말</h3><details class="help-item"><summary>학습 기록은 어디에 저장되나요?</summary><p>진도와 단어장은 현재 기기에 저장돼요. 다른 기기와 자동으로 연결되지는 않아요. 브라우저의 데이터를 삭제하면 기록도 삭제됩니다.</p></details><details class="help-item"><summary>학습을 중간에 닫아도 되나요?</summary><p>10문제 학습은 자동 저장돼요. 홈에서 이어할 수 있어요.</p></details><details class="help-item"><summary>발음이 들리지 않아요.</summary><p>기기의 볼륨과 무음 설정을 확인해 주세요. 기기에 프랑스어 음성이 없으면 언어 설정에서 음성을 추가해야 할 수 있어요.</p></details></section><section class="settings-section settings-data"><h3>나의 학습 기록</h3>${storageWarning?'<div class="inline-alert">현재 기기에 기록을 저장하지 못하고 있어요. 브라우저 저장 공간 설정을 확인해 주세요.</div>':''}<button class="danger-button" data-action="reset-confirm">학습 기록 초기화</button><div id="reset-area"></div></section></div><div class="dialog-footer"><button class="primary-button" data-action="close">완료${icon('check')}</button></div>`;focusDialog();
 }
 function speak(id) {
   const p=phraseById(id);if(p)speakText(p.fr);
@@ -172,6 +185,15 @@ document.addEventListener('click',event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const {action,id,value}=button.dataset;
   switch(action) {
+    case 'mascot-hello': {
+      const bubble=button.querySelector('.companion-bubble');
+      bubble.textContent='함께 한 판 해볼까요?';bubble.removeAttribute('lang');bubble.classList.add('is-greeting');
+      button.querySelector('.mascot').outerHTML=mascot('wave');
+      playFeedback('correct',state.effects,state.effectsVolume);break;
+    }
+    case 'preview-feedback':
+      if(!playFeedback(value,state.effects,state.effectsVolume))toast('효과음을 재생할 수 없어요. 기기의 소리 설정을 확인해 주세요.');
+      break;
     case 'lesson': startLesson(id);break;
     case 'phrase-detail': {
       const p=phraseById(id);if(!p)break;
@@ -198,12 +220,12 @@ document.addEventListener('click',event=>{
     case 'answer': {
       if(session?.phase!=='quiz'||session.selected!==null)break;
       const q=session.questions[session.index];if(!q.choices.some(p=>p.id===id))break;
-      session.selected=id;session.answers.push({id:q.phrase.id,correct:id===q.phrase.id});saveLessonDraft();playFeedback(id===q.phrase.id?'correct':'wrong',state.effects);renderSession();content.querySelector('[data-action="next-question"]')?.focus();break;
+      session.selected=id;session.answers.push({id:q.phrase.id,correct:id===q.phrase.id});saveLessonDraft();playFeedback(id===q.phrase.id?'correct':'wrong',state.effects,state.effectsVolume);renderSession();content.querySelector('[data-action="next-question"]')?.focus();break;
     }
     case 'next-question':
       if(session?.phase!=='quiz'||session.selected===null)break;
       if(session.index<session.questions.length-1){session.index++;session.selected=null;saveLessonDraft();}
-      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';if(session.result.passed)delete state.lessonProgress[session.lesson.id];else state.lessonProgress[session.lesson.id]={phase:'quiz',index:0,selected:null,answers:[],questions:session.questions.map(q=>({id:q.phrase.id,choices:q.choices.map(p=>p.id)}))};persist();}
+      else {session.result=finishLesson(state,session.lesson.id,session.answers);session.phase='result';playFeedback(session.result.passed?'complete':'wrong',state.effects,state.effectsVolume);if(session.result.passed)delete state.lessonProgress[session.lesson.id];else state.lessonProgress[session.lesson.id]={phase:'quiz',index:0,selected:null,answers:[],questions:session.questions.map(q=>({id:q.phrase.id,choices:q.choices.map(p=>p.id)}))};persist();}
       renderSession();break;
     case 'retry':if(session?.lesson)startLesson(session.lesson.id);break;
     case 'review-lesson':if(session?.deck)startReview(session.deck);break;
@@ -216,7 +238,7 @@ document.addEventListener('click',event=>{
       if(button.dataset.known==='true') {session.known++;state.mistakes=state.mistakes.filter(x=>x!==p.id);}
       else {session.retry.push(p);if(!state.mistakes.includes(p.id))state.mistakes.push(p.id);}
       persist();
-      if(session.index<session.deck.length-1){session.index++;session.flipped=false;}else session.done=true;
+      if(session.index<session.deck.length-1){session.index++;session.flipped=false;}else {session.done=true;playFeedback('complete',state.effects,state.effectsVolume);}
       renderReview();break;
     }
     case 'review-retry':if(session?.retry)startReview(session.retry);break;
@@ -230,9 +252,26 @@ document.addEventListener('click',event=>{
   }
 });
 document.addEventListener('input',event=>{
+  if(event.target.id==='effects-volume'){
+    state.effectsVolume=Number(event.target.value);persist();updateSoundControls();
+  }
   if(event.target.id==='phrase-search'){query=event.target.value;$('#phrase-list').innerHTML=phraseListHTML();$('#search-count').textContent=`${visiblePhrases().length}개 표현`;$('.search-clear').hidden=!query;$('#vocab-review').disabled=!visiblePhrases().length;}
 });
-document.addEventListener('change',event=>{if(event.target.id==='slow-speech'){state.slow=event.target.checked;persist();}if(event.target.id==='feedback-sounds'){state.effects=event.target.checked;persist();}});
+function updateSoundControls(){
+  const slider=$('#effects-volume');if(!slider)return;
+  slider.disabled=!state.effects;
+  $('#effects-volume-value').textContent=state.effectsVolume+'%';
+  slider.closest('.settings-sound-panel').classList.toggle('is-muted',!state.effects);
+  document.querySelectorAll('[data-action="preview-feedback"]').forEach(button=>{button.disabled=!state.effects||!state.effectsVolume;});
+}
+document.addEventListener('change',event=>{
+  if(event.target.id==='slow-speech'){state.slow=event.target.checked;persist();}
+  if(event.target.id==='feedback-sounds'){
+    state.effects=event.target.checked;persist();updateSoundControls();
+    if(state.effects)playFeedback('correct',true,state.effectsVolume);
+  }
+  if(event.target.id==='effects-volume')playFeedback('correct',state.effects,state.effectsVolume);
+});
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
 window.addEventListener('hashchange',()=>{renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
 window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===null)&&!dialog.open){state=readState(storage);practice.reload();renderPage();}});

@@ -1,7 +1,7 @@
 import { phrases, lessons } from './data.js';
 export const STORAGE_KEY = 'bonjour-french-v1';
 export const today = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-export const freshState = () => ({ version: 1, completed: [], mastered: [], favorites: [], mistakes: [], activity: {}, slow: false, effects: true, lessonProgress: {} });
+export const freshState = () => ({ version: 1, completed: [], mastered: [], favorites: [], mistakes: [], activity: {}, slow: false, effects: true, effectsVolume: 80, lessonProgress: {} });
 export function readState(storage) {
   try {
     const raw = JSON.parse(storage.getItem(STORAGE_KEY));
@@ -15,6 +15,7 @@ export function readState(storage) {
     }
     state.slow = raw.slow === true;
     state.effects = raw.effects !== false;
+    if(Number.isFinite(raw.effectsVolume)) state.effectsVolume=Math.round(Math.max(0,Math.min(100,raw.effectsVolume)));
     if(raw.lessonProgress && typeof raw.lessonProgress === 'object' && !Array.isArray(raw.lessonProgress)) {
       for(const lesson of lessons) {
         const entry=raw.lessonProgress[lesson.id], deck=phrases.filter(p=>p.lessonId===lesson.id);

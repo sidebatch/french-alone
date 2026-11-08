@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-  <meta name="theme-color" content="#344f42"><meta name="description" content="하루 한 판, 프랑스어를 내 말로. 짧은 문장 만들기와 기초 레슨, 발음 듣기, 나만의 단어장으로 꾸준히 배워요.">
+  <meta name="theme-color" content="#3d624d"><meta name="description" content="하루 한 판, 프랑스어를 내 말로. 짧은 문장 만들기와 기초 레슨, 발음 듣기, 나만의 단어장으로 꾸준히 배워요.">
   <meta name="application-name" content="French Alone"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="French Alone">
   <link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <title>French Alone · 프랑스어를 내 말로</title>
-  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./pwa.css"><link rel="stylesheet" href="./product.css"><link rel="stylesheet" href="./ux.css">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./pwa.css"><link rel="stylesheet" href="./product.css"><link rel="stylesheet" href="./ux.css"><link rel="stylesheet" href="./companion.css"><link rel="stylesheet" href="./polish.css"><link rel="preload" href="./assets/lou-sprites-v2.webp" as="image">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -34,7 +34,7 @@
   </defs></svg>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
   <aside class="sidebar app-navigation">
-    <a class="brand" href="#home" aria-label="French Alone 홈"><span class="brand-mark" aria-hidden="true">b<span>✦</span></span><span class="brand-name">French Alone</span></a>
+    <a class="brand" href="#home" aria-label="French Alone 홈"><span class="brand-mark" aria-hidden="true">f<span>✦</span></span><span class="brand-name">French Alone</span></a>
     <nav aria-label="주 메뉴">
       <a href="#home" data-nav="home"><svg><use href="#i-home"/></svg>오늘의 학습<span class="nav-dot"></span></a>
       <a href="#lessons" data-nav="lessons"><svg><use href="#i-book"/></svg>전체 레슨<span class="nav-count">11</span></a>
@@ -43,7 +43,7 @@
     </nav>
     <div class="sidebar-bottom"><button class="settings-button" data-action="settings"><svg aria-hidden="true"><use href="#i-settings"/></svg>설정</button></div>
   </aside>
-  <div class="page-shell app-shell"><header class="topbar"><div class="topbar-leading"><a class="mobile-brand" href="#home" aria-label="French Alone 홈"><span class="mobile-brand-mark" aria-hidden="true">b.</span><span>French Alone</span></a><div class="breadcrumb"><b id="page-label">오늘의 학습</b></div></div><div class="topbar-right"><button id="install-app" class="pwa-install-button" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>앱 설치</button><button class="header-settings icon-button" type="button" data-action="settings" aria-label="설정"><svg aria-hidden="true"><use href="#i-settings"/></svg></button><span class="streak-badge" id="header-streak"></span></div></header><main id="main" tabindex="-1"><div class="app-loading" role="status"><span aria-hidden="true">b.</span><p>불러오는 중</p></div></main></div>
+  <div class="page-shell app-shell"><header class="topbar"><div class="topbar-leading"><a class="mobile-brand" href="#home" aria-label="French Alone 홈"><span class="mobile-brand-mark" aria-hidden="true">f.</span><span>French Alone</span></a><div class="breadcrumb"><b id="page-label">오늘의 학습</b></div></div><div class="topbar-right"><button id="install-app" class="pwa-install-button" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>앱 설치</button><button class="header-settings icon-button" type="button" data-action="settings" aria-label="설정"><svg aria-hidden="true"><use href="#i-settings"/></svg></button><span class="streak-badge" id="header-streak"></span></div></header><main id="main" tabindex="-1"><div class="app-loading" role="status"><span aria-hidden="true">f.</span><p>불러오는 중</p></div></main></div>
   <dialog id="study-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
   <dialog id="install-dialog" class="pwa-dialog" aria-labelledby="pwa-title">

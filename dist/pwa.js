@@ -69,7 +69,7 @@
     if(document.documentElement.classList.contains('app-ready'))return;
     const main=document.getElementById('main');
     if(!main)return;
-    main.innerHTML='<div class="app-loading app-load-error" role="alert"><span aria-hidden="true">b.</span><h1>연결을 확인해 주세요.</h1><button id="pwa-retry" class="primary-button" type="button">다시 열기</button></div>';
+    main.innerHTML='<div class="app-loading app-load-error" role="alert"><span aria-hidden="true">f.</span><h1>연결을 확인해 주세요.</h1><button id="pwa-retry" class="primary-button" type="button">다시 열기</button></div>';
     document.getElementById('pwa-retry').addEventListener('click',()=>window.location.reload());
   },12000);
 

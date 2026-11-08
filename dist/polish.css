@@ -1,0 +1,288 @@
+/* A shared visual rhythm for the day, the lesson and the small celebrations. */
+:root{--paper:#faf9f5;--ink:#2c4236;--muted:#74806e;--green:#3d624d;--line:#e5e8dd;--radius:22px}
+body{line-height:1.6}
+button,a,input,summary{touch-action:manipulation}
+.primary-button{background:#3d624d;border:1px solid #355740;border-bottom:4px solid #294932;border-radius:15px;min-height:52px;font-size:14px;font-weight:700;box-shadow:0 3px 8px #314c3910;transition:transform .15s,background .15s}
+.primary-button:hover{background:#345942}
+.primary-button:active{transform:translateY(2px);border-bottom-width:2px}
+.secondary-button{border-radius:14px;min-height:50px;font-size:14px;background:#fffefa;border-color:#dce3d2;border-bottom-width:3px}
+.icon-button{border-radius:13px}
+.brand-mark{font-size:44px;background:#3d624d;border-radius:14px 14px 20px 14px;font-style:italic}
+.sidebar.app-navigation{background:#fffefa;border-color:#e6e9df}
+.brand{margin-bottom:38px}.brand-name{font-size:20px}
+.sidebar.app-navigation nav a{font-size:14px;min-height:56px;border-radius:15px}
+.sidebar.app-navigation nav a.active{background:#eaf0e2;color:#3a5d41}
+.sidebar.app-navigation nav a svg{width:21px;height:21px}
+.topbar{height:82px;border-color:#e6e9df}
+.topbar .header-settings{background:#fffefa;width:44px;height:44px;border-radius:14px;border-color:#e2e7d9}
+.topbar .pwa-install-button{min-height:44px;background:#f1f5e9;border-color:#dce5d1;font-size:12px;border-radius:13px}
+.streak-badge{min-height:40px;font-size:12px;padding:8px 12px;border-radius:13px}
+main{padding-top:30px}
+.page-heading h1{font-size:29px;letter-spacing:-1.1px}
+.home-heading{margin-bottom:24px;align-items:center}
+.home-heading .home-eyebrow{font-size:10px;font-weight:700;letter-spacing:1.7px;color:#8a947c;margin:0 0 8px}
+.home-heading h1{font-size:31px;line-height:1.45;margin:0 0 7px;font-weight:800}
+.home-heading .home-subtitle{font-size:13px;line-height:1.8;margin:0;color:#75816c}
+.date-label{font-size:12px}
+.dashboard-grid{grid-template-columns:minmax(0,1fr) 300px;gap:26px}
+.hero{background:radial-gradient(ellipse at 90% 10%,#f3f5dc 0,transparent 57%),#e8efdf;border:1px solid #e1e8d5;border-radius:28px;padding:28px;min-height:0;overflow:hidden}
+.hero-top{display:grid;grid-template-columns:minmax(0,1fr) 178px;align-items:center;gap:12px}
+.hero .hero-copy{width:auto;position:relative;z-index:1;min-width:0}
+.hero .pill{font-size:11px;font-weight:600;letter-spacing:0;border-radius:8px;padding:6px 9px;background:#fffffa9c;color:#567248;gap:5px}
+.hero h2{font-size:31px;line-height:1.5;letter-spacing:-1.2px;margin:17px 0 13px;word-break:keep-all}
+.hero .hero-target{font-size:25px;line-height:1.45;color:#6e855a;margin:0;font-family:Georgia,serif;max-width:none}
+.hero .hero-target:not([lang]){font-family:inherit;font-size:13px;line-height:1.8}
+.hero-companion{position:static;width:auto;align-self:end}
+.hero-action{margin-top:23px}
+.hero .primary-button{width:100%;min-height:54px;justify-content:center;gap:15px;font-size:15px;border-radius:15px;padding:12px 18px}
+.hero .primary-button svg{width:20px;height:20px}
+.hero-meta{justify-content:center;flex-wrap:wrap;font-size:11px;gap:10px;margin:12px 0 0;color:#6c7b60}
+.hero-meta svg{width:14px;height:14px}
+.stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:17px 0 0;padding:17px 0;background:#fffefa;border:1px solid #e7eadf;border-radius:20px}
+.stat-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0 8px;border:0;border-radius:0;background:transparent;box-shadow:none;text-align:center}
+.stat-card+.stat-card{border-left:1px solid #e8ecdf}
+.stat-card .stat-icon{display:none}
+.stat-number{font-size:25px;font-weight:700;letter-spacing:-.8px;line-height:1.3;color:#3c6047}
+.stat-number small{font-size:11px;font-weight:500;margin-left:4px;letter-spacing:0}
+.stat-caption{font-size:11px;margin-top:4px;color:#7b856f}
+.section-heading{margin:29px 0 15px;align-items:center}
+.section-heading h2{font-size:20px;font-weight:700;letter-spacing:-.7px;line-height:1.5}
+.section-kicker{font-size:11px;font-weight:500;color:#829072;line-height:1.6;margin:0 0 5px}
+.section-count{font-size:11px;color:#7b896e;background:#eff3e9;border-radius:7px;padding:4px 8px}
+.text-link{font-size:12px;min-height:44px}
+.practice-library{margin-bottom:0}
+.practice-pack-grid{display:grid;grid-template-columns:1fr;gap:11px}
+.practice-pack{display:flex;flex-direction:row;align-items:center;gap:15px;min-height:108px;padding:18px;border-radius:20px;border:1px solid #e4e9dc;border-bottom:3px solid #e2e7d9;box-shadow:none;overflow:visible;text-align:left;background:#fffefa;transition:transform .16s,border-color .16s}
+.practice-pack:hover{transform:translateY(-2px);border-color:#b7c8a7;box-shadow:0 6px 15px #344f4207}
+.practice-pack:active{transform:translateY(1px)}
+.practice-pack.in-progress{background:#f6faee;border-color:#c7d6b7}
+.practice-pack.is-complete{background:#f8faf3}
+.pack-icon{width:51px;height:56px;border-radius:17px;display:grid;place-items:center;flex-shrink:0}
+.pack-icon svg{width:24px;height:24px}
+.pack-copy{display:block;min-width:0;flex:1}
+.pack-copy>small{display:block;font-size:10px;font-weight:600;color:#7b8c69;margin-bottom:4px}
+.practice-pack.in-progress .pack-copy>small{color:#53793e}
+.practice-pack h3{font-size:15px;line-height:1.6;font-weight:600;min-height:0;margin:0 0 5px;word-break:keep-all;letter-spacing:-.35px}
+.pack-detail{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;line-height:1.5}
+.pack-detail .practice-pattern{font-size:18px;line-height:1.5;margin:0;color:#648057;flex-shrink:0}
+.pack-detail>span:last-child{font-size:10px;color:#8a937f}
+.pack-arrow{display:grid;place-items:center;flex-shrink:0;width:29px;height:29px;border-radius:50%;background:#f0f4e8;color:#789068}
+.pack-arrow svg{width:17px;height:17px}
+.practice-due{font-size:13px;border-radius:16px;padding:16px}
+.lesson-list{gap:11px}
+.lesson-card{padding:17px;border-radius:19px;border-color:#e3e8dc;gap:13px;background:#fffefa}
+.lesson-card .lesson-icon{width:45px;height:49px;border-radius:15px}
+.lesson-overline{font-size:10px;line-height:1.5}
+.lesson-card h3{font-size:15px;line-height:1.6;margin-top:4px;margin-bottom:5px;letter-spacing:-.35px}
+.lesson-card p{font-size:11px;line-height:1.7}
+.lesson-badge{font-size:10px;padding:5px 8px;border-radius:6px}
+.lesson-percent{font-size:10px}
+.lesson-mini-track{margin-top:10px;height:4px}
+.side-card{padding:23px;border-radius:23px;margin-bottom:20px;background:#fffefa;border-color:#e4e9dc}
+.goal-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.goal-heading h2{font-size:16px;letter-spacing:-.5px;line-height:1.5;margin:0}
+.goal-heading .section-kicker{font-size:10px}
+.goal-tag{font-size:10px;white-space:nowrap;background:#edf3e3;color:#6a8057;padding:5px 8px;border-radius:8px}
+.goal-tag.is-done{background:#deedce;color:#496d3e}
+.goal-days{border-top:0;padding-top:0;margin-top:22px;gap:8px}
+.day{font-size:10px;color:#8a947f;gap:9px}
+.day>span{width:29px;height:32px;border-radius:11px;font-size:11px;background:#f6f8ef;color:#8c967f;border:1px solid #e6ebdd}
+.day.today>span{border:1.5px solid #9bb786;background:#f9fcef;color:#5c784a}
+.day.done>span{background:#638050;color:#fff;border-color:#638050}
+.goal-footnote{font-size:11px;color:#89937e;line-height:1.8;margin:18px 0 0;padding-top:14px;border-top:1px solid #edf0e7}
+.phrase-card{background:#f0edf6;border-color:#e7e2ee;position:relative}
+.phrase-kicker{display:block;font-size:9px;font-weight:600;letter-spacing:1.4px;color:#a097ae;margin-bottom:8px}
+.phrase-card h2{font-size:16px;line-height:1.5;color:#756b86;margin-bottom:0}
+.daily-french{font-size:30px;line-height:1.45;color:#726580;margin:25px 0 12px;min-height:0}
+.daily-meaning{font-size:13px;line-height:1.8;color:#81758c;margin:0 0 7px;min-height:0}
+.daily-pronunciation{font-size:11px;line-height:1.8;color:#a094aa;margin:0 0 20px}
+.phrase-actions{gap:10px}
+.sound-button{min-height:44px;border-radius:11px;font-size:12px;padding:9px 12px}
+.phrase-card .sound-button{background:#fffafc;color:#7b6d8a;border-color:#e6dfee}
+.saved-shortcut{background:#f1f5e9;border-radius:20px;padding:18px;border-color:#e0e7d5;gap:13px}
+.saved-shortcut .stat-icon{background:#e4ecd8;width:40px;height:43px;border-radius:13px;color:#829e6d}
+.saved-shortcut b{font-size:13px;line-height:1.6}.saved-shortcut p{font-size:11px;color:#8a967c;margin:3px 0 0}
+.app-version-footer{font-size:10px;letter-spacing:.2px;border-color:#e8ebdf;margin-top:32px;padding:22px 0;color:#9ba28e}
+/* The lesson uses the same rounded controls and readable type as home. */
+#study-dialog{border-radius:28px;background:var(--paper)}
+#study-dialog .dialog-header{background:var(--paper);padding:20px 24px;min-height:76px}
+#study-dialog .dialog-header h2{font-size:14px;font-weight:600;line-height:1.7;letter-spacing:-.3px}
+.dialog-header .dialog-step{font-size:12px;color:#718463}
+.autosave-label{font-size:10px;color:#8d9a7d}
+.dialog-progress{height:7px!important;background:#e6ecde}
+.dialog-progress>span{background:#93ad79;border-radius:0 10px 10px 0}
+#study-dialog .dialog-body{padding:27px 30px}
+#study-dialog .dialog-footer{background:var(--paper);border-top:1px solid #e4e9da;padding:18px 24px}
+#study-dialog .dialog-footer .primary-button,#study-dialog .dialog-footer .secondary-button{font-size:14px;border-radius:15px;min-height:52px;padding:12px 17px}
+.practice-model{background:#f0f4e7;border:1px solid #e0e8d3;border-radius:22px;padding:21px 23px;margin-bottom:25px}
+.model-label{display:block;font-size:11px;font-weight:600;color:#91a07c;margin-bottom:11px}
+.practice-model>b{font-size:30px;line-height:1.5;color:#627c4e;display:block}
+.practice-model>small{font-size:12px;line-height:1.7;margin-top:7px;display:block;color:#7c8e6b}
+.practice-model>p{font-size:12px;line-height:1.9;margin-top:10px;color:#7c8b6c}
+.practice-prompt{font-size:24px;line-height:1.65;letter-spacing:-.6px;margin-bottom:12px}
+.practice-glossary{font-size:13px;line-height:1.8}
+.practice-cue{font-size:33px;line-height:1.5;color:#617d4e;margin:20px 0 24px}
+.practice-input{min-height:60px;padding:15px 17px;border:2px solid #dce5ce;background:#fffefa;border-radius:17px;font-size:19px;box-shadow:0 3px 0 #e8edde}
+.practice-input::placeholder{font-size:14px;color:#a2aa94}
+.practice-input:focus{outline:2px solid #9fba85;outline-offset:3px}
+.practice-options{gap:11px}
+.practice-options .choice,.quiz-choices .choice{background:#fffefa;border:1px solid #dfe5d5;border-bottom:4px solid #dce3d0;border-radius:17px;min-height:64px;font-size:25px}
+.quiz-choices .choice{font-size:14px;text-align:left;line-height:1.8}
+.choice:active:not(:disabled){transform:translateY(2px)}
+.word-tile{background:#fffefa;border:1px solid #dfe5d5;border-bottom:3px solid #d9e1cc;border-radius:13px;min-height:49px;font-size:18px;padding:10px 15px}
+.tile-answer{background:#f0f4e7;border:1px dashed #cbd9b9;border-radius:19px;min-height:85px}
+.tile-placeholder{font-size:13px;color:#91a17d}
+.practice-feedback{background:#edf5e3;border:1px solid #d8e6c5;border-radius:22px;padding:17px 19px;margin-top:22px}
+.practice-feedback>b{font-size:12px;color:#6b8957}
+.practice-feedback>p{font-size:29px;line-height:1.5;margin-top:12px;color:#557540}
+.practice-feedback.assisted{background:#f4f1e4;border-color:#e6dfc6}
+.practice-feedback.pending:empty{display:none}
+.practice-hint{font-size:12px;line-height:1.8;padding:13px 16px;border-radius:14px;background:#f6efdb;color:#947940}
+.practice-help{gap:15px;margin-top:18px}
+.practice-help .text-link{font-size:12px;min-height:44px;border-radius:12px;padding:8px 10px;color:#899c71}
+.practice-help .text-link:hover{background:#eef3e5}
+.answer-detail summary,.lesson-detail summary{font-size:12px;min-height:40px;line-height:1.8}
+.answer-detail p,.lesson-detail p{font-size:13px;line-height:1.9}
+.answer-reveal{border-radius:21px;font-size:14px}
+.answer-attempt{border-radius:17px}
+#study-dialog .practice-completion{background:radial-gradient(ellipse at 50% 7%,#e9f0da 0,transparent 62%),var(--paper);padding-top:25px}
+.completion-hero .dialog-title{font-size:31px;letter-spacing:-1px;font-weight:800}
+.completion-eyebrow{font-size:12px;color:#8da074;margin-bottom:6px}
+.completion-reward{font-size:20px}
+.practice-completion .practice-takeaway{border-radius:22px;background:#fffef9;border-color:#e1e7d6;padding:22px}
+.practice-completion .practice-takeaway>b{font-size:29px;color:#60804b}
+.practice-completion .result-stats strong{font-size:28px}
+.practice-completion .result-stats span{font-size:12px}
+.settings-brand{margin-bottom:22px;padding-bottom:22px}
+.settings-section>h3{font-size:13px;letter-spacing:-.2px}
+.settings-option{min-height:64px}.settings-option label{font-size:14px}
+.settings-option input[role="switch"]{appearance:none;-webkit-appearance:none;position:relative;width:46px;height:28px;flex-shrink:0;background:#dfe5d7;border:1px solid #d5dec9;border-radius:99px;cursor:pointer;transition:background .15s}
+.settings-option input[role="switch"]:before{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fffefa;box-shadow:0 1px 3px #344f4226;transition:transform .15s}
+.settings-option input[role="switch"]:checked{background:#638253;border-color:#638253}
+.settings-option input[role="switch"]:checked:before{transform:translateX(18px)}
+.settings-row-button{font-size:13px;min-height:58px}
+.help-item summary{font-size:14px}.help-item p{font-size:13px;line-height:1.9}
+.expression{border-radius:22px;border-color:#e3e8dc;background:#fffefa}
+.expression .fr{font-size:28px}.expression .ko{font-size:14px}.expression-meta{font-size:11px}
+.filter-button{min-height:44px;font-size:12px;border-radius:12px}
+.search-box{min-height:50px;border-radius:15px;background:#fffefa}
+.search-box input{font-size:14px}
+.summary-card,.progress-panel,.practice-progress{border-radius:22px;background:#fffefa}
+@media(min-width:1500px){.hero-top{grid-template-columns:minmax(0,1fr) 210px}.hero-companion>.mascot{width:200px}}
+@media(max-width:1100px) and (min-width:761px){.dashboard-grid{grid-template-columns:1fr}.right-column{display:grid;grid-template-columns:1fr 1fr;gap:18px}.right-column .side-card{margin:0}.saved-shortcut{grid-column:1/-1}.hero-top{grid-template-columns:minmax(0,1fr) 210px}.hero-companion>.mascot{width:190px}}
+@media(max-width:760px){
+  .sidebar.app-navigation{background:#fffef9ed;backdrop-filter:blur(14px);border-top:1px solid #e3e8da;padding:8px 10px calc(7px + env(safe-area-inset-bottom));box-shadow:0 -5px 20px #344f4204}
+  .sidebar.app-navigation nav{gap:3px}
+  .sidebar.app-navigation nav a{min-height:59px;border-radius:16px;font-size:10px;font-weight:500;gap:5px;padding:7px 4px;color:#95a087}
+  .sidebar.app-navigation nav a.active{background:#edf3e3;color:#567642}
+  .sidebar.app-navigation nav a svg{width:22px;height:22px}
+  .app-shell{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  .topbar{height:76px;margin:0 21px;gap:10px}
+  .mobile-brand{font-size:18px;font-weight:700;gap:9px;letter-spacing:-.7px}
+  .mobile-brand-mark{display:flex;align-items:center;justify-content:center;width:32px;height:36px;border-radius:10px 10px 14px 10px;background:#3d624d;color:#fff7df;font-size:32px;font-style:italic;letter-spacing:-2px;padding-bottom:3px}
+  .topbar-right{gap:8px}
+  .topbar .header-settings{width:42px;height:42px;min-width:42px;min-height:42px;border-radius:13px}
+  .topbar .pwa-install-button{width:42px;height:42px;min-height:42px;min-width:42px;padding:10px;font-size:0;background:#eff4e5;border-radius:13px;gap:0}
+  .topbar .pwa-install-button svg{width:19px;height:19px;margin:0}
+  .topbar .streak-badge{display:none}
+  main{padding:25px 20px 24px}
+  .home-heading{margin-bottom:23px}
+  .home-heading .home-eyebrow{font-size:9px;letter-spacing:1.4px;margin-bottom:6px}
+  .home-heading h1{font-size:28px;margin-bottom:6px;line-height:1.5}
+  .home-heading .home-subtitle{font-size:12px;line-height:1.8;word-break:keep-all}
+  .hero{padding:23px 21px 21px;min-height:0;border-radius:27px}
+  .hero-top{grid-template-columns:minmax(0,1fr) 137px;gap:5px;min-height:205px;align-items:start}
+  .hero .hero-copy{width:auto;padding-top:1px}
+  .hero .pill{font-size:9px;padding:6px 8px;white-space:nowrap;border-radius:7px}
+  .hero .pill svg{width:12px;height:12px}
+  .hero h2{font-size:26px;line-height:1.55;margin:17px 0 10px;letter-spacing:-1.1px}
+  .hero .hero-target{font-size:24px;margin:0;line-height:1.4}
+  .hero .hero-target:not([lang]){font-size:12px;line-height:1.8}
+  .hero-companion{width:137px;position:static;align-self:center;right:auto;bottom:auto;margin-top:5px}
+  .hero-companion>.mascot{width:145px;max-width:145px}
+  .companion-bubble{font-size:17px;padding:5px 12px}
+  .companion-name{font-size:9px;margin-top:-1px}
+  .hero-action{margin-top:18px}
+  .hero .primary-button{min-height:53px;font-size:14px;border-radius:14px;padding:12px 16px;white-space:normal}
+  .hero-meta{font-size:10px;margin-top:12px;gap:7px;line-height:1.6}
+  .hero-meta svg{width:12px;height:12px}
+  .stats-row{margin-top:14px;padding:16px 0;border-radius:19px}
+  .stat-card{display:flex;padding:0 7px;text-align:center;gap:0}
+  .stat-number{font-size:24px}.stat-number small{font-size:10px}.stat-caption{font-size:10px;margin-top:6px}
+  .dashboard-grid{grid-template-columns:minmax(0,1fr);gap:25px}
+  .main-column,.right-column{min-width:0}
+  .section-heading{margin:27px 0 14px;align-items:center}
+  .section-heading h2{font-size:19px}.section-kicker{font-size:10px;margin-bottom:4px}
+  .section-count{font-size:10px;padding:4px 7px}
+  .text-link{font-size:11px}
+  .app-shell main[data-page="home"] .practice-pack-grid{display:grid;grid-template-columns:1fr;grid-auto-flow:row;grid-auto-columns:auto;overflow:visible;margin:0;padding:0;gap:11px;scroll-snap-type:none}
+  .practice-pack{min-height:107px;padding:16px;gap:13px;border-radius:19px;display:flex}
+  .pack-icon{width:47px;height:52px;border-radius:15px}
+  .pack-icon svg{width:24px;height:24px}
+  .pack-copy>small{font-size:10px;margin-bottom:4px}
+  .practice-pack h3{font-size:14px;margin:0 0 5px;line-height:1.65;min-height:0}
+  .pack-detail{gap:5px 10px}.pack-detail .practice-pattern{font-size:17px}.pack-detail>span:last-child{font-size:9px}
+  .pack-arrow{width:25px;height:25px}.pack-arrow svg{width:15px;height:15px}
+  .lesson-card{padding:16px 14px;gap:11px;border-radius:18px}.lesson-card .lesson-icon{width:41px;height:46px;border-radius:14px}
+  .lesson-card h3{font-size:14px}.lesson-card p{font-size:11px}.lesson-overline{font-size:9px}.lesson-badge{font-size:9px;padding:4px 6px}
+  .lesson-percent{font-size:9px}.lesson-mini-track{max-width:190px}
+  .right-column{gap:17px;grid-template-columns:1fr}
+  .right-column .side-card{padding:22px;border-radius:22px;margin:0}
+  .goal-days{gap:8px;margin-top:22px}.day>span{width:32px;height:35px;font-size:11px}.day{font-size:10px;gap:9px}
+  .goal-heading h2{font-size:17px}.goal-footnote{font-size:11px}
+  .daily-french{font-size:31px;line-height:1.5;margin:22px 0 12px}.daily-meaning{font-size:13px;margin:0 0 7px}.daily-pronunciation{font-size:11px;margin-bottom:18px}
+  .phrase-actions .sound-button{min-height:44px;font-size:12px;border-radius:12px;padding:9px 13px}
+  .phrase-actions .icon-button{width:42px;height:42px;border-radius:12px}
+  .saved-shortcut{padding:18px;border-radius:19px}.saved-shortcut b{font-size:13px}.saved-shortcut p{font-size:11px}
+  .app-version-footer{font-size:9px;margin-top:28px;padding:19px 0}
+  #study-dialog[data-view] .dialog-header{min-height:73px;padding:calc(13px + env(safe-area-inset-top)) 20px 13px;gap:10px}
+  #study-dialog .dialog-header h2{font-size:13px;line-height:1.6}
+  #study-dialog .dialog-header .icon-button{width:38px;height:38px;border-radius:12px}
+  .dialog-header .dialog-step{font-size:11px}.autosave-label{font-size:9px}
+  #study-dialog[data-view] .dialog-body{padding:24px 21px 28px}
+  #study-dialog[data-view] .dialog-footer{padding:14px 20px calc(14px + env(safe-area-inset-bottom));min-height:82px;gap:11px}
+  #study-dialog .dialog-footer .primary-button,#study-dialog .dialog-footer .secondary-button{font-size:13px;min-height:52px;padding:12px 16px;border-radius:15px}
+  .practice-model{padding:20px;border-radius:21px;margin-bottom:25px}
+  .practice-model>b{font-size:28px}.practice-model>small{font-size:12px}.practice-model>p{font-size:12px;line-height:1.8}.model-label{font-size:10px;margin-bottom:9px}
+  .practice-prompt{font-size:23px;line-height:1.6}.practice-glossary{font-size:12px}.practice-cue{font-size:31px;line-height:1.5;margin:21px 0}
+  .practice-options .choice{min-height:62px;font-size:24px;border-radius:17px}
+  .practice-input{font-size:19px;min-height:59px;border-radius:16px;padding:14px 16px}.practice-input::placeholder{font-size:13px}
+  .practice-feedback{padding:16px;border-radius:21px}.practice-feedback>p{font-size:27px;line-height:1.55}.practice-feedback>b{font-size:11px}
+  .practice-help .text-link{font-size:12px;min-height:44px;padding:8px 10px}
+  .practice-hint{font-size:12px;line-height:1.8}
+  .word-tile{min-height:48px;font-size:18px;padding:10px 14px;border-radius:12px}
+  .tile-answer{border-radius:18px;min-height:80px}
+  .quiz-choices .choice{font-size:14px;padding:16px;min-height:62px;border-radius:17px}
+  .answer-reveal{font-size:13px;padding:16px;border-radius:20px}
+  .big-french{font-size:36px;line-height:1.5}.translation{font-size:19px}.pronunciation{font-size:12px;line-height:1.9}
+  #study-dialog.typing-focused .practice-model{padding:10px 14px;margin-bottom:12px;border-radius:15px}
+  #study-dialog.typing-focused .model-label{display:none}
+  #study-dialog.typing-focused .practice-model>b{font-size:20px}
+  #study-dialog.typing-focused .practice-prompt{font-size:19px;line-height:1.5}
+  #study-dialog.typing-focused .practice-input{min-height:51px;padding:10px 14px}
+  #study-dialog.typing-focused .dialog-header{min-height:53px;padding:9px 17px}
+  #study-dialog.typing-focused .practice-body{padding:13px 20px 16px}
+  #study-dialog.typing-focused .practice-footer{min-height:66px;padding:10px 20px}
+  #study-dialog.typing-focused .practice-footer .primary-button{min-height:45px;padding:9px 16px}
+  #study-dialog .practice-completion{padding:25px 23px}
+  .completion-hero .dialog-title{font-size:29px}.completion-cheer{font-size:19px}.completion-reward{font-size:19px}
+  #study-dialog .practice-completion .result-stats{padding:20px 0;margin:24px 0 21px}
+  .practice-completion .result-stats strong{font-size:27px}.practice-completion .result-stats span{font-size:11px}
+  .practice-completion .practice-takeaway>b{font-size:27px}.practice-completion .practice-takeaway>p{font-size:13px}
+  .settings-brand h3{font-size:24px}.settings-section>h3{font-size:13px}.settings-option label{font-size:14px}.settings-row-button{font-size:13px}
+  .help-item summary{font-size:13px}.help-item p{font-size:12px}
+  .expression .fr{font-size:28px}.expression .ko{font-size:14px}.expression-meta{font-size:10px}.expression .pronunciation{font-size:12px}
+  .vocab-top .primary-button{font-size:12px;min-height:47px}.search-box input{font-size:13px}.filter-button{font-size:12px;min-height:44px}
+}
+@media(max-width:360px){
+  main{padding-left:17px;padding-right:17px}.topbar{margin:0 17px}.mobile-brand{font-size:17px}
+  .hero{padding:21px 17px}.hero-top{grid-template-columns:minmax(0,1fr) 113px;gap:3px;min-height:205px}
+  .hero h2{font-size:24px;line-height:1.55}.hero-companion{width:113px}.hero-companion>.mascot{width:122px;max-width:122px}
+  .companion-bubble{font-size:15px;padding:5px 10px}.companion-name{font-size:8px}
+  .hero .pill{font-size:8px;padding:5px 7px}.hero .hero-target{font-size:22px}
+  .practice-pack{padding:14px 12px;gap:10px}.pack-icon{width:40px;height:47px;border-radius:13px}
+  .practice-pack h3{font-size:13px}.pack-detail .practice-pattern{font-size:16px}.pack-arrow{width:22px;height:22px}
+  .day>span{width:28px;height:32px}.goal-days{gap:5px}.goal-heading h2{font-size:15px}
+  .lesson-card{gap:9px;padding:14px 12px}.lesson-card .lesson-icon{width:35px;height:41px}.lesson-card h3{font-size:13px}.lesson-card p{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.primary-button,.practice-pack{transition:none}.primary-button:active,.choice:active:not(:disabled),.practice-pack:hover,.practice-pack:active{transform:none}}

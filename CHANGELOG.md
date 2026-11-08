@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.1 — 2026-11-07
+
+- Replace the initial vector cat with four consistent, soft 3D Lou poses: greeting, delight, thinking and celebration.
+- Redesign home around a clear daily recommendation, one full-width start action, readable course rows and a weekly habit card backed by real progress.
+- Unify typography, surfaces, touch controls and feedback across home, study, vocabulary, progress and settings.
+- Replace the old Bonjour b mark with a French Alone f mark across the interface and install icons.
+- Preserve audio controls, learning drafts and saved progress; cache the new mascot sheet and shared styling offline.
+
+## 1.3.0 — 2026-11-07
+
+- Add Lou, an inline vector cat companion, with a home greeting and distinct encouragement for correct answers, retries, reveals and completion.
+- Replace quiet sine tones with layered phone-friendly chimes, separate outcome melodies and compression; wait for audio resumption before scheduling.
+- Add a saved effect volume (80% by default), three sound previews and mute-aware controls while preserving existing progress and mute preferences.
+- Enlarge mobile touch targets and hide the idle companion while typing; respect reduced motion.
+- Cache the companion artwork and styles offline and verify audio scheduling, volume migration and outcome reactions.
+
 ## 1.2.1 — 2026-11-07
 
 - Fit sentence practice to the visible viewport above the mobile keyboard, including browser panning and content-resize fallbacks.

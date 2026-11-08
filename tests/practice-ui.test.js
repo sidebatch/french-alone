@@ -32,8 +32,8 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   const f=await setup();const {$,click,type,choose,pick,current,answer,saved}=f;
   assert.equal(document.querySelectorAll('.practice-pack').length,3);
   click('.hero [data-action="practice-start"]');assert.equal(current().id,'want-1');assert.match($('.practice-model').textContent,/Je veux dormir/);
-  choose('peux');assert.equal($('[data-action="practice-next"]'),null);assert.ok($('.practice-hint'));
-  choose('veux');click('[data-action="practice-next"]');
+  choose('peux');assert.equal($('[data-action="practice-next"]'),null);assert.ok($('.practice-hint'));assert.ok($('.companion-wrong'));
+  choose('veux');assert.ok($('.companion-correct'));click('[data-action="practice-next"]');
   click('[data-action="practice-hint"]');type('veux');click('[data-action="practice-next"]');
   type('dormi');assert.equal($('[data-action="practice-next"]'),null);type('Je veux dormir.');click('[data-action="practice-next"]');
   pick('Je');click('[data-action="practice-unpick"]');assert.equal(document.querySelectorAll('.tile-answer .word-tile').length,0);
@@ -47,7 +47,7 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   assert.equal(saved().cards['want-2'].strength,0);assert.equal(saved().cards['want-10'].strength,1);
   const baseline=JSON.parse(f.dom.window.localStorage.getItem(STORAGE_KEY));assert.equal(Object.values(baseline.activity)[0].xp,70);assert.equal(Object.values(baseline.activity)[0].words,4);
   click('[data-action="practice-more"]');assert.equal(current().id,'can-1');click('#study-dialog [data-action="close"]');assert.equal(saved().runs.length,1);
-  assert.equal($('#study-dialog').open,false);assert.match($('.goal-ring').textContent,/1.*1판/);assert.match($('.goal-copy').textContent,/목표 달성/);
+  assert.equal($('#study-dialog').open,false);assert.match($('.goal-tag.is-done').textContent,/오늘도 완료/);assert.match($('.goal-footnote').textContent,/오늘의 한 판을 마쳤어요/);
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });
 

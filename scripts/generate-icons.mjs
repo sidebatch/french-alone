@@ -9,9 +9,11 @@ export function makeIconPNG(size) {
   const palette=[],indices=new Map(),raw=new Uint8Array((size+1)*size);
   function colorAt(x,y){
     if(Math.sqrt(Math.abs(x-45))+Math.sqrt(Math.abs(y-17))<=Math.sqrt(7))return [217,171,119];
-    const outer=(x>=21&&x<=28&&y>=14&&y<=49)||((x-33)**2+(y-36)**2<=169);
-    const hole=(x-33)**2+(y-36)**2<=36;
-    return outer&&!hole?[255,249,233]:[52,79,66];
+    const stem=x>=26&&x<=34&&y>=24&&y<=50;
+    const crossbar=x>=20&&x<=43&&y>=29&&y<=36;
+    const bend=y<=25&&x<=38&&(x-38)**2+(y-25)**2<=144&&(x-38)**2+(y-25)**2>=16;
+    const top=x>=37&&x<=45&&y>=13&&y<=21;
+    return stem||crossbar||bend||top?[255,249,233]:[61,98,77];
   }
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
     const rgb=[0,0,0];
