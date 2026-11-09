@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.0 — 2026-11-09
+
+- Center home on Lou, one start action and five-question daily rounds; offer a three-question option and preserve all ten-question courses.
+- Mix up to two due questions with new material in authored order. Previously credited questions become typing recall.
+- Keep the answer input stable while checking, show compact bottom feedback and open explanations only on “왜?”. Offer word or letter cards after two unsuccessful typing attempts.
+- Retry only assisted or incorrect questions immediately after a round. Report genuine recovery and new learning without awarding the same XP twice.
+- Add one stamp per day after three completed questions. Lou's room gains a plant, books and a rug after one, three and seven stamped days.
+- Preserve quick-round drafts, input formats, helper cards and existing progress. Migrate earlier practice days and guard completed rounds against replay.
+- Include partially learned courses in progress filters and cache the new interface offline. No runtime AI calls or speech assessment.
+
 ## 1.4.0 — 2026-11-09
 
 - Expand text practice to 9 courses / 90 questions in three units, adding standalone word typing, states, possession, destinations, ordering, needs and locations.

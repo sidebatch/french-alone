@@ -51,7 +51,7 @@ test('basic lesson visually tracks progress and reopens a checked quiz answer',a
   const wrong=[...document.querySelectorAll('[data-action="answer"]')].find(b=>b.dataset.id!==q.id);
   f.click(wrong);
   assert.ok(f.$('.answer-reveal.is-wrong'));
-  assert.match(f.$('.answer-reveal').textContent,/해설/);
+  assert.match(f.$('.answer-reveal').textContent,/왜/);
   f.click('#study-dialog [data-action="close"]');
   assert.equal(f.saved().lessonProgress.greetings.phase,'quiz');
   f.nav('lessons');f.click('.lesson-card[data-id="greetings"]');
@@ -82,7 +82,7 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
   assert.match(f.$('#dialog-content').textContent,/용법/);
   f.click('#study-dialog [data-action="close"]');
   f.click('.header-settings');
-  assert.match(f.$('#dialog-content').textContent,/v1.4.0/);
+  assert.match(f.$('#dialog-content').textContent,/v1.5.0/);
   assert.match(f.$('#dialog-content').textContent,/sidebatch/);
   const sounds=f.$('#feedback-sounds');
   sounds.checked=false;
@@ -100,7 +100,7 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
   f.click('.header-settings');assert.equal(f.$('#effects-volume').value,'0');
   f.click('#study-dialog [data-action="close"]');
   f.nav('home');
-  f.click('.hero [data-action="practice-start"]');
+  f.click('.hero [data-action="practice-daily"]');
   f.click('[data-action="practice-choice"][data-value="veux"]');
   f.click('[data-action="practice-next"]');
   const field=f.$('#practice-input');assert.ok(field);

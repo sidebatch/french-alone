@@ -18,8 +18,8 @@ test('learner can finish a quiz, save progress, search, review mistakes, and res
   const click=s=>{const el=$(s);assert.ok(el,`missing ${s}`);assert.equal(el.disabled,false,`disabled ${s}`);el.click();};
   const navigate=route=>{dom.window.history.replaceState({},'',`#${route}`);dom.window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));};
   const saved=()=>JSON.parse(dom.window.localStorage.getItem(STORAGE_KEY));
-  assert.match($('#main').textContent,/10문제 시작하기/);
-  click('[data-action="lesson"][data-id="greetings"]');assert.equal($('#study-dialog').open,true);
+  assert.match($('#main').textContent,/5문제 시작/);
+  navigate('lessons');click('[data-action="lesson-view"][data-value="basics"]');click('[data-action="lesson"][data-id="greetings"]');assert.equal($('#study-dialog').open,true);
   click('#study-dialog [data-action="favorite"]');assert.equal(saved().favorites.length,1);
   for(let i=0;i<6;i++)click('[data-action="next-learn"]');
   assert.equal($('[data-action="next-question"]').disabled,true);
