@@ -4,8 +4,18 @@ import { lessons, phrases, getPhrases } from '../dist/data.js';
 import { freshState, readState, makeQuestions, finishLesson, streak, totalXP, today } from '../dist/core.js';
 
 const answers = (id, correct=6) => getPhrases(id).map((p,i)=>({id:p.id,correct:i<correct}));
-test('curriculum has eight complete lessons and 48 unique, translated expressions',()=>{
-  assert.equal(lessons.length,8);assert.equal(phrases.length,48);assert.equal(new Set(phrases.map(p=>p.id)).size,48);
+test('corrupted saved quiz sequences recover to a complete answerable round',()=>{
+  const state=freshState();
+  const questions=makeQuestions(getPhrases('greetings'),()=>0.4).map(q=>({id:q.phrase.id,choices:q.choices.map(p=>p.id)}));
+  state.lessonProgress.greetings={phase:'quiz',index:5,questions,selected:null,answers:[{id:questions[0].id,correct:true}]};
+  let loaded=readState({getItem:()=>JSON.stringify(state)});
+  assert.equal(loaded.lessonProgress.greetings.index,0);assert.deepEqual(loaded.lessonProgress.greetings.answers,[]);
+  state.lessonProgress.greetings={phase:'quiz',index:1,questions,selected:questions[1].id,answers:[{id:questions[0].id,correct:false},{id:questions[1].id,correct:true}]};
+  loaded=readState({getItem:()=>JSON.stringify(state)});
+  assert.equal(loaded.lessonProgress.greetings.index,1);assert.equal(loaded.lessonProgress.greetings.selected,questions[1].id);
+});
+test('curriculum has twelve complete lessons and 72 unique, translated expressions',()=>{
+  assert.equal(lessons.length,12);assert.equal(phrases.length,72);assert.equal(new Set(phrases.map(p=>p.id)).size,72);
   for(const l of lessons){assert.equal(getPhrases(l.id).length,6);for(const p of getPhrases(l.id))for(const key of ['fr','ko','pronunciation','note'])assert.ok(p[key]);}
 });
 test('quiz has one correct choice and four distinct meanings per question',()=>{

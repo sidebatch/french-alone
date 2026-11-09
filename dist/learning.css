@@ -1,0 +1,58 @@
+/* Text practice and the growing curriculum share the existing sage palette. */
+.learning-tabs{display:flex;gap:5px;background:#eaf0e1;border:1px solid #dce5d1;padding:5px;border-radius:15px;margin:0 0 26px}
+.learning-tabs button{flex:1;min-width:0;min-height:49px;background:transparent;border:0;border-radius:11px;color:#728366;font-weight:600;font-size:13px;padding:10px}
+.learning-tabs button[aria-pressed="true"]{background:#fffefa;color:#456438;box-shadow:0 2px 6px #344f4210}.learning-tabs span{font-size:10px;font-weight:400;margin-left:5px;color:#819171}
+.learning-tabs+.basics-heading{border:0;margin-top:25px;padding-top:0}
+.curriculum-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#eaf0df;border:1px solid #dbe4cd;padding:22px 24px;border-radius:22px}
+.curriculum-summary strong{font-size:27px;color:#47633c;line-height:1.5}.curriculum-summary small{font-size:13px;font-weight:500;color:#65775b}
+.curriculum-summary p{margin:5px 0 0;font-size:12px;line-height:1.8;color:#67775d}.curriculum-summary>span{font-size:12px;background:#fcfdf6;border:1px solid #dde5d0;border-radius:12px;padding:9px 12px;white-space:nowrap}
+.curriculum-filters{display:flex;gap:8px;margin:20px 0 10px}.curriculum-filters .filter-button{flex:1;max-width:135px}
+.course-status-filters{display:flex;gap:5px;margin-bottom:25px;flex-wrap:wrap}.course-status-filters button{min-height:44px;border:0;border-radius:10px;background:transparent;color:#6b795e;font-size:12px;padding:9px 15px}
+.course-status-filters button[aria-pressed="true"]{background:#e9eedf;color:#3c5b31;font-weight:700}
+.curriculum-unit{margin-top:27px}.unit-heading{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.unit-heading>span{font-size:17px;font-weight:700;color:#68844f;border:1px solid #dae4cc;background:#f0f5e7;border-radius:12px;min-width:43px;height:46px;display:grid;place-items:center}
+.unit-heading>div{min-width:0;flex:1}.unit-heading h3{font-size:18px;line-height:1.5;margin:0;color:#3e5133;letter-spacing:-.5px}
+.unit-heading p{font-size:11px;color:#7a866d;line-height:1.8;margin:4px 0 0}.unit-heading>small{font-size:12px;white-space:nowrap;color:#839174}
+.pack-progress{display:block;height:4px;background:#edf1e6;border-radius:9px;overflow:hidden;margin-top:10px;max-width:190px}
+.pack-progress i{display:block;height:100%;background:#92ad76;border-radius:9px}.practice-pack.is-complete .pack-progress i{background:#6c8a55}
+.practice-library[data-compact="false"] .practice-pack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.practice-library[data-compact="false"] .practice-pack{padding:18px 16px;min-width:0}.practice-library[data-compact="false"] .pack-icon{width:42px;height:47px;flex-shrink:0}
+.practice-library[data-compact="false"] .pack-copy h3{font-size:14px}.practice-library[data-compact="false"] .pack-arrow{width:24px;height:24px}
+.basics-heading{margin-top:45px;border-top:1px solid #e0e6d6;padding-top:32px}.course-empty{padding:28px 16px}.course-empty p{font-size:14px;margin-bottom:16px}
+.practice-stat-note{font-size:12px;color:#7b886d;line-height:1.8;margin:17px 0 0}
+.exercise-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#7c8b6e;font-size:11px;line-height:1.6}
+.exercise-mode{font-weight:700;background:#eaf0df;color:#5f7a48;border-radius:8px;padding:6px 10px;white-space:nowrap}
+.practice-prompt{margin-top:0}.practice-glossary{color:#6c7e5a;background:#f0f3e9;border-radius:10px;padding:9px 12px;margin-bottom:16px}
+.typing-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;min-height:44px}.typing-tools>span{font-size:10px;color:#78866c;line-height:1.6}
+.accent-toggle{border:0;background:#eaf0df;color:#506e40;font-size:12px;border-radius:10px;min-height:44px;padding:8px 12px;white-space:nowrap}
+.accent-keys{display:flex;gap:6px;overflow-x:auto;padding:6px 1px 10px;margin:0 -1px;scrollbar-width:thin;scrollbar-color:#bdcbb0 transparent;overscroll-behavior-x:contain}
+.accent-keys[hidden]{display:none}.accent-keys button{min-width:44px;min-height:44px;flex-shrink:0;border:1px solid #d5dfc7;border-bottom:3px solid #d5dfc7;border-radius:10px;background:#fffefa;color:#466038;font-size:20px;font-family:Georgia,serif}
+.accent-keys button:active{background:#dfeacd}.practice-input:disabled{opacity:1;-webkit-text-fill-color:#526d40;color:#526d40;background:#f3f6ed}
+.tile-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;color:#78866c}.tile-tools>span{font-size:10px;line-height:1.7}.tile-tools .text-link{min-height:44px;white-space:nowrap;font-size:11px}
+.tile-pool{gap:9px}.tile-pool .word-tile:disabled{visibility:visible;opacity:.28;box-shadow:none}.tile-answer .word-tile:disabled{opacity:1}
+.practice-feedback .answer-verdict{display:flex;align-items:center;gap:7px;color:#496f37;font-size:12px;margin-top:10px}.answer-verdict svg{width:16px;height:16px}
+.practice-feedback .correct-sentence{font-size:28px;line-height:1.55;margin:13px 0;color:#466e31;overflow-wrap:anywhere}
+.explanation-brief{border-top:1px solid #d9e4ca;padding-top:15px;margin-top:16px}.explanation-brief>span{font-size:11px;font-weight:700;color:#5c7549}.explanation-brief p{font-size:13px;line-height:1.95;color:#4d6040;margin:7px 0 0;word-break:keep-all;overflow-wrap:anywhere}
+.answer-detail{border-top:1px solid #d9e4ca;margin:16px 0 13px}.answer-detail summary{min-height:48px;display:list-item;align-content:center;padding:12px 0;font-size:12px;font-weight:600;color:#526e40;cursor:pointer}
+.grammar-guide{padding:0 0 5px}.grammar-guide .grammar-pattern{font-size:19px;color:#496e38;background:#f9fcf2;border:1px solid #d9e5c8;border-radius:11px;padding:12px 14px;line-height:1.7}
+.grammar-guide p{font-size:12px;line-height:1.9;word-break:keep-all;overflow-wrap:anywhere}.grammar-caution{border-left:3px solid #c2ad77;padding:4px 0 4px 12px;margin-top:16px}.grammar-caution b{font-size:11px;color:#806b3e}.grammar-caution p{margin:5px 0;color:#665c42}
+.practice-feedback.assisted .explanation-brief,.practice-feedback.assisted .answer-detail{border-color:#e1d9bf}.practice-feedback .sound-button{margin-top:0}
+.answer-attempt{padding:15px;margin-top:18px;background:#fbf1e8;border:1px solid #ead8c7}.answer-attempt>b{font-size:12px;line-height:1.8;display:block;color:#8b5e40;margin-bottom:9px}
+.attempt-word{display:inline-block;padding:4px 6px;border-radius:5px;margin:2px 1px;line-height:1.6}.attempt-word.ok{background:transparent;color:#617151}.attempt-word.needs-work{background:#f1d6c6;color:#8b3d25}.attempt-word.missing{background:#fff9ee;border:1px dashed #b67850;color:#956544;font-size:11px;font-family:inherit}
+.practice-recap{text-align:left;border:1px solid #dedfcd;border-radius:18px;background:#fcfaf1;margin-top:20px;padding:0 17px}.practice-recap summary{min-height:50px;padding:15px 0;font-size:13px;cursor:pointer;color:#7d704c;font-weight:600}
+.practice-recap article{padding:15px 0;border-top:1px solid #e9e7d9}.practice-recap article b{font-family:Georgia,serif;font-size:21px;line-height:1.6;color:#526644;display:block;overflow-wrap:anywhere}.practice-recap article p{font-size:12px;margin:5px 0;color:#6d765d}.practice-recap article small{font-size:11px;line-height:1.9;display:block;color:#7c826e;word-break:keep-all}
+.round-confidence{font-size:12px;line-height:1.8;color:#7b8c6a;margin:20px 0 0}
+.lesson-explanation{text-align:left;background:#eef3e6;border:1px solid #dce5d1;border-radius:17px;padding:17px 19px;margin-top:25px}.lesson-explanation h4{font-size:11px;color:#698055;margin:0 0 8px}.lesson-explanation p{font-size:14px;line-height:1.95;margin:0;color:#526744;word-break:keep-all;overflow-wrap:anywhere}
+@media(max-width:1300px){.practice-library[data-compact="false"] .practice-pack-grid{grid-template-columns:1fr}.practice-library[data-compact="false"] .pack-copy h3{font-size:15px}}
+@media(max-width:760px){
+  .curriculum-summary{padding:18px;border-radius:19px}.curriculum-summary strong{font-size:25px}.curriculum-summary small{font-size:11px}.curriculum-summary>span{padding:8px;font-size:10px}.curriculum-summary p{font-size:11px}
+  .curriculum-filters{gap:7px;margin-top:17px}.curriculum-filters .filter-button{min-width:0;padding:9px 10px}.course-status-filters{margin-bottom:18px;gap:2px}.course-status-filters button{padding:9px 13px;font-size:11px}
+  .unit-heading{gap:10px}.unit-heading>span{min-width:37px;height:43px;font-size:15px}.unit-heading h3{font-size:17px}.unit-heading p{font-size:10px}.unit-heading>small{font-size:11px}
+  .practice-library[data-compact="false"] .practice-pack-grid{gap:11px}.practice-library[data-compact="false"] .practice-pack{padding:16px 14px}.practice-library[data-compact="false"] .pack-copy h3{font-size:14px}.practice-library[data-compact="false"] .pack-icon{width:42px;height:48px}
+  .exercise-heading{margin-bottom:18px;font-size:10px;gap:7px}.exercise-mode{padding:6px 9px}.practice-glossary{font-size:11px;padding:8px 11px}
+  .practice-feedback .correct-sentence{font-size:26px}.explanation-brief p{font-size:12px;line-height:1.95}.grammar-guide .grammar-pattern{font-size:18px;padding:11px}.grammar-guide p{font-size:12px}
+  .practice-stat-note{font-size:11px}.lesson-explanation p{font-size:13px}.basics-heading{margin-top:35px;padding-top:27px}
+  #study-dialog.typing-focused .exercise-heading{margin-bottom:10px}#study-dialog.typing-focused .typing-tools{min-height:40px}#study-dialog.typing-focused .practice-help{margin-top:7px}
+  #study-dialog.typing-focused .practice-glossary{margin:8px 0;padding:6px 9px}#study-dialog.typing-focused .practice-cue{font-size:26px;margin:12px 0}
+}
+@media(max-width:360px){.typing-tools>span{font-size:9px}.accent-toggle{font-size:11px;padding:7px 9px}.unit-heading h3{font-size:15px}.unit-heading p{font-size:9px}.practice-library[data-compact="false"] .pack-copy h3{font-size:13px}.practice-feedback .correct-sentence{font-size:23px}}

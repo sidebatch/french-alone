@@ -1,11 +1,44 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { practicePacks, practiceQuestions } from '../dist/practice-data.js';
-import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, normalizeAnswer, isCorrect, addDays, dueQuestions, reviewDeck, nextPack, recordPractice, independentSentences } from '../dist/practice-core.js';
+import { practicePacks, practiceQuestions, practiceUnits } from '../dist/practice-data.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, normalizeAnswer, isCorrect, addDays, dueQuestions, reviewDeck, nextPack, recordPractice, independentSentences, answerFeedback } from '../dist/practice-core.js';
 
 const resultsFor = pack => pack.questions.map(q=>({id:q.id,correct:true,independent:q.kind==='input'}));
-test('three authored rounds move from a model to unsupported recall and novel combinations',()=>{
-  assert.equal(practicePacks.length,3);assert.equal(practiceQuestions.length,30);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,30);
+test('units cover each course once and all questions have a usable grammar explanation',()=>{
+  assert.deepEqual(practiceUnits.flatMap(u=>u.packs),practicePacks.map(p=>p.id));
+  for(const pack of practicePacks){assert.ok(pack.guide.rule&&pack.guide.caution);for(const q of pack.questions){assert.ok(q.note.length>15);for(const answer of q.accepted||[])assert.ok(isCorrect(q,answer));}}
+});
+test('typing feedback marks omissions without blaming correctly placed words and recognizes accents',()=>{
+  const sentence=practicePacks[0].questions[8];
+  const feedback=answerFeedback(sentence,'Je veux ici');
+  assert.deepEqual(feedback.tokens.map(t=>t.kind),['ok','ok','missing','ok']);
+  assert.equal(answerFeedback(sentence,'Je veux rester ici ici').tokens.filter(t=>t.kind==='extra').length,1);
+  const word=practiceQuestions.find(q=>q.id==='order-food-3');
+  assert.equal(answerFeedback(word,'cafe').accentOnly,true);assert.equal(isCorrect(word,'cafe'),false);
+  assert.equal(isCorrect(word,'café'),true);
+  const blank=practiceQuestions.find(q=>q.id==='want-2');
+  assert.equal(answerFeedback(blank,'Je veux mangr').tokens.filter(t=>t.kind!=='ok').length,1);
+});
+test('completing a word or blank does not count as writing an entire sentence',()=>{
+  const state=freshPractice(),pack=practicePacks.find(p=>p.id==='be');
+  const answers=pack.questions.map(q=>({id:q.id,correct:true,independent:q.kind==='input'&&Boolean(q.cue||q.mode==='word')}));
+  recordPractice(state,answers,{packId:pack.id,date:'2026-11-09'});
+  assert.equal(independentSentences(state).length,0);
+  const review=reviewDeck(state,'2026-11-10');
+  recordPractice(state,review.map(q=>({id:q.id,correct:true,independent:true})),{packId:'review',date:'2026-11-10'});
+  assert.ok(independentSentences(state).includes('je suis à la maison'));
+  assert.ok(!independentSentences(state).includes('ici'));
+});
+test('course completion outlives the capped history and legacy progress migrates',()=>{
+  const state=freshPractice();recordPractice(state,resultsFor(practicePacks[0]),{packId:'want',date:'2026-11-09'});
+  const legacy=structuredClone(state);delete legacy.completed;
+  assert.deepEqual(readPractice({getItem:()=>JSON.stringify(legacy)}).completed,['want']);
+  for(let i=0;i<205;i++)recordPractice(state,resultsFor(practicePacks[1]),{packId:'can',date:'2026-11-09'});
+  const loaded=readPractice({getItem:()=>JSON.stringify(state)});
+  assert.equal(loaded.runs.length,200);assert.deepEqual(loaded.completed,['want','can']);assert.equal(nextPack(loaded).id,'like');
+});
+test('nine authored rounds move from a model to unsupported recall and novel combinations',()=>{
+  assert.equal(practicePacks.length,9);assert.equal(practiceQuestions.length,90);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,90);
   for(const pack of practicePacks){
     assert.equal(pack.questions.length,10);assert.ok(pack.questions[0].model);assert.ok(pack.questions[4].model);
     const last=pack.questions.at(-1);assert.equal(last.kind,'input');assert.equal(last.transfer,true);assert.ok(last.glossary);assert.equal(last.cue,undefined);assert.equal(last.model,undefined);
@@ -22,7 +55,7 @@ test('answer matching accepts formatting and declared alternatives without accep
 test('credit is awarded once and only direct unaided recall counts as independent',()=>{
   const state=freshPractice(),pack=practicePacks[0];
   let r=recordPractice(state,resultsFor(pack),{packId:pack.id,date:'2026-11-06'});
-  assert.equal(r.correct,10);assert.equal(r.independent,6);assert.equal(r.transfer,true);assert.equal(r.xp,80);assert.equal(r.newSentences,6);assert.equal(independentSentences(state).length,6);
+  assert.equal(r.correct,10);assert.equal(r.independent,6);assert.equal(r.transfer,true);assert.equal(r.xp,80);assert.equal(r.newSentences,2);assert.equal(independentSentences(state).length,2);
   assert.equal(state.cards['want-2'].due,'2026-11-07');
   const sameDay=recordPractice(state,resultsFor(pack),{packId:pack.id,date:'2026-11-06'});
   assert.equal(sameDay.xp,0);assert.equal(sameDay.transfer,false);assert.equal(state.cards['want-2'].strength,1);assert.equal(state.cards['want-2'].due,'2026-11-07');

@@ -28,6 +28,49 @@ async function setup(initialPractice,initialDrafts) {
   return {dom,$,click,type,choose,pick,current,answer,errors,saved:()=>JSON.parse(dom.window.localStorage.getItem(PRACTICE_KEY))};
 }
 
+test('accent keys insert at the cursor, preserve the draft and do not spend a hint',async()=>{
+  const f=await setup();f.click('.hero [data-action="practice-start"]');f.answer();
+  assert.equal(f.$('[form="practice-form"]').disabled,true);
+  const input=f.$('#practice-input');input.value='caf';input.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));input.setSelectionRange(3,3);
+  f.click('[data-action="practice-accents"]');assert.equal(f.$('#accent-keys').hidden,false);
+  f.click('[data-action="practice-accent"][data-value="é"]');assert.equal(input.value,'café');assert.equal(input.selectionStart,4);
+  input.setSelectionRange(1,2);f.click('[data-action="practice-accent"][data-value="à"]');assert.equal(input.value,'càfé');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));assert.equal(drafts.sessions.want.current.hints,0);
+  const restored=await setup(undefined,drafts);restored.click('.hero [data-action="practice-resume"]');assert.equal(restored.$('#practice-input').value,'càfé');
+});
+test('IME composition cannot accidentally grade an unfinished answer',async()=>{
+  const f=await setup();f.click('.hero [data-action="practice-start"]');f.answer();
+  f.$('#practice-input').dispatchEvent(new f.dom.window.Event('compositionstart',{bubbles:true}));f.type('veux');
+  assert.equal(f.$('[data-action="practice-next"]'),null);assert.equal(f.$('.answer-attempt'),null);
+  f.$('#practice-input').dispatchEvent(new f.dom.window.Event('compositionend',{bubbles:true}));f.type('veux');assert.ok(f.$('[data-action="practice-next"]'));
+});
+test('course filters and compact home keep unfinished courses accessible',async()=>{
+  const f=await setup();assert.equal(document.querySelectorAll('.practice-pack').length,3);
+  f.dom.window.history.replaceState({},'','#lessons');f.dom.window.dispatchEvent(new f.dom.window.HashChangeEvent('hashchange'));
+  assert.equal(document.querySelectorAll('.practice-pack').length,9);
+  f.click('[data-action="practice-unit"][data-value="outside"]');assert.equal(document.querySelectorAll('.practice-pack').length,3);
+  f.click('[data-action="practice-status"][data-value="active"]');assert.ok(f.$('.course-empty'));
+  f.click('[data-action="practice-filter-reset"]');f.click('.practice-pack[data-id="go"]');
+  for(let i=0;i<3;i++)f.answer();f.pick('Je');f.pick('vais');f.click('[data-action="practice-clear"]');
+  assert.equal(document.querySelectorAll('.tile-answer .word-tile').length,0);assert.equal(f.$('[data-action="practice-check"]').disabled,true);
+  f.click('#study-dialog [data-action="close"]');f.click('[data-action="practice-status"][data-value="active"]');
+  assert.equal(document.querySelectorAll('.practice-pack').length,1);assert.equal(f.$('.practice-pack').dataset.id,'go');
+  f.click('[data-action="lesson-view"][data-value="basics"]');
+  f.dom.window.history.replaceState({},'','#home');f.dom.window.dispatchEvent(new f.dom.window.HashChangeEvent('hashchange'));
+  f.click('[data-action="open-practice"]');
+  f.dom.window.history.replaceState({},'','#lessons');f.dom.window.dispatchEvent(new f.dom.window.HashChangeEvent('hashchange'));
+  assert.equal(f.$('[data-action="lesson-view"][data-value="practice"]').getAttribute('aria-pressed'),'true');
+  assert.equal(f.errors.length,0);
+});
+test('missing words, grammar guidance and assisted recap survive a paused session',async()=>{
+  const f=await setup();f.click('.hero [data-action="practice-start"]');for(let i=0;i<8;i++)f.answer();
+  f.type('Je veux ici');assert.equal(f.$('.attempt-word.missing').textContent,'빠진 단어');
+  f.type('Je veux rester ici');assert.equal(f.$('.answer-detail').open,true);assert.match(f.$('.grammar-guide').textContent,/Je voudrais/);
+  f.click('[data-action="practice-next"]');f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  const restored=await setup(undefined,drafts);restored.click('.hero [data-action="practice-resume"]');restored.answer();
+  assert.match(restored.$('.practice-recap').textContent,/다시 살펴볼 문제 1개/);assert.match(restored.$('.practice-recap').textContent,/Je veux rester ici/);
+});
 test('a round handles wrong answers, hints, tile undo, independent transfer, continuation and reset',async()=>{
   const f=await setup();const {$,click,type,choose,pick,current,answer,saved}=f;
   assert.equal(document.querySelectorAll('.practice-pack').length,3);
@@ -45,20 +88,20 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   assert.match($('.result-stats').textContent,/4 \/ 6/);assert.match($('.practice-takeaway').textContent,/Je veux continuer/);
   assert.equal(saved().runs.length,1);assert.equal(saved().runs[0].independent,4);assert.equal(saved().runs[0].xp,70);assert.equal(saved().runs[0].transfer,true);
   assert.equal(saved().cards['want-2'].strength,0);assert.equal(saved().cards['want-10'].strength,1);
-  const baseline=JSON.parse(f.dom.window.localStorage.getItem(STORAGE_KEY));assert.equal(Object.values(baseline.activity)[0].xp,70);assert.equal(Object.values(baseline.activity)[0].words,4);
+  const baseline=JSON.parse(f.dom.window.localStorage.getItem(STORAGE_KEY));assert.equal(Object.values(baseline.activity)[0].xp,70);assert.equal(Object.values(baseline.activity)[0].words,2);
   click('[data-action="practice-more"]');assert.equal(current().id,'can-1');click('#study-dialog [data-action="close"]');assert.equal(saved().runs.length,1);
   assert.equal($('#study-dialog').open,false);assert.match($('.goal-tag.is-done').textContent,/오늘도 완료/);assert.match($('.goal-footnote').textContent,/오늘의 한 판을 마쳤어요/);
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });
 
-test('all three authored rounds can be completed using apostrophes and preserve independent scores on reload',async()=>{
+test('all nine authored rounds can be completed using apostrophes and preserve independent scores on reload',async()=>{
   const f=await setup();
   for(const pack of practicePacks){
     f.click(`.practice-pack[data-id="${pack.id}"]`);
     while(f.current())f.answer();
     assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.saved().runs.at(-1).transfer,true);f.click('[data-action="practice-close"]');
   }
-  assert.equal(f.saved().runs.length,3);
+  assert.equal(f.saved().runs.length,9);
   const restored=await setup(f.saved());assert.equal(restored.$('.hero [data-action="practice-start"]').dataset.id,'want');
   restored.click('.practice-pack[data-id="want"]');while(restored.current())restored.answer();
   assert.equal(restored.$('.completion-reward').textContent,'복습 완료');

@@ -31,7 +31,7 @@ test('learner can finish a quiz, save progress, search, review mistakes, and res
   assert.match($('#dialog-content').textContent,/5 \/ 6/);assert.deepEqual(saved().completed,['greetings']);assert.equal(saved().mastered.length,5);assert.equal(saved().mistakes.length,1);
   assert.equal(Object.values(saved().activity)[0].xp,70);
   click('#study-dialog [data-action="close"]');assert.equal($('#study-dialog').open,false);
-  navigate('vocabulary');assert.equal(document.querySelectorAll('.expression').length,48);
+  navigate('vocabulary');assert.equal(document.querySelectorAll('.expression').length,phrases.length);
   const search=$('#phrase-search');search.value='cafe';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(document.querySelectorAll('.expression').length,1);assert.match($('#phrase-list').textContent,/Un café/);
   search.value='<script>';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.match($('#phrase-list').textContent,/검색 결과가 없어요/);
   search.value='';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));click('[data-action="vocab-filter"][data-value="틀린 표현"]');assert.equal(document.querySelectorAll('.expression').length,1);

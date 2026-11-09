@@ -23,9 +23,13 @@ export function readState(storage) {
         const specs=Array.isArray(entry.questions)&&entry.questions.length===deck.length ? entry.questions : [];
         const validSpecs=specs.length===deck.length && new Set(specs.map(q=>q?.id)).size===deck.length && specs.every(q=>deck.some(p=>p.id===q.id) && Array.isArray(q.choices) && q.choices.length===4 && new Set(q.choices).size===4 && q.choices.includes(q.id) && q.choices.every(id=>ids.has(id)));
         const phase=entry.phase==='quiz'&&validSpecs?'quiz':'learn';
-        const answers=phase==='quiz' && Array.isArray(entry.answers) ? entry.answers.filter(a=>deck.some(p=>p.id===a?.id)&&typeof a.correct==='boolean').slice(0,deck.length) : [];
-        const index=Math.max(0,Math.min(deck.length-1,entry.index));
-        const selected=phase==='quiz'&&typeof entry.selected==='string'&&specs[index].choices.includes(entry.selected)?entry.selected:null;
+        let answers=phase==='quiz' && Array.isArray(entry.answers) ? entry.answers.map(a=>({id:a?.id,correct:a?.correct})) : [];
+        let index=Math.max(0,Math.min(deck.length-1,entry.index));
+        let selected=phase==='quiz'&&typeof entry.selected==='string'&&specs[index].choices.includes(entry.selected)?entry.selected:null;
+        if(phase==='quiz'&&(answers.length!==index+(selected?1:0)||answers.some((a,i)=>a.id!==specs[i]?.id||typeof a.correct!=='boolean')||(selected&&answers[index]?.correct!==(selected===specs[index].id)))) {
+          // A damaged answer sequence must not crash at the last question.
+          index=0;answers=[];selected=null;
+        }
         state.lessonProgress[lesson.id]={phase,index,answers,selected,questions:phase==='quiz'?specs:[]};
       }
     }
@@ -38,7 +42,8 @@ export function shuffle(values, random = Math.random) {
   return result;
 }
 export function makeQuestions(deck, random = Math.random) {
-  return shuffle(deck,random).map(phrase=>({ phrase, choices:shuffle([phrase, ...shuffle(phrases.filter(p=>p.ko!==phrase.ko),random).slice(0,3)],random) }));
+  const uniqueMeanings=[...new Map(phrases.map(p=>[p.ko,p])).values()];
+  return shuffle(deck,random).map(phrase=>({ phrase, choices:shuffle([phrase, ...shuffle(uniqueMeanings.filter(p=>p.ko!==phrase.ko),random).slice(0,3)],random) }));
 }
 export function finishLesson(state, lessonId, answers, date=today()) {
   const deck = phrases.filter(p=>p.lessonId===lessonId);

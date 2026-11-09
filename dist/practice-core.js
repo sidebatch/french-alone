@@ -3,12 +3,38 @@ import { practicePacks, practiceQuestions, questionById } from './practice-data.
 
 export const PRACTICE_KEY = 'bonjour-practice-v1';
 export const PRACTICE_DRAFT_KEY = 'bonjour-practice-drafts-v1';
-export const freshPractice = () => ({ version: 1, cards: {}, runs: [] });
+export const freshPractice = () => ({ version: 1, cards: {}, runs: [], completed: [] });
 export function normalizeAnswer(value) {
   return String(value).normalize('NFC').toLocaleLowerCase('fr').replace(/[’‘ʼ`]/g,"'")
     .replace(/[.!?…,;:]/g,'').replace(/\s*'\s*/g,"'").replace(/\s+/g,' ').trim();
 }
 export const isCorrect = (question, value) => [question.answer, ...(question.accepted || []), ...(question.cue?[question.full]:[])].some(answer => normalizeAnswer(answer) === normalizeAnswer(value));
+// Align tokens against the nearest accepted answer. Missing words get their own
+// marker instead of incorrectly marking every subsequent word as a typo.
+export function answerFeedback(question, value) {
+  const attempt = String(value).trim().split(/\s+/).filter(Boolean);
+  const candidates = [question.answer, ...(question.accepted || []), ...(question.cue ? [question.full] : [])];
+  const compared = candidates.map(answer => {
+    const expected = answer.trim().split(/\s+/).filter(word => normalizeAnswer(word));
+    const actual = attempt.filter(word => normalizeAnswer(word));
+    const costs = Array.from({length: actual.length + 1}, () => Array(expected.length + 1).fill(0));
+    for(let i=0;i<=actual.length;i++)costs[i][0]=i;
+    for(let j=0;j<=expected.length;j++)costs[0][j]=j;
+    for(let i=1;i<=actual.length;i++)for(let j=1;j<=expected.length;j++) {
+      costs[i][j]=Math.min(costs[i-1][j]+1,costs[i][j-1]+1,costs[i-1][j-1]+(normalizeAnswer(actual[i-1])===normalizeAnswer(expected[j-1])?0:1));
+    }
+    const tokens=[];let i=actual.length,j=expected.length;
+    while(i||j) {
+      if(i&&j&&normalizeAnswer(actual[i-1])===normalizeAnswer(expected[j-1])) {tokens.unshift({text:actual[--i],kind:'ok'});j--;}
+      else if(j&&costs[i][j]===costs[i][j-1]+1){tokens.unshift({text:'빠진 단어',kind:'missing'});j--;}
+      else if(i&&j&&costs[i][j]===costs[i-1][j-1]+1){tokens.unshift({text:actual[--i],kind:'change'});j--;}
+      else {tokens.unshift({text:actual[--i],kind:'extra'});}
+    }
+    const strip = text => normalizeAnswer(text).normalize('NFD').replace(/\p{Diacritic}/gu,'');
+    return {tokens,cost:costs[actual.length][expected.length],accentOnly:strip(value)===strip(answer)};
+  });
+  return compared.sort((a,b)=>a.cost-b.cost)[0];
+}
 const validDate = value => {
   if(typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [y,m,d] = value.split('-').map(Number);return today(new Date(y,m-1,d,12)) === value;
@@ -38,6 +64,10 @@ export function readPractice(storage) {
       Number.isInteger(run.correct) && run.correct >= 0 && run.correct <= run.total &&
       Number.isInteger(run.xp) && run.xp >= 0 && run.xp <= run.total*10)
       .slice(-200).map(run=>({date:run.date,packId:run.packId,total:run.total,independent:run.independent,correct:run.correct,xp:run.xp,transfer:run.transfer===true,continued:run.continued===true}));
+    state.completed = [...new Set([
+      ...(Array.isArray(raw.completed) ? raw.completed.filter(id=>practicePacks.some(pack=>pack.id===id)) : []),
+      ...state.runs.filter(run=>run.packId!=='review').map(run=>run.packId)
+    ])];
   } catch { /* Keep the valid default when browser storage is unavailable or corrupt. */ }
   return state;
 }
@@ -50,7 +80,7 @@ export function reviewDeck(state, date=today()) {
 }
 export function nextPack(state, currentId) {
   if(currentId){const index=practicePacks.findIndex(p=>p.id===currentId);if(index>=0)return practicePacks[(index+1)%practicePacks.length];}
-  return practicePacks.find(pack=>!state.runs.some(run=>run.packId===pack.id)) || practicePacks[0];
+  return practicePacks.find(pack=>!state.completed.includes(pack.id)) || practicePacks[0];
 }
 
 export function readPracticeDrafts(storage) {
@@ -77,7 +107,7 @@ export function readPracticeDrafts(storage) {
       const value=q.kind==='choice'?choice:q.kind==='order'?selected.map(i=>tiles[i]).join(' '):draft;
       if(status==='correct'&&!isCorrect(q,value||''))status='idle';
       drafts[packId]={packId,questionIds:[...ids],index:item.index,
-        results:item.results.map(r=>({id:r.id,correct:r.correct,independent:r.independent&&(packId==='review'||questionById(r.id).kind==='input')})),
+        results:item.results.map(r=>({id:r.id,correct:r.correct,independent:r.independent&&(packId==='review'||questionById(r.id).kind==='input'),needsReview:r.needsReview===true||!r.correct})),
         continued:item.continued===true,updatedAt:Number.isFinite(item.updatedAt)?item.updatedAt:0,
         current:{draft,choice,tiles,selected,status,hints:Math.min(2,Math.max(status==='revealed'?2:0,Number.isInteger(current.hints)?current.hints:0)),hadError:current.hadError===true||status==='wrong'}
       };
@@ -85,7 +115,7 @@ export function readPracticeDrafts(storage) {
   } catch { /* An invalid paused session must never block the learning screen. */ }
   return drafts;
 }
-export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
+export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>!q.cue&&!q.model&&q.mode!=='word'&&state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
 export function recordPractice(state, results, {packId, date=today(), continued=false}={}) {
   if(!validDate(date) || !results.length || results.length > 10 || (packId!=='review'&&results.length!==practicePacks.find(p=>p.id===packId)?.questions.length) || new Set(results.map(r=>r.id)).size !== results.length ||
     ![...practicePacks.map(p=>p.id),'review'].includes(packId) || results.some(r=>!questionById(r.id) || (packId!=='review' && questionById(r.id).packId!==packId))) throw Error('Invalid practice results');
@@ -103,5 +133,6 @@ export function recordPractice(state, results, {packId, date=today(), continued=
   }
   const summary={date,packId,total:results.length,correct,independent,xp,transfer,continued};
   state.runs.push(summary);state.runs=state.runs.slice(-200);
+  if(packId!=='review'&&!state.completed.includes(packId))state.completed.push(packId);
   return {...summary,newSentences:independentSentences(state).filter(sentence=>!before.has(sentence)).length};
 }

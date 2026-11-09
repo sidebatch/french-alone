@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 — 2026-11-09
+
+- Expand text practice to 9 courses / 90 questions in three units, adding standalone word typing, states, possession, destinations, ordering, needs and locations.
+- Expand basic expressions to 12 lessons / 72 expressions and revise usage explanations across the existing lessons.
+- Separate sentence practice and basic expressions; add unit/status filters, persistent course completion and compact home recommendations.
+- Explain each answer with a specific note, sentence pattern and common pitfalls; recap assisted questions after a round, including resumed rounds.
+- Add French accent keys with cursor insertion, card reset and token-aligned feedback for missing words and accents. Ignore unfinished IME composition.
+- Count only full-sentence recall as independently written sentences. Preserve completion when older history rolls off, and recover malformed basic-quiz drafts safely.
+- Keep all exercises local and available offline. No microphone, speech assessment, runtime AI generation or paid API is introduced.
+
 ## 1.3.1 — 2026-11-07
 
 - Replace the initial vector cat with four consistent, soft 3D Lou poses: greeting, delight, thinking and celebration.

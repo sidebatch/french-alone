@@ -35,9 +35,9 @@ test('legacy progress migrates safely with feedback enabled by default',()=>{
 
 test('basic lesson visually tracks progress and reopens a checked quiz answer',async()=>{
   const f=await setup();
-  f.nav('lessons');
-  assert.equal(document.querySelectorAll('.lesson-card.status-not-started').length,8);
-  assert.match(f.$('.lesson-status-key').textContent,/시작 전 8/);
+  f.nav('lessons');f.click('[data-action="lesson-view"][data-value="basics"]');
+  assert.equal(document.querySelectorAll('.lesson-card.status-not-started').length,12);
+  assert.match(f.$('.lesson-status-key').textContent,/시작 전 12/);
   f.click('.lesson-card[data-id="greetings"]');
   f.click('[data-action="next-learn"]');
   f.click('#study-dialog [data-action="close"]');
@@ -82,7 +82,7 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
   assert.match(f.$('#dialog-content').textContent,/용법/);
   f.click('#study-dialog [data-action="close"]');
   f.click('.header-settings');
-  assert.match(f.$('#dialog-content').textContent,/v1.3.1/);
+  assert.match(f.$('#dialog-content').textContent,/v1.4.0/);
   assert.match(f.$('#dialog-content').textContent,/sidebatch/);
   const sounds=f.$('#feedback-sounds');
   sounds.checked=false;
@@ -116,7 +116,7 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
 });
 
 test('a failed lesson stays in progress and restarts its quiz, not the intro',async()=>{
-  const f=await setup();f.nav('lessons');f.click('.lesson-card[data-id="greetings"]');
+  const f=await setup();f.nav('lessons');f.click('[data-action="lesson-view"][data-value="basics"]');f.click('.lesson-card[data-id="greetings"]');
   for(let i=0;i<6;i++)f.click('[data-action="next-learn"]');
   for(let i=0;i<6;i++){
     const q=phrases.find(p=>p.fr===f.$('.big-french').textContent);
