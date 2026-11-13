@@ -1,4 +1,6 @@
 import {miniLessons,questionLessonIds} from './practice-lessons.js';
+import {extraGrammarArticles} from './grammar-extra-data.js';
+import {existingArticleTerms} from './grammar-terms.js';
 
 export const grammarCategories=[{id:'basics',title:'문장의 기본'},{id:'verbs',title:'동사와 표현'},{id:'tenses',title:'시제와 가정'},{id:'connections',title:'대명사와 연결'}];
 const S=(title,text,examples=[])=>({title,paragraphs:Array.isArray(text)?text:[text],examples});
@@ -6,7 +8,7 @@ const T=(title,headers,rows)=>({title,table:{headers,rows}});
 const F=id=>T(miniLessons[id].title,miniLessons[id].headers||['말·상황','형태·표현'],miniLessons[id].forms);
 const A=(id,category,title,fr,summary,aliases,lessonIds,sections)=>({id,category,title,fr,summary,aliases,lessonIds,sections});
 
-export const grammarArticles=[
+const coreGrammarArticles=[
   A('etre','verbs','être · 상태와 위치','être','누구인지, 어떤 상태인지, 어디에 있는지 말해요.',['suis','es','est','sommes','êtes','sont','있다','이다'],['etrePresent','homeLocation'],[
     S('상태·정체·위치','être 뒤에 형용사, 신분을 나타내는 말, 장소를 붙일 수 있어요. 주어에 따라 동사를 바꿔요.',[['Je suis prêt.','나는 준비됐어.'],['Elle est à la maison.','그녀는 집에 있어.']]),F('etrePresent'),
     S('형용사와 장소는 다르게 다뤄요','형용사는 주어의 성·수에 맞추지만 à la maison 같은 장소 표현은 그대로예요.',[['Ils sont prêts.','그들은 준비됐어.'],['Elles sont à la maison.','그녀들은 집에 있어.']]),
@@ -38,7 +40,9 @@ export const grammarArticles=[
   A('negation','basics','부정문','ne … pas','~하지 않는다, ~이 아니다를 표현해요.',['부정','ne pas','n’aime','없다','않다','싫어'],['wantNegative','canNegative','likeNegative','etreNegative','allerNegative'],[
     S('활용된 동사 앞뒤','기본 부정문은 ne + 활용된 동사 + pas예요. 뒤에 동사원형이 있으면 그 원형은 pas 뒤에 놓아요.',[['Je ne veux pas partir.','나는 떠나고 싶지 않아.'],['Je ne suis pas ici.','나는 여기에 있지 않아.']]),T('긍정에서 부정으로',['긍정','부정'],[['Je peux venir.','Je ne peux pas venir.'],['J’aime lire.','Je n’aime pas lire.'],['Je le lis.','Je ne le lis pas.'],['J’ai vu ce film.','Je n’ai pas vu ce film.']]),
     S('ne가 n’로 줄 때','동사가 모음이나 무음 h로 시작하면 ne가 n’가 돼요. 대명사가 끼면 그 다음 말에 맞춰 줄여요.',[['Je n’ai pas faim.','나는 배고프지 않아.'],['Je n’en ai pas.','나는 그것이 하나도 없어.']]),
-    S('다른 부정 표현','pas 대신 plus는 “더 이상 ~않다”, jamais는 “한 번도·절대 ~않다”예요. pas encore는 “아직 ~않다”예요. 일상 구어에서는 ne를 빼기도 하지만 기본 구조는 함께 익혀요.',[['Je ne travaille plus ici.','나는 더 이상 여기서 일하지 않아.'],['Je n’ai pas encore mangé.','나는 아직 먹지 않았어.']])]),
+    S('다른 부정 표현','pas 대신 plus는 “더 이상 ~않다”, jamais는 “한 번도·절대 ~않다”예요. pas encore는 “아직 ~않다”예요. 일상 구어에서는 ne를 빼기도 하지만 기본 구조는 함께 익혀요.',[['Je ne travaille plus ici.','나는 더 이상 여기서 일하지 않아.'],['Je n’ai pas encore mangé.','나는 아직 먹지 않았어.']]),
+    S('아무것도·아무도','rien·personne가 같은 부정의 뜻을 맡으면 pas를 더하지 않아요. 복합과거에서 rien은 보통 과거분사 앞, 목적어 personne는 뒤에 놓아요.',[['Je n’ai rien vu.','나는 아무것도 보지 못했어.'],['Je n’ai vu personne.','나는 아무도 보지 못했어.'],['Personne n’est venu.','아무도 오지 않았어.']]),
+    S('ne … que는 오직','부정이 아니라 범위를 제한하는 표현이에요. que는 제한할 말 바로 앞에 와요.',[['Je n’ai que deux livres.','나는 책이 두 권밖에 없어.'],['Je ne bois que de l’eau.','나는 물만 마셔.']])]),
   A('articles','basics','명사와 관사','un · une · le · la','명사의 성·수, 관사와 모음 앞 줄임을 살펴봐요.',['관사','명사','남성','여성','café','thé','sac','gare','musée','hôtel','un','une','les'],['sac','nounArticles','negativeDe','cafe','menuArticles','the','gare','hotel','musee'],[
     S('하나를 소개할 때와 정해진 것을 말할 때','처음 소개하는 하나에는 un·une, 이미 정해진 것에는 le·la를 써요. 성은 말하는 사람이 아니라 명사의 성이에요.',[['J’ai un livre. Le livre est ici.','책 한 권이 있어. 그 책은 여기 있어.']]),T('관사의 기본형',['종류','남성 / 여성 / 복수'],[['부정관사','un / une / des'],['정관사','le / la / les'],['모음·무음 h 앞 정관사','l’ / l’ / les'],['부분량','du / de la / de l’']]),T('명사와 함께 익히기',['남성 명사','여성 명사'],[['un sac · 가방','une question · 질문'],['un café · 커피','une salade · 샐러드'],['un thé · 차','une gare · 기차역'],['un musée · 박물관','une maison · 집'],['un hôtel · 호텔','une lettre · 편지']]),
     S('줄임과 부정','le hôtel은 l’hôtel, la aide는 l’aide로 줄어요. 가진 것이 없다고 할 때 un·une·des는 보통 de로 바뀌지만, 정관사나 être 뒤에는 그대로인 경우가 있어요.',[['Je n’ai pas de sac.','나는 가방이 없어.'],['Ce n’est pas un sac.','이건 가방이 아니야.'],['Je n’aime pas le thé.','나는 차를 좋아하지 않아.']]),
@@ -132,12 +136,21 @@ export const grammarArticles=[
     S('생각하는 내용을 que 뒤에','Je pense que 뒤에 주어와 동사가 있는 문장을 붙여요. 긍정문에서 사실로 생각하는 내용은 보통 직설법을 써요.',[['Je pense que c’est important.','나는 이게 중요하다고 생각해.'],['Je pense qu’il a raison.','나는 그가 옳다고 생각해.']]),F('avoirRaison'),
     S('모음 앞의 que','que는 il·elle 같은 모음 앞에서 qu’가 돼요. 주어 c’나 je 앞에서는 que를 유지해요.',[['Je pense qu’elle vient.','나는 그녀가 온다고 생각해.']]),
     S('부정·의문에서는 문맥을 봐요','Je ne pense pas que처럼 확신을 부정하면 접속법이 흔히 쓰여요. 질문·부정의 뜻과 확신 정도에 따라 법이 달라지므로 “penser 뒤는 항상 직설법”으로 외우지 않아요.',[['Je ne pense pas qu’il soit ici.','나는 그가 여기에 있다고 생각하지 않아.']])]),
-  A('subjunctive','connections','필요와 바람의 접속법','Le subjonctif présent','필요하거나 바라는 일을 que 뒤에 표현해요.',['접속법','il faut','je veux que','sois','soit','viennes','fasses','aies','partions','해야해'],['subjVenir','subjEtre','subjFaire','subjPartir','subjAvoir'],[
+  A('subjunctive','connections','필요와 바람의 접속법','Le subjonctif présent','필요하거나 바라는 일을 que 뒤에 표현해요.',['접속법','subjonctif','subjuntif','il faut','je veux que','sois','soit','viennes','fasses','aies','partions','해야해'],['subjVenir','subjEtre','subjFaire','subjPartir','subjAvoir'],[
     S('접속법을 쓰는 이유','접속법은 단순한 과거·미래 표시가 아니라 내용을 바라보는 방식이에요. Il faut que의 필요, Je veux que의 바람 뒤에서는 접속법 현재를 써요.',[['Il faut que tu viennes.','네가 와야 해.'],['Je veux qu’il vienne.','나는 그가 오기를 원해.']]),
     S('원형과 que절','내가 하고 싶은 일은 Je veux + 원형, 다른 사람이 하기를 바라는 일은 Je veux que + 주어 + 접속법으로 구분해요. Il faut + 원형은 필요한 행동을 일반적으로 말해요.',[['Je veux venir.','나는 오고 싶어.'],['Il faut partir.','떠나야 해.'],['Il faut que nous partions.','우리가 떠나야 해.']]),F('subjEtre'),F('subjAvoir'),F('subjFaire'),F('subjVenir'),F('subjPartir'),
     S('규칙적인 형태와 예외','많은 동사는 현재형 ils의 -ent를 뺀 어간에 -e·-es·-e·-ions·-iez·-ent를 붙여요. nous·vous에서 어간이 달라지는 동사와 être·avoir 같은 불규칙형은 표로 확인해요. que가 있다고 언제나 접속법은 아니에요.',[['Il faut que tu parles.','네가 말해야 해.'],['Je pense qu’il vient.','나는 그가 온다고 생각해. (직설법)']])])
 ];
 
+// A reference outline independent of the currently available exercise courses.
+export const grammarOutline={
+  basics:['word-classes','articles','gender-plural','partitive-articles','possessive-adjectives','demonstrative-adjectives','agreement','adjective-position','adverbs','quantity','infinitive','negation','questions','interrogatives','places','countries-prepositions','time-prepositions'],
+  verbs:['present-regular','present-irregular','etre','avoir','aller','vouloir','pouvoir','aimer','pronominal-verbs','imperative','requests','need','avoir-states'],
+  tenses:['ongoing-present','recent-past','compound-past','participles','etre-past','past-negation','imparfait','past-contrast','pluperfect','future','future-perfect','conditions','conditional','conditional-past','past-subjunctive','literary-past'],
+  connections:['object-pronouns','indirect-objects','pronoun-order','stressed-pronouns','y','en','possessive-pronouns','demonstrative-pronouns','relatives','relative-dont-ou','relative-compound','comparison','superlative','connectors','subordinating-conjunctions','opinion','subjunctive','gerund','present-participle','passive','reported-speech']
+};
+const allArticles=[...coreGrammarArticles.map(article=>({...article,term:existingArticleTerms[article.id]||''})),...extraGrammarArticles];
+export const grammarArticles=Object.values(grammarOutline).flat().map(id=>allArticles.find(article=>article.id===id));
 export const grammarById=id=>grammarArticles.find(article=>article.id===id);
 export const miniLessonArticleIds=Object.fromEntries(grammarArticles.flatMap(article=>article.lessonIds.map(id=>[id,article.id])));
 export const grammarForQuestion=id=>grammarById(miniLessonArticleIds[questionLessonIds[id]]);

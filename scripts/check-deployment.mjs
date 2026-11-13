@@ -22,7 +22,7 @@ async function check() {
     ensure(bytes[0]===137 && bytes[1]===80 && bytes[2]===78 && bytes[3]===71,'Invalid public PNG icon');
     ensure(u32(bytes,16)===size && u32(bytes,20)===size,'Public install icon has the wrong dimensions');
   }
-  const paths=['./app.js','./core.js','./data.js','./practice.js','./practice-core.js','./practice-data.js','./practice-content.js','./practice-intermediate.js','./practice-lessons.js','./grammar-data.js','./grammar-core.js','./grammar.js','./grammar.css','./learning.css','./play.css','./style.css','./pwa.css','./product.css','./ux.css','./feedback.js','./companion.js','./companion.css','./polish.css','./assets/lou-sprites-v2.webp','./study-viewport.js','./pwa.js','./sw.js','./icons/apple-touch-icon.png'];
+  const paths=['./app.js','./core.js','./data.js','./practice.js','./practice-core.js','./practice-data.js','./practice-content.js','./practice-intermediate.js','./practice-lessons.js','./grammar-data.js','./grammar-extra-data.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css','./learning.css','./play.css','./style.css','./pwa.css','./product.css','./ux.css','./feedback.js','./companion.js','./companion.css','./polish.css','./assets/lou-sprites-v2.webp','./study-viewport.js','./pwa.js','./sw.js','./icons/apple-touch-icon.png'];
   await Promise.all(paths.map(async path=>(await get(path)).arrayBuffer()));
   console.log('Public PWA verified: '+base.href+' · manifest, icons and all lesson/offline files are reachable');
 }

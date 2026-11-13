@@ -4,13 +4,13 @@ import {miniLessons} from './practice-lessons.js';
 export const GRAMMAR_KEY='bonjour-grammar-v1';
 export const normalizeGrammar=value=>String(value).normalize('NFD').replace(/\p{Diacritic}/gu,'').normalize('NFC').toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim();
 const searchable=grammarArticles.map(article=>{
-  const text=normalizeGrammar([article.title,article.fr,article.summary,...article.aliases,...article.sections.flatMap(section=>[section.title,...section.paragraphs||[],...section.table?.headers||[],...section.table?.rows.flat()||[],...section.examples?.flat()||[]]),...article.lessonIds.flatMap(id=>{const lesson=miniLessons[id];return [lesson.title,lesson.rule,...lesson.forms.flat(),lesson.example.fr,lesson.example.ko,lesson.caution];})].join(' '));
-  return {article,title:normalizeGrammar(article.title),fr:normalizeGrammar(article.fr),aliases:article.aliases.map(normalizeGrammar),text,words:new Set(text.split(/[^a-z]+/))};
+  const text=normalizeGrammar([article.title,article.fr,article.term,article.summary,...article.aliases,...article.sections.flatMap(section=>[section.title,...section.paragraphs||[],...section.table?.headers||[],...section.table?.rows.flat()||[],...section.examples?.flat()||[]]),...article.lessonIds.flatMap(id=>{const lesson=miniLessons[id];return [lesson.title,lesson.rule,...lesson.forms.flat(),lesson.example.fr,lesson.example.ko,lesson.caution];})].join(' '));
+  return {article,title:normalizeGrammar(article.title),fr:normalizeGrammar(article.fr),term:normalizeGrammar(article.term||''),aliases:article.aliases.map(normalizeGrammar),text,words:new Set(text.split(/[^a-z]+/))};
 });
 export function searchGrammar(query='',category='all') {
   const q=normalizeGrammar(query),terms=q.split(' ').filter(Boolean);
   return searchable.filter(row=>(category==='all'||row.article.category===category)&&terms.every(term=>/^[a-z]{1,2}$/.test(term)?row.words.has(term):row.text.includes(term)))
-    .map(row=>({article:row.article,score:!q?0:row.fr===q?100:row.aliases.includes(q)?90:row.title===q?85:row.title.includes(q)?70:row.aliases.some(alias=>alias.includes(q))?50:10}))
+    .map(row=>({article:row.article,score:!q?0:row.fr===q||row.term===q?100:row.aliases.includes(q)?90:row.title===q?85:row.title.includes(q)?70:row.aliases.some(alias=>alias.includes(q))||row.term.includes(q)?50:10}))
     .sort((a,b)=>b.score-a.score).map(row=>row.article);
 }
 export const freshGrammar=()=>({version:1,counts:{},seen:[]});

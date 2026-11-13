@@ -1,16 +1,18 @@
 import {grammarArticles,grammarCategories,grammarById} from './grammar-data.js';
 import {GRAMMAR_KEY,createGrammarStore,searchGrammar} from './grammar-core.js';
+import {grammarTerms,renderGrammarText} from './grammar-terms.js';
 
 export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
   const doc=document,win=window,dialog=doc.querySelector('#grammar-dialog');
   const store=createGrammarStore(storage,onSaveError);
   let query='',category='all',returnPoint=null;
   const eye=(id)=>'<span class="grammar-views" data-grammar-count="'+id+'" aria-label="내가 본 횟수 '+store.count(id)+'회">'+icon('eye')+'<span>'+store.count(id)+'</span></span>';
+  const articleTitle=article=>escape(article.title)+(article.term?'<span class="grammar-term" lang="fr"> ('+escape(article.term)+')</span>':'');
   const filters=()=>[{id:'all',title:'전체'},...grammarCategories].map(item=>'<button type="button" class="filter-button '+(category===item.id?'active':'')+'" data-action="grammar-filter" data-value="'+item.id+'" aria-pressed="'+(category===item.id)+'">'+item.title+'</button>').join('');
   function results() {
     const articles=searchGrammar(query,category);
     if(!articles.length)return '<div class="empty-state"><h2>검색 결과가 없어요</h2><button class="secondary-button" data-action="grammar-clear">검색 초기화</button></div>';
-    const list=items=>'<div class="grammar-list">'+items.map(article=>'<button type="button" class="grammar-entry" data-action="grammar-open" data-id="'+article.id+'"><span class="grammar-entry-copy"><strong>'+escape(article.title)+'</strong><span lang="fr">'+escape(article.fr)+'</span></span>'+eye(article.id)+icon('chevron')+'</button>').join('')+'</div>';
+    const list=items=>'<div class="grammar-list">'+items.map(article=>'<button type="button" class="grammar-entry" data-action="grammar-open" data-id="'+article.id+'"><span class="grammar-entry-copy"><strong>'+articleTitle(article)+'</strong>'+(!article.term?'<span lang="fr">'+escape(article.fr)+'</span>':'')+'</span>'+eye(article.id)+icon('chevron')+'</button>').join('')+'</div>';
     return query.trim()?list(articles):grammarCategories.filter(group=>articles.some(article=>article.category===group.id)).map(group=>'<section class="grammar-group"><h2>'+group.title+'</h2>'+list(articles.filter(article=>article.category===group.id))+'</section>').join('');
   }
   function renderLibrary(){
@@ -25,13 +27,14 @@ export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
   }
   function refreshCounts(){doc.querySelectorAll('[data-grammar-count]').forEach(node=>{const count=store.count(node.dataset.grammarCount);node.setAttribute('aria-label','내가 본 횟수 '+count+'회');node.querySelector('span').textContent=count;});}
   function articleHTML(article){
-    return '<p class="grammar-intro">'+escape(article.summary)+'</p>'+article.sections.map(section=>'<section class="grammar-section"><h3>'+escape(section.title)+'</h3>'+(section.paragraphs||[]).map(text=>'<p>'+escape(text)+'</p>').join('')+(section.table?'<table class="grammar-table"><caption class="visually-hidden">'+escape(section.title)+'</caption><thead><tr>'+section.table.headers.map(header=>'<th scope="col">'+escape(header)+'</th>').join('')+'</tr></thead><tbody>'+section.table.rows.map(row=>'<tr>'+row.map((cell,index)=>index===0?'<th scope="row">'+escape(cell)+'</th>':'<td lang="fr">'+escape(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'')+(section.examples?.length?'<div class="grammar-examples">'+section.examples.map(([fr,ko])=>'<div><p lang="fr">'+escape(fr)+'</p><p>'+escape(ko)+'</p></div>').join('')+'</div>':'')+'</section>').join('');
+    const seen=new Set(Object.keys(grammarTerms).filter(term=>article.title.includes(term))),text=value=>renderGrammarText(value,escape,seen),lang=value=>/[가-힣]/.test(value)?'':' lang="fr"';
+    return '<p class="grammar-intro">'+text(article.summary)+'</p>'+article.sections.map(section=>'<section class="grammar-section"><h3>'+text(section.title)+'</h3>'+(section.paragraphs||[]).map(value=>'<p>'+text(value)+'</p>').join('')+(section.table?'<table class="grammar-table"><caption class="visually-hidden">'+escape(section.title)+'</caption><thead><tr>'+section.table.headers.map(header=>'<th scope="col">'+text(header)+'</th>').join('')+'</tr></thead><tbody>'+section.table.rows.map(row=>'<tr>'+row.map((cell,index)=>index===0?'<th scope="row"'+lang(cell)+'>'+text(cell)+'</th>':'<td'+lang(cell)+'>'+text(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'')+(section.examples?.length?'<div class="grammar-examples">'+section.examples.map(([fr,ko])=>'<div><p lang="fr">'+escape(fr)+'</p><p>'+escape(ko)+'</p></div>').join('')+'</div>':'')+'</section>').join('');
   }
   function open(id,{context='',opener=doc.activeElement}={}) {
     const article=grammarById(id);if(!article||dialog.open)return;
     const study=doc.querySelector('#study-dialog'),body=study?.querySelector('.dialog-body');
     returnPoint={opener,body,bodyScroll:body?.scrollTop||0,study,studyScroll:study?.scrollTop||0,x:win.scrollX,y:win.scrollY};
-    dialog.innerHTML='<header class="grammar-header"><div><p lang="fr">'+escape(article.fr)+'</p><h2 id="grammar-title" tabindex="-1">'+escape(article.title)+'</h2></div><button type="button" class="icon-button" data-action="grammar-close" aria-label="문법 닫기">'+icon('close')+'</button></header><div class="grammar-reader" tabindex="0" aria-label="문법 내용">'+articleHTML(article)+'</div>';
+    dialog.innerHTML='<header class="grammar-header"><div>'+(!article.term?'<p lang="fr">'+escape(article.fr)+'</p>':'')+'<h2 id="grammar-title" tabindex="-1">'+articleTitle(article)+'</h2></div><button type="button" class="icon-button" data-action="grammar-close" aria-label="문법 닫기">'+icon('close')+'</button></header><div class="grammar-reader" tabindex="0" aria-label="문법 내용">'+articleHTML(article)+'</div>';
     dialog.dataset.grammarArticle=id;dialog.showModal();store.open(id,context);
     dialog.querySelector('.grammar-header>div').insertAdjacentHTML('beforeend',eye(id));refreshCounts();
     dialog.querySelector('.grammar-reader').scrollTop=0;dialog.querySelector('#grammar-title').focus({preventScroll:true});

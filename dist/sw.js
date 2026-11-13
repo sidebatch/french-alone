@@ -1,9 +1,9 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-13-release-1.8.0';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-13-release-1.9.0';
 const APP_FILES = [
   './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
-  './practice-content.js','./practice-intermediate.js','./practice-lessons.js','./grammar-data.js','./grammar-core.js','./grammar.js','./grammar.css', './learning.css', './play.css', './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
+  './practice-content.js','./practice-intermediate.js','./practice-lessons.js','./grammar-data.js','./grammar-extra-data.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css', './learning.css', './play.css', './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
   './companion.js', './companion.css', './polish.css', './assets/lou-sprites-v2.webp', './manifest.webmanifest', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];

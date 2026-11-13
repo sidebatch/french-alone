@@ -1,4 +1,5 @@
 // Short, authored lessons selected by question ID, never by course-wide fallback.
+import {renderGrammarText} from './grammar-terms.js';
 const lesson=(title,rule,forms,example,caution)=>({title,rule,forms,example:{fr:example[0],ko:example[1]},caution});
 export const miniLessons = {
   vouloir:lesson('veux는 vouloir가 바뀐 형태예요','“원하다”의 기본형은 vouloir예요. 주어에 맞춰 바꾼 뒤 원하는 행동을 동사원형으로 붙여요.',
@@ -276,7 +277,8 @@ export function renderMiniLesson(id,escape) {
   if(!item)throw new Error('Missing mini lesson: '+id);
   const lang=text=>/[가-힣]/.test(text)?'':' lang="fr"';
   const headers=item.headers||['말·상황','형태·표현'];
-  return '<div class="mini-lesson" data-mini-lesson="'+escape(questionLessonIds[id])+'"><h4>'+escape(item.title)+'</h4><p>'+escape(item.rule)+'</p>'+
-    '<table class="lesson-forms"><caption>형태를 비교해요</caption><thead><tr>'+headers.map(label=>'<th scope="col">'+escape(label)+'</th>').join('')+'</tr></thead><tbody>'+item.forms.map(([label,form])=>'<tr><th scope="row"'+lang(label)+'>'+escape(label)+'</th><td lang="fr">'+escape(form)+'</td></tr>').join('')+'</tbody></table>'+
-    '<div class="mini-example"><span>문장으로 연결</span><p lang="fr">'+escape(item.example.fr)+'</p><p>'+escape(item.example.ko)+'</p></div><p class="mini-caution"><b>헷갈리지 않게</b>'+escape(item.caution)+'</p></div>';
+  const seen=new Set(),text=value=>renderGrammarText(value,escape,seen);
+  return '<div class="mini-lesson" data-mini-lesson="'+escape(questionLessonIds[id])+'"><h4>'+text(item.title)+'</h4><p>'+text(item.rule)+'</p>'+
+    '<table class="lesson-forms"><caption>형태를 비교해요</caption><thead><tr>'+headers.map(label=>'<th scope="col">'+text(label)+'</th>').join('')+'</tr></thead><tbody>'+item.forms.map(([label,form])=>'<tr><th scope="row"'+lang(label)+'>'+text(label)+'</th><td lang="fr">'+escape(form)+'</td></tr>').join('')+'</tbody></table>'+
+    '<div class="mini-example"><span>문장으로 연결</span><p lang="fr">'+escape(item.example.fr)+'</p><p>'+escape(item.example.ko)+'</p></div><p class="mini-caution"><b>헷갈리지 않게</b>'+text(item.caution)+'</p></div>';
 }

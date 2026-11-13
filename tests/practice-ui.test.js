@@ -5,7 +5,8 @@ import { JSDOM } from 'jsdom';
 import { today, STORAGE_KEY } from '../dist/core.js';
 import { practicePacks, questionById } from '../dist/practice-data.js';
 import { lessonForQuestion, questionLessonIds } from '../dist/practice-lessons.js';
-import { grammarForQuestion } from '../dist/grammar-data.js';
+import { grammarForQuestion, grammarArticles } from '../dist/grammar-data.js';
+import { renderGrammarText } from '../dist/grammar-terms.js';
 import { GRAMMAR_KEY } from '../dist/grammar-core.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDays, supportTiles } from '../dist/practice-core.js';
 
@@ -187,7 +188,7 @@ test('all 210 questions open their targeted mini lesson without changing scores 
       assert.equal(f.$('.answer-detail').open,false,'lesson is optional: '+q.id);
       f.click('.answer-detail summary');assert.equal(f.$('.answer-detail').open,true);
       assert.equal(f.$('[data-mini-lesson]').dataset.miniLesson,questionLessonIds[q.id]);
-      assert.equal(f.$('.mini-lesson h4').textContent,lessonForQuestion(q.id).title);
+      assert.equal(f.$('.mini-lesson h4').textContent,renderGrammarText(lessonForQuestion(q.id).title,v=>v).replace(/<[^>]*>/g,''));
       assert.equal(document.querySelectorAll('.lesson-forms tbody tr').length,lessonForQuestion(q.id).forms.length);
       assert.equal(f.$('.mini-example [lang="fr"]').textContent,lessonForQuestion(q.id).example.fr);
       assert.equal(f.$('.grammar-guide'),null,'no course-wide fallback');
@@ -239,7 +240,7 @@ test('grammar overlays keep arranged tiles without changing scoring',async()=>{
 });
 
 test('grammar tab keeps search and focus, shares personal counts and resets with learning records',async()=>{
-  const f=await setup();f.nav('grammar');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,32);
+  const f=await setup();f.nav('grammar');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,grammarArticles.length);
   const search=f.$('#grammar-search');search.value='vu';search.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
   assert.equal(f.$('#grammar-search'),search);const entry=f.$('.grammar-entry');assert.equal(entry.dataset.id,'participles');
   f.click(entry);assert.match(f.$('#grammar-title').textContent,/과거분사/);
@@ -257,7 +258,19 @@ test('grammar tab keeps search and focus, shares personal counts and resets with
   assert.ok(f.dom.window.document.querySelectorAll('.grammar-group').length===1);
   f.click('.header-settings');f.click('[data-action="reset-confirm"]');f.click('[data-action="reset"]');
   assert.deepEqual(JSON.parse(f.dom.window.localStorage.getItem(GRAMMAR_KEY)).counts,{});
-  assert.equal(f.$('#grammar-search').value,'');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,32);assert.equal(f.errors.length,0);
+  assert.equal(f.$('#grammar-search').value,'');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,grammarArticles.length);assert.equal(f.errors.length,0);
+});
+
+test('all reference articles show parenthesized French titles and remain readable independently of courses',async()=>{
+  const f=await setup();f.nav('grammar');
+  for(const article of grammarArticles){
+    f.click('.grammar-entry[data-id="'+article.id+'"]');
+    assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,article.id);
+    if(article.term){assert.equal(f.$('#grammar-title .grammar-term').textContent,' ('+article.term+')');assert.equal(f.$('#grammar-title .grammar-term').lang,'fr');}
+    assert.equal(f.dom.window.document.querySelectorAll('.grammar-section').length,article.sections.length);
+    assert.ok(f.$('.grammar-reader').textContent.length>150);f.click('[data-action="grammar-close"]');
+  }
+  assert.equal(f.errors.length,0);
 });
 
 test('revealing an answer never counts as independent and due review removes the original model and choices',async()=>{
