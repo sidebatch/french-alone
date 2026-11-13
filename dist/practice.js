@@ -1,10 +1,11 @@
 import { practicePacks, practiceUnits, questionById } from './practice-data.js';
 import { renderMiniLesson } from './practice-lessons.js';
+import { grammarForQuestion } from './grammar-data.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
 
-export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{} }) {
+export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{}, openGrammar=()=>{} }) {
   let state=readPractice(storage), drafts=readPracticeDrafts(storage), session=null, saveFailed=false;
   let libraryUnit='all', libraryStatus='all';
   const saveError=()=>{if(!saveFailed)onSaveError();saveFailed=true;};
@@ -65,7 +66,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   }
   const modeLabel=q=>session.supported?'카드로 연습':q.kind==='order'?'단어를 순서대로':q.kind==='choice'?'빈칸에 맞는 말':q.mode==='word'?'단어 쓰기':q.cue?'빈칸 채우기':'문장 쓰기';
   function explanation(q) {
-    return '<b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.note)+'</p><details class="answer-detail"><summary>조금 더 알아보기</summary>'+renderMiniLesson(q.id,escape)+'</details>';
+    return '<b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.note)+'</p><details class="answer-detail"><summary>조금 더 알아보기</summary>'+renderMiniLesson(q.id,escape)+'<button type="button" class="grammar-lookup" data-action="practice-grammar" data-grammar-target="'+grammarForQuestion(q.id).id+'" aria-haspopup="dialog">'+icon('book')+'문법 보기'+icon('chevron')+'</button></details>';
   }
   function tilesHTML() {
     const q=active(),finished=done();
@@ -245,6 +246,9 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
         session.explain=!session.explain;if(!finished)session.hints=Math.max(1,session.hints);
         render();if(session.explain)content.querySelector('#practice-explanation')?.scrollIntoView?.({block:'nearest',behavior:'instant'});break;
       case 'practice-sound':speak(active().full);break;
+      case 'practice-grammar':
+        if(!finished)session.hints=Math.max(1,session.hints);stash();
+        openGrammar(grammarForQuestion(active().id).id,{context:'p:'+session.runId+':'+active().id,opener:button});break;
       case 'practice-next':advance();break;
       case 'practice-accents':
         if(!finished){session.accentOpen=!session.accentOpen;content.querySelector('#accent-keys').hidden=!session.accentOpen;button.setAttribute('aria-expanded',String(session.accentOpen));}break;

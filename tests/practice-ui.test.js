@@ -5,10 +5,12 @@ import { JSDOM } from 'jsdom';
 import { today, STORAGE_KEY } from '../dist/core.js';
 import { practicePacks, questionById } from '../dist/practice-data.js';
 import { lessonForQuestion, questionLessonIds } from '../dist/practice-lessons.js';
+import { grammarForQuestion } from '../dist/grammar-data.js';
+import { GRAMMAR_KEY } from '../dist/grammar-core.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDays, supportTiles } from '../dist/practice-core.js';
 
 let fixtureNumber=0;
-async function setup(initialPractice,initialDrafts) {
+async function setup(initialPractice,initialDrafts,initialGrammar) {
   const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
   const dom=new JSDOM(html,{url:'https://sidebatch.github.io/french-alone/',pretendToBeVisual:true,runScripts:'outside-only'});
   Object.assign(globalThis,{window:dom.window,document:dom.window.document,location:dom.window.location});
@@ -17,6 +19,7 @@ async function setup(initialPractice,initialDrafts) {
   dom.window.scrollTo=()=>{};
   if(initialPractice)dom.window.localStorage.setItem(PRACTICE_KEY,JSON.stringify(initialPractice));
   if(initialDrafts)dom.window.localStorage.setItem(PRACTICE_DRAFT_KEY,JSON.stringify(initialDrafts));
+  if(initialGrammar)dom.window.localStorage.setItem(GRAMMAR_KEY,JSON.stringify(initialGrammar));
   const errors=[];dom.window.addEventListener('error',event=>errors.push(event.error));
   await import(`../dist/app.js?practice-test=${++fixtureNumber}`);
   const $=selector=>document.querySelector(selector);
@@ -188,6 +191,12 @@ test('all 210 questions open their targeted mini lesson without changing scores 
       assert.equal(document.querySelectorAll('.lesson-forms tbody tr').length,lessonForQuestion(q.id).forms.length);
       assert.equal(f.$('.mini-example [lang="fr"]').textContent,lessonForQuestion(q.id).example.fr);
       assert.equal(f.$('.grammar-guide'),null,'no course-wide fallback');
+      const body=f.$('.practice-body'),before=f.dom.window.localStorage.getItem(PRACTICE_KEY),lookup=f.$('[data-action="practice-grammar"]');
+      assert.equal(lookup.dataset.grammarTarget,grammarForQuestion(q.id).id);
+      f.click(lookup);assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,grammarForQuestion(q.id).id);
+      assert.equal(f.$('#study-dialog').open,true);f.click('[data-action="grammar-close"]');
+      assert.equal(f.$('.practice-body'),body);assert.equal(f.$('.answer-detail').open,true);
+      assert.equal(f.dom.window.localStorage.getItem(PRACTICE_KEY),before,'reading gives no XP or progress');
     });
     assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.saved().runs.at(-1).transfer,true);f.click('[data-action="practice-close"]');
   }
@@ -196,6 +205,59 @@ test('all 210 questions open their targeted mini lesson without changing scores 
   restored.course('want');while(restored.current())restored.answer();
   assert.equal(restored.$('.completion-reward').textContent,'0 XP');
   assert.equal(restored.saved().runs.at(-1).xp,0);assert.equal(restored.saved().runs.at(-1).transfer,false);assert.equal(restored.errors.length,0);
+});
+
+test('grammar overlays preserve wrong input, scroll and draft, and Escape closes only the article',async()=>{
+  const f=await setup();f.course('past-events');f.answer();f.answer();f.type('vois');
+  f.click('[data-action="practice-why"]');f.click('.answer-detail summary');
+  const input=f.$('#practice-input'),body=f.$('.dialog-body'),lookup=f.$('[data-action="practice-grammar"]');
+  input.setSelectionRange(1,3);body.scrollTop=123;const feedback=f.$('.feedback-message').textContent;
+  f.click(lookup);assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,'participles');
+  f.$('#grammar-dialog').dispatchEvent(new f.dom.window.Event('cancel',{bubbles:false,cancelable:true}));
+  assert.equal(f.$('#grammar-dialog').open,false);assert.equal(f.$('#study-dialog').open,true);
+  assert.equal(f.$('#practice-input'),input);assert.equal(input.value,'vois');assert.equal(input.selectionStart,1);assert.equal(input.selectionEnd,3);
+  assert.equal(body.scrollTop,123);assert.equal(f.$('.feedback-message').textContent,feedback);assert.equal(f.dom.window.document.activeElement,lookup);
+  f.click(lookup);f.click('[data-action="grammar-close"]');
+  let saved=JSON.parse(f.dom.window.localStorage.getItem(GRAMMAR_KEY));assert.equal(saved.counts.participles,1);
+  f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  const restored=await setup(f.saved(),drafts,saved);restored.click('[data-action="practice-resume"]');
+  assert.equal(restored.current().id,'past-events-3');assert.equal(restored.$('#practice-input').value,'vois');
+  if(restored.$('#practice-explanation').hidden)restored.click('[data-action="practice-why"]');restored.click('.answer-detail summary');
+  restored.click('[data-action="practice-grammar"]');restored.click('[data-action="grammar-close"]');
+  assert.equal(JSON.parse(restored.dom.window.localStorage.getItem(GRAMMAR_KEY)).counts.participles,1);
+  assert.equal(restored.errors.length,0);
+});
+
+test('grammar overlays keep arranged tiles without changing scoring',async()=>{
+  const f=await setup();f.course('want');for(let i=0;i<3;i++)f.answer();
+  ['veux','Je','rester','ici'].forEach(f.pick);f.click('[data-action="practice-check"]');f.click('[data-action="practice-why"]');f.click('.answer-detail summary');
+  const tiles=f.$('.tile-answer'),before=tiles.innerHTML;f.click('[data-action="practice-grammar"]');f.click('[data-action="grammar-close"]');
+  assert.equal(f.$('.tile-answer'),tiles);assert.equal(tiles.innerHTML,before);assert.equal(f.current().id,'want-4');
+  f.click('[data-action="practice-clear"]');['Je','veux','rester','ici'].forEach(f.pick);f.click('[data-action="practice-check"]');f.click('[data-action="practice-next"]');while(f.current())f.answer();
+  assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.errors.length,0);
+});
+
+test('grammar tab keeps search and focus, shares personal counts and resets with learning records',async()=>{
+  const f=await setup();f.nav('grammar');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,32);
+  const search=f.$('#grammar-search');search.value='vu';search.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
+  assert.equal(f.$('#grammar-search'),search);const entry=f.$('.grammar-entry');assert.equal(entry.dataset.id,'participles');
+  f.click(entry);assert.match(f.$('#grammar-title').textContent,/과거분사/);
+  const card=f.$('#grammar-dialog');
+  f.$('#grammar-title').dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true,cancelable:true}));
+  assert.equal(f.dom.window.document.activeElement,f.$('.grammar-reader'));
+  f.$('.grammar-reader').dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+  assert.equal(f.dom.window.document.activeElement,card.querySelector('[data-action="grammar-close"]'));
+  f.click('[data-action="grammar-close"]');
+  assert.equal(f.$('#grammar-search').value,'vu');assert.equal(f.dom.window.document.activeElement,entry);
+  assert.equal(entry.querySelector('[data-grammar-count] span').textContent,'1');
+  f.click(entry);f.click('[data-action="grammar-close"]');assert.equal(entry.querySelector('[data-grammar-count] span').textContent,'2');
+  f.nav('home');f.nav('grammar');assert.equal(f.$('#grammar-search').value,'vu');
+  f.click('[data-action="grammar-clear"]');f.click('[data-action="grammar-filter"][data-value="tenses"]');
+  assert.ok(f.dom.window.document.querySelectorAll('.grammar-group').length===1);
+  f.click('.header-settings');f.click('[data-action="reset-confirm"]');f.click('[data-action="reset"]');
+  assert.deepEqual(JSON.parse(f.dom.window.localStorage.getItem(GRAMMAR_KEY)).counts,{});
+  assert.equal(f.$('#grammar-search').value,'');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,32);assert.equal(f.errors.length,0);
 });
 
 test('revealing an answer never counts as independent and due review removes the original model and choices',async()=>{

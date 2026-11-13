@@ -5,8 +5,9 @@ import { normalizeAnswer } from './practice-core.js';
 import { playFeedback } from './feedback.js';
 import { bindStudyViewport } from './study-viewport.js';
 import { mascot, companionMessage } from './companion.js';
+import { createGrammar } from './grammar.js';
 
-const APP_VERSION = '1.7.0';
+const APP_VERSION = '1.8.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -18,10 +19,12 @@ const dialog = $('#study-dialog');
 const content = $('#dialog-content');
 bindStudyViewport(dialog);
 let storageWarning = false;
+const grammar=createGrammar({storage,icon,escape,onSaveError:()=>{storageWarning=true;toast('열람 기록을 이 기기에 저장하지 못했어요.');}});
 const practice = createPractice({
   storage, content, dialogHeader, focusDialog, icon, escape,
   openDialog:()=>{session=null;dialog.dataset.view='practice';if(window.speechSynthesis)window.speechSynthesis.cancel();openDialog();},
   closeDialog, speak:speakText, playFeedback:kind=>playFeedback(kind,state.effects,state.effectsVolume),
+  openGrammar:(id,options)=>grammar.open(id,options),
   onSaveError:()=>{storageWarning=true;toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');},
   onLevelChange:()=>renderPage(),
   onFinish:summary=>{if(summary.duplicate)return;const activity=state.activity[today()] ||= {xp:0,words:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();}
@@ -33,7 +36,7 @@ function persist() {
 }
 function toast(message) {
   const notice=$('#toast');if(!notice)return;
-  const host=dialog.open?dialog:document.body;if(notice.parentElement!==host)host.append(notice);
+  const host=$('#grammar-dialog').open?$('#grammar-dialog'):dialog.open?dialog:document.body;if(notice.parentElement!==host)host.append(notice);
   clearTimeout(toastTimer);notice.textContent=message;notice.classList.add('visible');
   toastTimer=setTimeout(()=>notice.classList.remove('visible'),3500);
 }
@@ -92,11 +95,11 @@ function renderProgress() {
   return `${heading('기록')} ${practice.renderStats()}<div class="summary-grid">${[['flame',streak(state)+'일','연속 학습'],['book',(expressionCount())+'개','익힌 표현'],['check',state.completed.length+'개','완료한 기초 레슨'],['sparkles',totalXP(state)+' XP','총 경험치']].map(([i,n,t])=>`<div class="summary-card">${icon(i)}<strong>${n}</strong><p>${t}</p></div>`).join('')}</div><div class="progress-layout"><section class="progress-panel"><h2>이번 주의 발자국</h2><div class="week-chart" aria-label="이번 주 일별 경험치">${dates.map((d,i)=>{const xp=state.activity[today(d)]?.xp||0;return `<div class="bar-column" aria-label="${['월','화','수','목','금','토','일'][i]}요일 ${xp} XP"><strong>${xp}</strong><div class="bar" style="height:${Math.max(4,xp/maxXP*105)}px"></div><span>${['월','화','수','목','금','토','일'][i]}</span></div>`;}).join('')}</div></section><section class="progress-panel"><h2>기초 레슨</h2><div class="progress-track"><span style="width:${state.completed.length/lessons.length*100}%"></span></div><div class="progress-fraction"><span>${Math.round(state.completed.length/lessons.length*100)}% 완료</span><span>${state.completed.length} / ${lessons.length} 레슨</span></div><button class="primary-button" data-action="lesson" data-id="${nextLesson().id}">${state.completed.length===lessons.length?'다시 복습하기':'다음 레슨 시작하기'}${icon('arrow')}</button></section></div><div class="section-heading"><h2>완료한 레슨</h2><button class="text-link" data-action="settings">학습 설정 ${icon('settings')}</button></div>${state.completed.length?`<div class="progress-panel">${lessons.filter(l=>state.completed.includes(l.id)).map(l=>`<div class="completed-row"><span>${icon('check')}${l.title}</span><button class="text-link" data-action="lesson" data-id="${l.id}">다시 학습 ${icon('chevron')}</button></div>`).join('')}</div>`:`<div class="empty-state">${icon('sun')}<h3>완료한 기초 레슨이 없어요.</h3><button class="primary-button" data-action="lesson" data-id="greetings">첫 레슨 시작하기 ${icon('arrow')}</button></div>`}`;
 }
 function renderPage() {
-  const labels={home:'오늘의 학습',lessons:'전체 레슨',vocabulary:'나의 단어장',progress:'학습 기록'};
+  const labels={home:'오늘의 학습',lessons:'전체 레슨',vocabulary:'나의 단어장',grammar:'문법',progress:'학습 기록'};
   const route=location.hash.slice(1);page=Object.hasOwn(labels,route)?route:'home';
   $('#page-label').textContent=labels[page];document.title=`${labels[page]} · French Alone`;
   document.querySelectorAll('[data-nav]').forEach(a=>{const active=a.dataset.nav===page;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  $('#main').innerHTML=({home:renderHome,lessons:renderLessons,vocabulary:renderVocabulary,progress:renderProgress}[page])();$('#main').insertAdjacentHTML('beforeend',`<footer class="app-version-footer">French Alone v${APP_VERSION} <span>·</span> © 2026 sidebatch</footer>`);updateHeader();document.documentElement.classList.add('app-ready');$('#main').dataset.page=page;
+  $('#main').innerHTML=({home:renderHome,lessons:renderLessons,vocabulary:renderVocabulary,grammar:grammar.renderLibrary,progress:renderProgress}[page])();$('#main').insertAdjacentHTML('beforeend',`<footer class="app-version-footer">French Alone v${APP_VERSION} <span>·</span> © 2026 sidebatch</footer>`);updateHeader();document.documentElement.classList.add('app-ready');$('#main').dataset.page=page;
 }
 function openDialog() {
   restoreFocus=document.activeElement;
@@ -245,7 +248,7 @@ document.addEventListener('click',event=>{
     case 'clear-search':query='';renderPage();$('#phrase-search')?.focus();break;
     case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">저장한 표현과 모든 학습 기록이 삭제돼요. 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
     case 'reset-cancel':$('#reset-area').innerHTML='';break;
-    case 'reset':state=freshState();practice.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
+    case 'reset':state=freshState();practice.reset();grammar.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
   }
 });
 document.addEventListener('input',event=>{
@@ -270,6 +273,6 @@ document.addEventListener('change',event=>{
   if(event.target.id==='effects-volume')playFeedback('correct',state.effects,state.effectsVolume);
 });
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
-window.addEventListener('hashchange',()=>{renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
-window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===null)&&!dialog.open){state=readState(storage);practice.reload();renderPage();}});
+window.addEventListener('hashchange',()=>{grammar.close(false);renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
+window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===null)&&!dialog.open&&!grammar.isOpen()){state=readState(storage);practice.reload();renderPage();}});
 renderPage();
