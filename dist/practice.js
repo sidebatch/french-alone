@@ -1,15 +1,19 @@
 import { practicePacks, practiceUnits, questionById } from './practice-data.js';
-import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
 
-export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError }) {
+export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{} }) {
   let state=readPractice(storage), drafts=readPracticeDrafts(storage), session=null, saveFailed=false;
   let libraryUnit='all', libraryStatus='all';
   const saveError=()=>{if(!saveFailed)onSaveError();saveFailed=true;};
   const save=()=>{try{storage.setItem(PRACTICE_KEY,JSON.stringify(state));}catch{saveError();}};
   const saveDrafts=()=>{try{storage.setItem(PRACTICE_DRAFT_KEY,JSON.stringify({version:1,sessions:drafts}));}catch{saveError();}};
-  const titleFor=id=>({daily:'오늘의 5문제',light:'가볍게 3문제',retry:'다시 도전',review:'기억을 깨우는 복습'}[id]||practicePacks.find(p=>p.id===id)?.title);
+  const titleFor=id=>({daily:'오늘의 5문제',light:'가볍게 3문제','daily-intermediate':'중급 5문제','light-intermediate':'가볍게 중급 3문제',retry:'다시 도전','retry-intermediate':'중급 다시 도전',review:'기억을 깨우는 복습','review-intermediate':'중급 표현 복습'}[id]||practicePacks.find(p=>p.id===id)?.title);
+  const levelPacks=()=>practicePacks.filter(pack=>pack.level===state.level);
+  const quickId=mode=>mode+(state.level==='intermediate'?'-intermediate':'');
+  const levelDue=()=>dueQuestions(state,undefined,state.level);
+  const renderLevelPicker=()=>'<div class="practice-level-picker" role="group" aria-label="학습 수준">'+[['beginner','입문','기본 패턴'],['intermediate','중급','과거 · 가정 · 의견']].map(([value,label,detail])=>'<button type="button" data-action="practice-level" data-value="'+value+'" aria-pressed="'+(state.level===value)+'"><b>'+label+'</b><span>'+detail+'</span></button>').join('')+'</div>';
   function stash() {
     if(!session||session.summary)return;
     drafts[session.packId]={packId:session.packId,runId:session.runId,questionIds:session.deck.map(q=>q.id),formats:session.deck.map(q=>q.kind),index:session.index,
@@ -18,7 +22,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     saveDrafts();
   }
   const resumeInfo=()=>{
-    const draft=Object.values(drafts).sort((a,b)=>b.updatedAt-a.updatedAt)[0];
+    const draft=Object.values(drafts).filter(item=>questionById(item.questionIds[0])?.level===state.level).sort((a,b)=>b.updatedAt-a.updatedAt)[0];
     return draft?{packId:draft.packId,title:titleFor(draft.packId),index:draft.index,total:draft.questionIds.length}:null;
   };
   const active=()=>session?.deck[session.index];
@@ -38,14 +42,15 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     let deck;
     if(paused)deck=paused.questionIds.map((qid,i)=>{
       const q=questionById(qid);
-      if((paused.formats[i]==='input'&&q.kind!=='input')||['review','retry'].includes(id))return asRecall(q);
+      if((paused.formats[i]==='input'&&q.kind!=='input')||isRecallRound(id))return asRecall(q);
       return {...q,transfer:q.transfer===true&&!state.cards[qid]};
     });
-    else if(id==='retry')deck=retryQuestions?.map(asRecall);
-    else if(id==='daily'||id==='light')deck=dailyDeck(state,undefined,id==='light'?3:5);
-    else if(id==='review')deck=reviewDeck(state).slice(0,5);
+    else if(id==='retry'||id==='retry-intermediate')deck=retryQuestions?.map(asRecall);
+    else if(ROUND_SIZES[id])deck=dailyDeck(state,undefined,ROUND_SIZES[id],roundLevel(id));
+    else if(id==='review'||id==='review-intermediate')deck=reviewDeck(state,undefined,roundLevel(id)).slice(0,5);
     else deck=pack?.questions.map(q=>({...q,transfer:q.transfer===true&&!state.cards[q.id]}));
     if(!deck?.length)return;
+    if(state.level!==deck[0].level){state.level=deck[0].level;libraryUnit='all';save();}
     openDialog();
     session={packId:id,title:titleFor(id),deck,index:paused?.index||0,results:paused?.results.map(r=>({...r}))||[],continued:paused?.continued||continued,summary:null,
       runId:paused?.runId||('run-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)),renderKey:null,explain:false};
@@ -170,25 +175,27 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     const done=packDone(pack),paused=drafts[pack.id],recommended=nextPack(state).id===pack.id;
     const seen=pack.questions.filter(q=>state.cards[q.id]).length;
     const pct=paused?Math.round(paused.index/pack.questions.length*100):done?100:Math.round(seen/pack.questions.length*100);
-    return '<button class="practice-pack '+(packStarted(pack)?'in-progress':done?'is-complete':'')+'" data-action="practice-start" data-id="'+pack.id+'"><span class="pack-icon '+pack.color+'">'+icon(pack.icon)+'</span><span class="pack-copy"><small>'+(paused?'이어서 학습':done?'한 판 완료':seen?'학습 중':recommended?'오늘의 추천':'시작 전')+'</small><h3>'+escape(pack.title)+'</h3><span class="pack-detail"><span class="practice-pattern" lang="fr">'+escape(pack.pattern.split('+')[0].trim())+'</span><span>'+(paused?(paused.index+1)+' / '+pack.questions.length+'문제':pack.questions.length+'문제 · 3–5분')+'</span></span><span class="pack-progress" aria-label="'+pct+'% 완료"><i style="width:'+pct+'%"></i></span></span><span class="pack-arrow">'+icon(done&&!paused?'check':'chevron')+'</span></button>';
+    const topic=pack.level==='intermediate'?'<span class="practice-topic">'+escape(pack.subtitle)+'</span>':'<span class="practice-pattern" lang="fr">'+escape(pack.pattern.split('+')[0].trim())+'</span>';
+    return '<button class="practice-pack '+(packStarted(pack)?'in-progress':done?'is-complete':'')+'" data-action="practice-start" data-id="'+pack.id+'"><span class="pack-icon '+pack.color+'">'+icon(pack.icon)+'</span><span class="pack-copy"><small>'+(paused?'이어서 학습':done?'한 판 완료':seen?'학습 중':recommended?'오늘의 추천':'시작 전')+'</small><h3>'+escape(pack.title)+'</h3><span class="pack-detail">'+topic+'<span>'+(paused?(paused.index+1)+' / '+pack.questions.length+'문제':pack.questions.length+'문제 · 3–5분')+'</span></span><span class="pack-progress" aria-label="'+pct+'% 완료"><i style="width:'+pct+'%"></i></span></span><span class="pack-arrow">'+icon(done&&!paused?'check':'chevron')+'</span></button>';
   }
   function renderLibrary({compact=false}={}) {
-    const completed=state.completed.length;
-    const groups=practiceUnits.filter(unit=>libraryUnit==='all'||libraryUnit===unit.id);
-    const filters=compact?'':'<div class="curriculum-summary"><div><strong>'+completed+' <small>/ '+practicePacks.length+' 코스 완료</small></strong><p>단어에서 문장까지, 한 번에 10문제</p></div><span>'+practicePacks.reduce((n,p)=>n+p.questions.length,0)+'문제</span></div><div class="curriculum-filters" role="group" aria-label="코스 단계"><button class="filter-button '+(libraryUnit==='all'?'active':'')+'" data-action="practice-unit" data-value="all" aria-pressed="'+(libraryUnit==='all')+'">전체</button>'+practiceUnits.map((unit,i)=>'<button class="filter-button '+(libraryUnit===unit.id?'active':'')+'" data-action="practice-unit" data-value="'+unit.id+'" aria-pressed="'+(libraryUnit===unit.id)+'">'+(i+1)+'단계</button>').join('')+'</div><div class="course-status-filters" role="group" aria-label="코스 진행 상태">'+[['all','모두'],['active','진행 중'],['new','시작 전'],['done','완료']].map(([value,label])=>'<button data-action="practice-status" data-value="'+value+'" aria-pressed="'+(libraryStatus===value)+'">'+label+'</button>').join('')+'</div>';
+    const packsInLevel=levelPacks(),units=practiceUnits.filter(unit=>unit.level===state.level);
+    const completed=packsInLevel.filter(packDone).length;
+    const groups=units.filter(unit=>libraryUnit==='all'||libraryUnit===unit.id);
+    const filters=compact?'':renderLevelPicker()+'<div class="curriculum-summary"><div><strong>'+completed+' <small>/ '+packsInLevel.length+' 코스 완료</small></strong><p>단어에서 문장까지, 한 번에 10문제</p></div><span>'+packsInLevel.reduce((n,p)=>n+p.questions.length,0)+'문제</span></div><div class="curriculum-filters" role="group" aria-label="코스 단계"><button class="filter-button '+(libraryUnit==='all'?'active':'')+'" data-action="practice-unit" data-value="all" aria-pressed="'+(libraryUnit==='all')+'">전체</button>'+units.map((unit,i)=>'<button class="filter-button '+(libraryUnit===unit.id?'active':'')+'" data-action="practice-unit" data-value="'+unit.id+'" aria-pressed="'+(libraryUnit===unit.id)+'">'+(i+1)+'단계</button>').join('')+'</div><div class="course-status-filters" role="group" aria-label="코스 진행 상태">'+[['all','모두'],['active','진행 중'],['new','시작 전'],['done','완료']].map(([value,label])=>'<button data-action="practice-status" data-value="'+value+'" aria-pressed="'+(libraryStatus===value)+'">'+label+'</button>').join('')+'</div>';
     let listing;
     if(compact) {
-      const ids=[resumeInfo()?.packId,nextPack(state).id,...practicePacks.filter(p=>!packDone(p)).map(p=>p.id),...practicePacks.map(p=>p.id)];
-      const packs=[...new Set(ids)].map(id=>practicePacks.find(p=>p.id===id)).filter(Boolean).slice(0,3);
+      const ids=[resumeInfo()?.packId,nextPack(state).id,...packsInLevel.filter(p=>!packDone(p)).map(p=>p.id),...packsInLevel.map(p=>p.id)];
+      const packs=[...new Set(ids)].map(id=>packsInLevel.find(p=>p.id===id)).filter(Boolean).slice(0,3);
       listing='<div class="practice-pack-grid">'+packs.map(packCard).join('')+'</div>';
     } else {
       listing=groups.map((unit,i)=>{
-        const packs=practicePacks.filter(p=>unit.packs.includes(p.id)&&(libraryStatus==='all'||libraryStatus==='active'&&packStarted(p)||libraryStatus==='new'&&!packDone(p)&&!packStarted(p)||libraryStatus==='done'&&packDone(p)&&!drafts[p.id]));
+        const packs=packsInLevel.filter(p=>unit.packs.includes(p.id)&&(libraryStatus==='all'||libraryStatus==='active'&&packStarted(p)||libraryStatus==='new'&&!packDone(p)&&!packStarted(p)||libraryStatus==='done'&&packDone(p)&&!drafts[p.id]));
         if(!packs.length)return '';
-        return '<section class="curriculum-unit"><div class="unit-heading"><span>'+String(practiceUnits.indexOf(unit)+1).padStart(2,'0')+'</span><div><h3>'+unit.title+'</h3><p>'+unit.description+'</p></div><small>'+unit.packs.filter(id=>state.completed.includes(id)).length+' / '+unit.packs.length+'</small></div><div class="practice-pack-grid">'+packs.map(packCard).join('')+'</div></section>';
+        return '<section class="curriculum-unit"><div class="unit-heading"><span>'+String(units.indexOf(unit)+1).padStart(2,'0')+'</span><div><h3>'+unit.title+'</h3><p>'+unit.description+'</p></div><small>'+unit.packs.filter(id=>state.completed.includes(id)).length+' / '+unit.packs.length+'</small></div><div class="practice-pack-grid">'+packs.map(packCard).join('')+'</div></section>';
       }).join('')||'<div class="empty-state course-empty"><p>이 조건에 맞는 코스가 없어요.</p><button class="secondary-button" data-action="practice-filter-reset">전체 코스 보기</button></div>';
     }
-    return '<section class="practice-library" data-compact="'+compact+'" aria-label="문장 만들기 코스"><div class="section-heading"><div><p class="section-kicker">읽고, 배열하고, 직접 써요</p><h2>나의 프랑스어 코스</h2></div>'+(compact?'<a class="text-link" href="#lessons" data-action="open-practice">전체 '+practicePacks.length+'개'+icon('chevron')+'</a>':'<span class="section-count">'+practiceUnits.length+'단계</span>')+'</div>'+filters+listing+(dueQuestions(state).length?'<button class="practice-due" data-action="practice-due">'+icon('cards')+'다시 꺼내볼 표현 '+dueQuestions(state).length+'개<span>복습 시작'+icon('arrow')+'</span></button>':'')+'</section>';
+    return '<section class="practice-library" data-compact="'+compact+'" aria-label="문장 만들기 코스"><div class="section-heading"><div><p class="section-kicker">읽고, 배열하고, 직접 써요</p><h2>'+ (state.level==='intermediate'?'중급 문장 연습':'나의 프랑스어 코스') +'</h2></div>'+(compact?'<a class="text-link" href="#lessons" data-action="open-practice">전체 '+packsInLevel.length+'개'+icon('chevron')+'</a>':'<span class="section-count">'+units.length+'단계</span>')+'</div>'+filters+listing+(levelDue().length?'<button class="practice-due" data-action="practice-due">'+icon('cards')+'다시 꺼내볼 표현 '+levelDue().length+'개<span>복습 시작'+icon('arrow')+'</span></button>':'')+'</section>';
   }
   function refreshLibrary() {
     const library=document.querySelector('.practice-library');
@@ -200,6 +207,11 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   document.addEventListener('click',event=>{
     const button=event.target.closest('[data-action^="practice-"]');if(!button||button.disabled)return;
     const action=button.dataset.action;
+    if(action==='practice-level'){
+      if(!['beginner','intermediate'].includes(button.dataset.value))return;
+      state.level=button.dataset.value;libraryUnit='all';libraryStatus='all';save();onLevelChange();
+      document.querySelector('[data-action="practice-level"][data-value="'+state.level+'"]')?.focus({preventScroll:true});return;
+    }
     if(action==='practice-unit'||action==='practice-status'||action==='practice-filter-reset') {
       if(action==='practice-unit')libraryUnit=button.dataset.value;
       else if(action==='practice-status')libraryStatus=button.dataset.value;
@@ -208,13 +220,13 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     }
     if(action==='practice-resume'){const paused=resumeInfo();if(paused)start(paused.packId);return;}
     if(action==='practice-start'){start(button.dataset.id||nextPack(state).id);return;}
-    if(action==='practice-daily'){start('daily');return;}
-    if(action==='practice-light'){start('light');return;}
-    if(action==='practice-due'){start('review');return;}
+    if(action==='practice-daily'){start(quickId('daily'));return;}
+    if(action==='practice-light'){start(quickId('light'));return;}
+    if(action==='practice-due'){start(quickId('review'));return;}
     if(action==='practice-close'){closeDialog();return;}
-    if(action==='practice-more'){if(session?.summary)start('daily',true);return;}
+    if(action==='practice-more'){if(session?.summary)start(quickId('daily'),true);return;}
     if(action==='practice-retry'){
-      if(session?.summary){const retry=session.results.filter(r=>r.needsReview||!r.correct).map(r=>questionById(r.id));if(retry.length)start('retry',true,retry);}
+      if(session?.summary){const retry=session.results.filter(r=>r.needsReview||!r.correct).map(r=>questionById(r.id));if(retry.length)start(quickId('retry'),true,retry);}
       return;
     }
     if(!session||session.summary)return;
@@ -261,7 +273,8 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     reset:()=>{state=freshPractice();drafts={};session=null;libraryUnit='all';libraryStatus='all';save();saveDrafts();},
     reload:()=>{state=readPractice(storage);drafts=readPracticeDrafts(storage);},
     questionCount:()=>practicePacks.reduce((n,p)=>n+p.questions.length,0),
-    resumeInfo,dueCount:()=>dueQuestions(state).length,recommended:()=>nextPack(state),dailyProgress:()=>dailyProgress(state),
+    resumeInfo,dueCount:()=>levelDue().length,recommended:()=>nextPack(state),dailyProgress:()=>dailyProgress(state),
+    level:()=>state.level,levelPackCount:()=>levelPacks().length,renderLevelPicker,
     independentCount:()=>independentSentences(state).length,independentExpressions:()=>independentSentences(state),
     renderLibrary,
     renderStats:()=>'<section class="practice-progress"><h2>문장 만들기</h2><div class="practice-stat-row"><span><b>'+state.completed.length+' / '+practicePacks.length+'</b>완료한 코스</span><span><b>'+independentSentences(state).length+'</b>혼자 쓴 문장</span><span><b>'+dailyProgress(state).days+'</b>모은 스탬프</span></div><p class="practice-stat-note">하루 3문제 이상을 마치면 스탬프를 모아요.</p></section>'

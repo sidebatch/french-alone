@@ -1,8 +1,9 @@
-import { extraPackSpecs, patternGuides, practiceUnits } from './practice-content.js';
-export { practiceUnits };
-// Authored beginner content. Existing question IDs are kept for saved progress.
-const makePack = (meta, questions) => ({ ...meta, guide: patternGuides[meta.id], questions: questions.map((q, index) => ({
-  id: `${meta.id}-${index + 1}`, packId: meta.id,
+import { extraPackSpecs, patternGuides, practiceUnits as beginnerUnits } from './practice-content.js';
+import { intermediatePackSpecs, intermediateUnits } from './practice-intermediate.js';
+export const practiceUnits = [...beginnerUnits.map(unit=>({...unit,level:'beginner'})),...intermediateUnits];
+// Authored exercises. Existing question IDs are kept for saved progress.
+const makePack = (meta, questions) => ({ level:'beginner', ...meta, guide: meta.guide || patternGuides[meta.id], questions: questions.map((q, index) => ({
+  id: `${meta.id}-${index + 1}`, packId: meta.id, level:meta.level||'beginner',
   phase: index < 2 ? '패턴 발견' : index < 8 ? '꺼내 보고 바꿔 보기' : '내 말로 완성',
   ...q
 })) });
@@ -44,7 +45,8 @@ export const practicePacks = [
     { kind: 'input', ko: '걷는 걸 좋아해.', answer: 'J’aime marcher.', accepted: ['J’aime bien marcher.'], full: 'J’aime marcher.', hint: 'J’aime로 시작해요. “걷다”는 marcher예요.', note: '아포스트로피를 잊지 마세요. Je aime는 J’aime로 줄여 써요.' },
     { kind: 'input', transfer: true, ko: '그림 그리는 걸 좋아해.', answer: 'J’aime dessiner.', full: 'J’aime dessiner.', glossary: '새 단어: dessiner = 그림을 그리다', hint: 'J’aime 뒤에 새 행동 dessiner를 붙여 보세요.', note: 'dessiner는 “그림을 그리다”예요. J’aime 뒤에 dessine가 아니라 동사원형 dessiner를 붙여요.' }
   ]),
-  ...extraPackSpecs.map(([meta, questions]) => makePack(meta, questions))
+  ...extraPackSpecs.map(([meta, questions]) => makePack(meta, questions)),
+  ...intermediatePackSpecs.map(([meta, questions]) => makePack(meta, questions))
 ];
 export const practiceQuestions = practicePacks.flatMap(pack => pack.questions);
 export const questionById = id => practiceQuestions.find(q => q.id === id);

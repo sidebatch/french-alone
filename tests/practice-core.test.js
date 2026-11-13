@@ -37,8 +37,8 @@ test('course completion outlives the capped history and legacy progress migrates
   const loaded=readPractice({getItem:()=>JSON.stringify(state)});
   assert.equal(loaded.runs.length,200);assert.deepEqual(loaded.completed,['want','can']);assert.equal(nextPack(loaded).id,'like');
 });
-test('nine authored rounds move from a model to unsupported recall and novel combinations',()=>{
-  assert.equal(practicePacks.length,9);assert.equal(practiceQuestions.length,90);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,90);
+test('twenty-one authored rounds move from a model to unsupported recall and novel combinations',()=>{
+  assert.equal(practicePacks.length,21);assert.equal(practiceQuestions.length,210);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,210);
   for(const pack of practicePacks){
     assert.equal(pack.questions.length,10);assert.ok(pack.questions[0].model);assert.ok(pack.questions[4].model);
     const last=pack.questions.at(-1);assert.equal(last.kind,'input');assert.equal(last.transfer,true);assert.ok(last.glossary);assert.equal(last.cue,undefined);assert.equal(last.model,undefined);

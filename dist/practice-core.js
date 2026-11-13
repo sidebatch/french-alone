@@ -3,8 +3,11 @@ import { practicePacks, practiceQuestions, questionById } from './practice-data.
 
 export const PRACTICE_KEY = 'bonjour-practice-v1';
 export const PRACTICE_DRAFT_KEY = 'bonjour-practice-drafts-v1';
-export const QUICK_MODES = ['daily', 'light', 'retry'];
-export const freshPractice = () => ({ version: 1, cards: {}, runs: [], completed: [], days: {} });
+export const ROUND_SIZES = {daily:5,light:3,'daily-intermediate':5,'light-intermediate':3};
+export const QUICK_MODES = [...Object.keys(ROUND_SIZES),'review-intermediate','retry','retry-intermediate'];
+export const isRecallRound = id => ['review','review-intermediate','retry','retry-intermediate'].includes(id);
+export const roundLevel = id => id.endsWith('-intermediate')?'intermediate':'beginner';
+export const freshPractice = () => ({ version: 1, level:'beginner', cards: {}, runs: [], completed: [], days: {} });
 export function normalizeAnswer(value) {
   return String(value).normalize('NFC').toLocaleLowerCase('fr').replace(/[’‘ʼ`]/g,"'")
     .replace(/[.!?…,;:]/g,'').replace(/\s*'\s*/g,"'").replace(/\s+/g,' ').trim();
@@ -16,12 +19,13 @@ export function supportTiles(q) {
   const words=answer.split(/\s+/);
   return {tiles:words.length>1?words:Array.from(answer),joiner:words.length>1?' ':''};
 }
-export function dailyDeck(state, date=today(), size=5) {
-  const unseen=practiceQuestions.filter(q=>!state.cards[q.id]);
-  const due=dueQuestions(state,date);
+export function dailyDeck(state, date=today(), size=5, level=state.level||'beginner') {
+  const pool=practiceQuestions.filter(q=>q.level===level);
+  const unseen=pool.filter(q=>!state.cards[q.id]);
+  const due=dueQuestions(state,date,level);
   const selected=due.slice(0,unseen.length?Math.min(2,size-1):size);
   selected.push(...unseen.slice(0,size-selected.length));
-  const known=practiceQuestions.filter(q=>state.cards[q.id]&&!selected.some(item=>item.id===q.id))
+  const known=pool.filter(q=>state.cards[q.id]&&!selected.some(item=>item.id===q.id))
     .sort((a,b)=>state.cards[a.id].due.localeCompare(state.cards[b.id].due)||state.cards[a.id].strength-state.cards[b.id].strength);
   selected.push(...known.slice(0,size-selected.length));
   return selected.map(q=>state.cards[q.id]?.credited?asRecall(q):({...q,transfer:q.transfer===true&&!state.cards[q.id]}));
@@ -65,6 +69,7 @@ export function readPractice(storage) {
   const state = freshPractice();
   try {
     const raw = JSON.parse(storage.getItem(PRACTICE_KEY));if(raw?.version !== 1) return state;
+    state.level=raw.level==='intermediate'?'intermediate':'beginner';
     for(const q of practiceQuestions) {
       const card = raw.cards?.[q.id];
       if(!card || !validDate(card.due) || !validDate(card.lastSeen)) continue;
@@ -98,16 +103,18 @@ export function readPractice(storage) {
   } catch { /* Keep the valid default when browser storage is unavailable or corrupt. */ }
   return state;
 }
-export function dueQuestions(state, date=today()) {
-  return practiceQuestions.filter(q=>state.cards[q.id]?.due <= date)
+export function dueQuestions(state, date=today(), level) {
+  return practiceQuestions.filter(q=>(!level||q.level===level)&&state.cards[q.id]?.due <= date)
     .sort((a,b)=>state.cards[a.id].due.localeCompare(state.cards[b.id].due)||state.cards[a.id].strength-state.cards[b.id].strength);
 }
-export function reviewDeck(state, date=today()) {
-  return dueQuestions(state,date).slice(0,10).map(q=>({ ...q, kind:'input', phase:'다시 꺼내 보기', transfer:false, model:undefined, choices:undefined, tiles:undefined }));
+export function reviewDeck(state, date=today(), level) {
+  return dueQuestions(state,date,level).slice(0,10).map(q=>({ ...q, kind:'input', phase:'다시 꺼내 보기', transfer:false, model:undefined, choices:undefined, tiles:undefined }));
 }
 export function nextPack(state, currentId) {
-  if(currentId){const index=practicePacks.findIndex(p=>p.id===currentId);if(index>=0)return practicePacks[(index+1)%practicePacks.length];}
-  return practicePacks.find(pack=>!state.completed.includes(pack.id)) || practicePacks[0];
+  const level=practicePacks.find(p=>p.id===currentId)?.level||state.level||'beginner';
+  const packs=practicePacks.filter(p=>p.level===level);
+  if(currentId){const index=packs.findIndex(p=>p.id===currentId);if(index>=0)return packs[(index+1)%packs.length];}
+  return packs.find(pack=>!state.completed.includes(pack.id)) || packs[0];
 }
 
 export function readPracticeDrafts(storage) {
@@ -120,10 +127,10 @@ export function readPracticeDrafts(storage) {
       const ids=item.questionIds;
       if(!Array.isArray(ids)||!ids.length||ids.length>10||new Set(ids).size!==ids.length||ids.some(id=>!questionById(id)))continue;
       if(pack&&(ids.length!==pack.questions.length||ids.some((id,i)=>id!==pack.questions[i].id)))continue;
-      if((packId==='daily'&&ids.length!==5)||(packId==='light'&&ids.length!==3))continue;
+      if(ROUND_SIZES[packId]&&(ids.length!==ROUND_SIZES[packId]||ids.some(id=>questionById(id).level!==roundLevel(packId))))continue;
       if(!Number.isInteger(item.index)||item.index<0||item.index>=ids.length||!Array.isArray(item.results)||item.results.length!==item.index)continue;
       if(item.results.some((r,i)=>r?.id!==ids[i]||typeof r.correct!=='boolean'||typeof r.independent!=='boolean'||r.independent&&!r.correct))continue;
-      const formats=ids.map((id,i)=>['review','retry'].includes(packId)?'input':QUICK_MODES.includes(packId)&&item.formats?.[i]==='input'?'input':questionById(id).kind);
+      const formats=ids.map((id,i)=>isRecallRound(packId)?'input':QUICK_MODES.includes(packId)&&item.formats?.[i]==='input'?'input':questionById(id).kind);
       const original=questionById(ids[item.index]);
       const q=formats[item.index]==='input'?{...original,kind:'input',tiles:undefined,choices:undefined}:original;
       const current=item.current||{};
@@ -149,11 +156,11 @@ export function readPracticeDrafts(storage) {
 export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>!q.cue&&!q.model&&q.mode!=='word'&&state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
 export function recordPractice(state, results, {packId, date=today(), continued=false,runId}={}) {
   const special=packId==='review'||QUICK_MODES.includes(packId);
-  if(!validDate(date) || !results.length || results.length > 10 || (!special&&results.length!==practicePacks.find(p=>p.id===packId)?.questions.length) || (packId==='daily'&&results.length!==5)||(packId==='light'&&results.length!==3)||new Set(results.map(r=>r.id)).size !== results.length ||
+  if(!validDate(date) || !results.length || results.length > 10 || (!special&&results.length!==practicePacks.find(p=>p.id===packId)?.questions.length) || (ROUND_SIZES[packId]&&(results.length!==ROUND_SIZES[packId]||results.some(r=>questionById(r.id)?.level!==roundLevel(packId))))||new Set(results.map(r=>r.id)).size !== results.length ||
     ![...practicePacks.map(p=>p.id),'review',...QUICK_MODES].includes(packId) || results.some(r=>!questionById(r.id) || (!special && questionById(r.id).packId!==packId))) throw Error('Invalid practice results');
   if(runId&&state.runs.some(run=>run.runId===runId))return {...state.runs.find(run=>run.runId===runId),xp:0,newSentences:0,recovered:0,newQuestions:0,duplicate:true};
   const before = new Set(independentSentences(state));
-  const transfer=!['review','retry'].includes(packId)&&results.some(r=>questionById(r.id).transfer&&!state.cards[r.id]&&r.correct&&r.independent);
+  const transfer=!isRecallRound(packId)&&results.some(r=>questionById(r.id).transfer&&!state.cards[r.id]&&r.correct&&r.independent);
   const newQuestions=results.filter(r=>!state.cards[r.id]).length;
   let xp=0,independent=0,correct=0,recovered=0;
   for(const result of results) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0 — 2026-11-12
+
+- Add 12 intermediate courses / 120 exercises: past events, movement and agreement, past background, future plans, real and imagined conditions, object pronouns, y/en, relative clauses, comparisons, opinions and the present subjunctive.
+- Offer beginner/intermediate selection on home and in the course library. Start intermediate practice immediately without completing beginner courses first.
+- Scope daily rounds, review and recommendations to the selected level; save its preference and keep separate short-round, review and retry drafts.
+- Preserve the existing 90 beginner exercises and their IDs, progress and XP. Keep explanations collapsed and all new content available offline without AI calls or speech assessment.
+
 ## 1.5.0 — 2026-11-09
 
 - Center home on Lou, one start action and five-question daily rounds; offer a three-question option and preserve all ten-question courses.

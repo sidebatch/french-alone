@@ -26,7 +26,7 @@ async function setup(initialPractice,initialDrafts) {
   const current=()=>questionById($('.practice-body[data-practice-question]')?.dataset.practiceQuestion);
   const answer=()=>{const q=current();assert.ok(q);if($('#practice-input'))type(q.answer);else if($('[data-action="practice-choice"]'))choose(q.answer);else {(q.kind==='order'?q.tiles:supportTiles(q).tiles).forEach(pick);click('[data-action="practice-check"]');}assert.ok($('[data-action="practice-next"]'));click('[data-action="practice-next"]');};
   const nav=route=>{dom.window.history.replaceState({},'','#'+route);dom.window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));};
-  const course=id=>{nav('lessons');click('.practice-pack[data-id="'+id+'"]');};
+  const course=id=>{nav('lessons');const level=practicePacks.find(p=>p.id===id).level;click('[data-action="practice-level"][data-value="'+level+'"]');click('.practice-pack[data-id="'+id+'"]');};
   return {dom,$,click,type,choose,pick,current,answer,nav,course,errors,saved:()=>JSON.parse(dom.window.localStorage.getItem(PRACTICE_KEY))};
 }
 
@@ -76,6 +76,35 @@ test('promoted review formats and revealed answers remain honest after a quick-r
   restored.click('[data-action="practice-next"]');while(restored.current())restored.answer();
   const result=restored.saved().runs.at(-1);assert.equal(result.total,5);assert.equal(result.correct,4);
   assert.equal(result.independent,3);assert.equal(restored.saved().cards['want-1'].strength,0);
+});
+
+test('level switching keeps both short-round drafts and resumes the chosen level after reload',async()=>{
+  const f=await setup();f.click('[data-action="practice-daily"]');f.answer();
+  f.$('#practice-input').value='ve';f.$('#practice-input').dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));f.click('#study-dialog [data-action="close"]');
+  f.click('[data-action="practice-level"][data-value="intermediate"]');assert.equal(f.$('[data-action="practice-resume"]'),null);
+  f.click('[data-action="practice-daily"]');assert.equal(f.current().id,'past-events-1');f.answer();
+  f.$('#practice-input').value='regard';f.$('#practice-input').dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));f.click('#study-dialog [data-action="close"]');
+  f.click('[data-action="practice-level"][data-value="beginner"]');f.click('[data-action="practice-resume"]');assert.equal(f.$('#practice-input').value,'ve');f.click('#study-dialog [data-action="close"]');
+  f.click('[data-action="practice-level"][data-value="intermediate"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));const restored=await setup(f.saved(),drafts);
+  assert.equal(restored.$('[data-action="practice-level"][data-value="intermediate"]').getAttribute('aria-pressed'),'true');
+  restored.click('[data-action="practice-resume"]');assert.equal(restored.$('#practice-input').value,'regard');while(restored.current())restored.answer();
+  assert.equal(restored.saved().runs.at(-1).packId,'daily-intermediate');restored.click('[data-action="practice-more"]');assert.equal(restored.current().id,'past-events-6');
+});
+
+test('intermediate courses and review are available without finishing beginner courses',async()=>{
+  const initial=freshPractice();initial.level='intermediate';
+  for(const id of ['want','past-events'])recordPractice(initial,practicePacks.find(p=>p.id===id).questions.map(q=>({id:q.id,correct:true,independent:false})),{packId:id,date:addDays(today(),-1)});
+  const f=await setup(initial);f.nav('lessons');assert.equal(document.querySelectorAll('.practice-pack').length,12);
+  assert.match(f.$('.practice-due').textContent,/10개/);f.click('[data-action="practice-due"]');assert.equal(f.current().id,'past-events-1');assert.ok(f.$('#practice-input'));
+  while(f.current())f.answer();assert.equal(f.saved().runs.at(-1).packId,'review-intermediate');assert.equal(f.saved().runs.at(-1).transfer,false);
+});
+
+test('intermediate mistakes retry as typing and retain the chosen level',async()=>{
+  const f=await setup();f.click('[data-action="practice-level"][data-value="intermediate"]');f.click('[data-action="practice-light"]');f.answer();
+  f.type('regarde');f.type('regardé');f.click('[data-action="practice-next"]');f.answer();
+  f.click('[data-action="practice-retry"]');assert.equal(f.current().id,'past-events-2');assert.ok(f.$('#practice-input'));f.answer();
+  assert.equal(f.saved().runs.at(-1).packId,'retry-intermediate');assert.equal(f.saved().level,'intermediate');assert.match(f.$('.result-growth').textContent,/혼자/);
 });
 
 test('accent keys insert at the cursor, preserve the draft and do not spend a hint',async()=>{
@@ -144,14 +173,14 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });
 
-test('all nine authored rounds can be completed using apostrophes and preserve independent scores on reload',async()=>{
+test('all twenty-one authored rounds preserve independent scores and rewards on reload',async()=>{
   const f=await setup();
   for(const pack of practicePacks){
     f.course(pack.id);
     while(f.current())f.answer();
     assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.saved().runs.at(-1).transfer,true);f.click('[data-action="practice-close"]');
   }
-  assert.equal(f.saved().runs.length,9);
+  assert.equal(f.saved().runs.length,21);
   const restored=await setup(f.saved());assert.ok(restored.$('.hero [data-action="practice-daily"]'));
   restored.course('want');while(restored.current())restored.answer();
   assert.equal(restored.$('.completion-reward').textContent,'0 XP');
