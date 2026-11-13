@@ -37,7 +37,7 @@ export const intermediatePackSpecs = [
     blank('그 남자들은 떠났어.','Ils ___ partis.','sont','Ils sont partis.','ils와 쓰는 être의 현재형이에요.','Ils sont partis. 남성 복수형 과거분사는 partis예요.'),
     arrange('그녀는 파리에 가지 않았어.','Elle n’est pas allée à Paris.',['Elle','n’est','pas','allée','à','Paris'],'ne … pas로 est를 감싸요.','부정문에서도 allée의 여성형 e는 유지해요.'),
     blank('그녀들은 제시간에 도착했어.','Elles sont ___ à l’heure.','arrivées','Elles sont arrivées à l’heure.','여성 복수이므로 arrivée에 s를 붙여요.','à l’heure는 “제시간에”예요. arrivées는 elles와 일치해요.',{glossary:'à l’heure = 제시간에'}),
-    write('나는 어제 파리에 갔어.','Je suis allé à Paris hier.','Je suis 뒤에 allé 또는 allée를 써요.','화자의 성별을 지정하지 않았으므로 allé와 allée를 모두 인정해요.',{accepted:['Je suis allée à Paris hier.','Hier, je suis allé à Paris.','Hier, je suis allée à Paris.']}),
+    write('나는 어제 파리에 갔어.','Je suis allé à Paris hier.','Je suis 뒤에 allé 또는 allée를 써요.','남성 화자는 Je suis allé, 여성 화자는 Je suis allée라고 해요. être 뒤의 과거분사를 주어에 맞춰요.',{accepted:['Je suis allée à Paris hier.','Hier, je suis allé à Paris.','Hier, je suis allée à Paris.']}),
     write('그녀는 어젯밤 떠났어.','Elle est partie hier soir.','Elle est 뒤에 partir의 여성형 과거분사를 써요.','partie는 여성 단수형이에요. hier soir는 “어젯밤”이에요.',{transfer:true,glossary:'partir = 떠나다 · hier soir = 어젯밤',accepted:['Hier soir, elle est partie.']})
   ]],
   [meta('past-background','그때는 무슨 일이 있었나요','반과거로 배경을 그리고 사건 연결하기','반과거 배경 + 복합과거 사건','book','lavender',

@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 import { today, STORAGE_KEY } from '../dist/core.js';
 import { practicePacks, questionById } from '../dist/practice-data.js';
+import { lessonForQuestion, questionLessonIds } from '../dist/practice-lessons.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDays, supportTiles } from '../dist/practice-core.js';
 
 let fixtureNumber=0;
@@ -24,7 +25,7 @@ async function setup(initialPractice,initialDrafts) {
   const choose=value=>click([...document.querySelectorAll('[data-action="practice-choice"]')].find(b=>b.dataset.value===value));
   const pick=value=>click([...document.querySelectorAll('.tile-pool [data-action="practice-pick"]')].find(b=>b.textContent===value&&!b.disabled));
   const current=()=>questionById($('.practice-body[data-practice-question]')?.dataset.practiceQuestion);
-  const answer=()=>{const q=current();assert.ok(q);if($('#practice-input'))type(q.answer);else if($('[data-action="practice-choice"]'))choose(q.answer);else {(q.kind==='order'?q.tiles:supportTiles(q).tiles).forEach(pick);click('[data-action="practice-check"]');}assert.ok($('[data-action="practice-next"]'));click('[data-action="practice-next"]');};
+  const answer=(beforeNext=()=>{})=>{const q=current();assert.ok(q);if($('#practice-input'))type(q.answer);else if($('[data-action="practice-choice"]'))choose(q.answer);else {(q.kind==='order'?q.tiles:supportTiles(q).tiles).forEach(pick);click('[data-action="practice-check"]');}assert.ok($('[data-action="practice-next"]'));beforeNext(q);click('[data-action="practice-next"]');};
   const nav=route=>{dom.window.history.replaceState({},'','#'+route);dom.window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));};
   const course=id=>{nav('lessons');const level=practicePacks.find(p=>p.id===id).level;click('[data-action="practice-level"][data-value="'+level+'"]');click('.practice-pack[data-id="'+id+'"]');};
   return {dom,$,click,type,choose,pick,current,answer,nav,course,errors,saved:()=>JSON.parse(dom.window.localStorage.getItem(PRACTICE_KEY))};
@@ -144,7 +145,7 @@ test('course filters and compact home keep unfinished courses accessible',async(
 test('missing words, grammar guidance and assisted recap survive a paused session',async()=>{
   const f=await setup();f.course('want');for(let i=0;i<8;i++)f.answer();
   f.type('Je veux ici');assert.equal(f.$('.attempt-word.missing').textContent,'빠진 단어');
-  f.type('Je veux rester ici');assert.equal(f.$('#practice-explanation').hidden,true);f.click('[data-action="practice-why"]');assert.equal(f.$('#practice-explanation').hidden,false);assert.match(f.$('.grammar-guide').textContent,/Je voudrais/);
+  f.type('Je veux rester ici');assert.equal(f.$('#practice-explanation').hidden,true);f.click('[data-action="practice-why"]');assert.equal(f.$('#practice-explanation').hidden,false);assert.match(f.$('.mini-lesson').textContent,/rester ici/);assert.doesNotMatch(f.$('.mini-lesson').textContent,/Je voudrais/);
   f.click('[data-action="practice-next"]');f.click('#study-dialog [data-action="close"]');
   const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
   const restored=await setup(undefined,drafts);restored.click('.hero [data-action="practice-resume"]');restored.answer();
@@ -173,11 +174,21 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });
 
-test('all twenty-one authored rounds preserve independent scores and rewards on reload',async()=>{
+test('all 210 questions open their targeted mini lesson without changing scores or rewards',async()=>{
   const f=await setup();
   for(const pack of practicePacks){
     f.course(pack.id);
-    while(f.current())f.answer();
+    while(f.current())f.answer(q=>{
+      assert.equal(f.$('#practice-explanation').hidden,true);
+      f.click('[data-action="practice-why"]');
+      assert.equal(f.$('.answer-detail').open,false,'lesson is optional: '+q.id);
+      f.click('.answer-detail summary');assert.equal(f.$('.answer-detail').open,true);
+      assert.equal(f.$('[data-mini-lesson]').dataset.miniLesson,questionLessonIds[q.id]);
+      assert.equal(f.$('.mini-lesson h4').textContent,lessonForQuestion(q.id).title);
+      assert.equal(document.querySelectorAll('.lesson-forms tbody tr').length,lessonForQuestion(q.id).forms.length);
+      assert.equal(f.$('.mini-example [lang="fr"]').textContent,lessonForQuestion(q.id).example.fr);
+      assert.equal(f.$('.grammar-guide'),null,'no course-wide fallback');
+    });
     assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.saved().runs.at(-1).transfer,true);f.click('[data-action="practice-close"]');
   }
   assert.equal(f.saved().runs.length,21);

@@ -1,4 +1,5 @@
 import { practicePacks, practiceUnits, questionById } from './practice-data.js';
+import { renderMiniLesson } from './practice-lessons.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
@@ -64,8 +65,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   }
   const modeLabel=q=>session.supported?'카드로 연습':q.kind==='order'?'단어를 순서대로':q.kind==='choice'?'빈칸에 맞는 말':q.mode==='word'?'단어 쓰기':q.cue?'빈칸 채우기':'문장 쓰기';
   function explanation(q) {
-    const pack=practicePacks.find(p=>p.id===q.packId);
-    return '<b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.note)+'</p><details class="answer-detail"><summary>조금 더 알아보기</summary><div class="grammar-guide"><p class="grammar-pattern">'+escape(pack.pattern)+'</p><p>'+escape(pack.guide.rule)+'</p><p>'+escape(pack.guide.caution)+'</p></div></details>';
+    return '<b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.note)+'</p><details class="answer-detail"><summary>조금 더 알아보기</summary>'+renderMiniLesson(q.id,escape)+'</details>';
   }
   function tilesHTML() {
     const q=active(),finished=done();

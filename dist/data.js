@@ -24,7 +24,7 @@ export const lessons = [
     ['Ce n’est pas grave.', '괜찮아요. (큰일 아니에요)', '스 네 파 그라브', 'grave는 “심각한”이에요. Ce n’est pas grave는 심각한 일이 아니라며 상대를 안심시키는 표현이에요.']
   ] },
   { id: 'cafe', title: '파리의 작은 카페', subtitle: '커피와 크루아상 주문하기', icon: 'coffee', color: 'butter', category: '일상 회화', tip: 'Je voudrais는 ‘~을 원합니다’라는 정중한 주문 표현이에요. 원하는 메뉴를 뒤에 붙여 보세요.', phrases: [
-    ['Un café, s’il vous plaît.', '커피 한 잔 주세요.', '앙 카페, 실 부 플레', '프랑스에서 un café는 보통 에스프레소예요'],
+    ['Un café, s’il vous plaît.', '커피 한 잔 주세요.', '앙 카페, 실 부 플레', 'café는 남성 명사라 한 잔을 un café라고 해요. s’il vous plaît를 뒤에 붙이면 짧은 메뉴 이름만으로도 정중하게 주문할 수 있어요.'],
     ['Je voudrais un croissant.', '크루아상 하나 주세요.', '쥬 부드레 앙 크루아상', 'Je voudrais는 정중한 요청이에요. croissant은 남성 명사라 un croissant이라고 써요.'],
     ['Sur place ou à emporter ?', '드시고 가시나요, 포장하시나요?', '쉬르 플라스 우 아 앙포르테', 'sur place는 “매장에서”, à emporter는 “가지고 갈”이라는 뜻이에요. 가운데 ou는 “또는”이에요.'],
     ['À emporter, s’il vous plaît.', '포장해 주세요.', '아 앙포르테, 실 부 플레', 'à emporter는 포장 주문에 쓰는 표현이에요. 매장에서 먹으려면 Sur place, s’il vous plaît라고 해요.'],
@@ -32,9 +32,9 @@ export const lessons = [
     ['C’est délicieux !', '정말 맛있어요!', '세 델리시외', 'C’est는 “이것은 ~이다”예요. délicieux를 붙여 음식이 맛있다고 표현해요.']
   ] },
   { id: 'numbers', title: '하나, 둘, trois', subtitle: '숫자와 가격 말하기', icon: 'hash', color: 'lavender', category: '일상 회화', tip: '프랑스어의 r, u, 비모음은 한국어로 정확히 옮기기 어려워요. 한글 표기는 참고하고 소리를 여러 번 들어 보세요.', phrases: [
-    ['Un, deux, trois.', '하나, 둘, 셋.', '앙, 되, 트루아', '숫자 1, 2, 3'],
-    ['Quatre, cinq, six.', '넷, 다섯, 여섯.', '카트르, 생크, 시스', '숫자 4, 5, 6'],
-    ['Sept, huit, neuf, dix.', '일곱, 여덟, 아홉, 열.', '세트, 위트, 너프, 디스', '숫자 7, 8, 9, 10'],
+    ['Un, deux, trois.', '하나, 둘, 셋.', '앙, 되, 트루아', '1은 un, 2는 deux, 3은 trois예요. 물건 수를 말하면 un livre, deux livres처럼 숫자를 명사 앞에 놓아요. 여성 명사 하나는 une question처럼 une를 써요.'],
+    ['Quatre, cinq, six.', '넷, 다섯, 여섯.', '카트르, 생크, 시스', '4는 quatre, 5는 cinq, 6은 six예요. cinq euros는 “5유로”예요. 숫자 cinq는 그대로 두고 뒤의 euro를 복수 euros로 써요.'],
+    ['Sept, huit, neuf, dix.', '일곱, 여덟, 아홉, 열.', '세트, 위트, 너프, 디스', '7은 sept, 8은 huit, 9는 neuf, 10은 dix예요. 뒤에 명사를 붙여 huit livres(책 여덟 권), dix euros(10유로)처럼 수량을 말해요.'],
     ['Combien ça coûte ?', '이거 얼마예요?', '콩비앵 사 쿠트', 'combien은 “얼마나”, ça coûte는 “그것은 값이 ~이다”예요. 일상에서 가격을 묻는 질문으로 써요.'],
     ['Ça coûte cinq euros.', '5유로예요.', '사 쿠트 생크 외로', 'Ça coûte 뒤에 금액을 붙여요. 5유로는 복수이므로 euros에 s를 써요.'],
     ['Je peux payer par carte ?', '카드로 결제할 수 있나요?', '쥬 푀 페예 파르 카르트', 'Je peux + 동사원형 payer에 결제 수단 par carte를 붙였어요. 물음표를 붙여 가능 여부를 물어요.']

@@ -1,13 +1,13 @@
 {
   "name": "french-alone",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "type": "module",
   "description": "하루 5분, 한국어로 시작하는 프랑스어 학습 앱",
   "scripts": {
     "start": "python3 -m http.server 4173 --directory dist",
     "test": "node --test",
-    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js && node --check dist/practice-intermediate.js && node --check dist/practice-content.js && node --check dist/practice-data.js && node --check dist/practice-core.js && node --check dist/practice.js && node --check dist/study-viewport.js && node --check dist/feedback.js && node --check dist/companion.js && node --check dist/pwa.js && node --check dist/sw.js && node --check scripts/generate-icons.mjs && node --check scripts/check-deployment.mjs",
+    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js && node --check dist/practice-intermediate.js && node --check dist/practice-content.js && node --check dist/practice-data.js && node --check dist/practice-core.js && node --check dist/practice-lessons.js && node --check dist/practice.js && node --check dist/study-viewport.js && node --check dist/feedback.js && node --check dist/companion.js && node --check dist/pwa.js && node --check dist/sw.js && node --check scripts/generate-icons.mjs && node --check scripts/check-deployment.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "check:deployment": "node scripts/check-deployment.mjs"
   },

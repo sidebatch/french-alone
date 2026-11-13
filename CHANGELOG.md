@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.0 — 2026-11-12
+
+- Audit all 210 exercises and replace course-wide “Learn more” text with explicit question-specific lessons. Add 114 short lessons with form tables, translated examples and common confusions.
+- Separate irregular participles, auxiliary negation and agreement; provide targeted word, conjugation, pronoun, relative-clause, comparison and subjunctive explanations.
+- Review all 72 basic expressions, remove unrelated course tips from individual explanations, and expand number and café usage notes.
+- Keep explanations collapsed, preserve question IDs and grading, and cache all lessons offline. Record the complete content inventory and QA scope in `docs/content-audit-1.7.md`.
+
 ## 1.6.0 — 2026-11-12
 
 - Add 12 intermediate courses / 120 exercises: past events, movement and agreement, past background, future plans, real and imagined conditions, object pronouns, y/en, relative clauses, comparisons, opinions and the present subjunctive.

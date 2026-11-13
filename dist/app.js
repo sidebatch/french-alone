@@ -6,7 +6,7 @@ import { playFeedback } from './feedback.js';
 import { bindStudyViewport } from './study-viewport.js';
 import { mascot, companionMessage } from './companion.js';
 
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -129,7 +129,7 @@ function renderSession() {
   const s=session;
   if(s.phase==='learn'){
     const p=s.deck[s.index];
-    content.innerHTML=`${dialogHeader(s.lesson.title,(s.index+1)/s.deck.length*50,`표현 ${s.index+1} / ${s.deck.length}`,true)}<div class="dialog-body center"><h3 class="big-french" lang="fr">${escape(p.fr)}</h3><p class="pronunciation">[ ${escape(p.pronunciation)} ]</p><p class="translation">${escape(p.ko)}</p><div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div><details class="lesson-detail lesson-explanation"><summary>왜 이렇게 쓸까요?</summary><p>${escape(p.note)}</p><p>${escape(s.lesson.tip)}</p></details></div><div class="dialog-footer"><button class="secondary-button" data-action="prev" ${s.index===0?'disabled':''}>이전 표현</button><button class="primary-button" data-action="next-learn">${s.index===s.deck.length-1?'퀴즈 시작하기':'다음 표현'}${icon('arrow')}</button></div>`;
+    content.innerHTML=`${dialogHeader(s.lesson.title,(s.index+1)/s.deck.length*50,`표현 ${s.index+1} / ${s.deck.length}`,true)}<div class="dialog-body center"><h3 class="big-french" lang="fr">${escape(p.fr)}</h3><p class="pronunciation">[ ${escape(p.pronunciation)} ]</p><p class="translation">${escape(p.ko)}</p><div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div><details class="lesson-detail lesson-explanation"><summary>왜 이렇게 쓸까요?</summary><p>${escape(p.note)}</p></details></div><div class="dialog-footer"><button class="secondary-button" data-action="prev" ${s.index===0?'disabled':''}>이전 표현</button><button class="primary-button" data-action="next-learn">${s.index===s.deck.length-1?'퀴즈 시작하기':'다음 표현'}${icon('arrow')}</button></div>`;
   } else if(s.phase==='quiz') {
     const q=s.questions[s.index];const answered=s.selected!==null;
     const right=answered&&s.selected===q.phrase.id;

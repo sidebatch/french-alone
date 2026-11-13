@@ -31,9 +31,9 @@ export const extraPackSpecs = [
     choose('나는 여기에 있지 않아.', 'Je ne suis ___ ici.', 'pas', 'Je ne suis pas ici.', ['pas', 'de', 'à'], 'ne와 pas가 suis를 감싸면 “~이 아니다 / ~에 있지 않다”가 돼요.', 'Je ne suis pas ici. ne와 pas 사이에는 suis가 있어요.'),
     blank('나는 집에 있지 않아.', 'Je ne ___ pas à la maison.', 'suis', 'Je ne suis pas à la maison.', 'Je와 쓰는 être의 형태는 suis예요.', '장소 표현 à la maison은 그대로 두고 suis를 ne … pas로 감싸요.'),
     arrange('나는 여기에 있지 않아.', 'Je ne suis pas ici.', ['Je', 'ne', 'suis', 'pas', 'ici'], 'Je → ne → suis → pas → ici 순서예요.', 'pas는 suis 바로 뒤에 써요. ici 앞에 ne를 놓지 않아요.'),
-    blank('나는 준비됐어.', 'Je suis ___.', 'prêt', 'Je suis prêt.', '남성형 prêt, 여성형 prête 중 하나를 써요.', 'prêt / prête는 “준비된”이에요. 이 문제에서는 두 형태 모두 맞아요.', { accepted: ['prête', 'Je suis prête.'], glossary: 'prêt / prête = 준비된' }),
+    blank('나는 준비됐어.', 'Je suis ___.', 'prêt', 'Je suis prêt.', '남성형 prêt, 여성형 prête 중 하나를 써요.', 'prêt는 남성 단수, prête는 여성 단수인 “준비된”이에요. 설명하는 사람에 맞춰 써요.', { accepted: ['prête', 'Je suis prête.'], glossary: 'prêt / prête = 준비된' }),
     write('나는 집에 있어.', 'Je suis à la maison.', 'Je suis로 시작하고 à la maison을 붙여요.', 'Je suis + à la maison. 장소를 뜻하는 à에는 악센트를 써요.'),
-    write('나는 피곤해.', 'Je suis fatigué.', 'Je suis 뒤에 fatigué 또는 fatiguée를 붙여요.', 'fatigué는 남성형, fatiguée는 여성형이에요. 성별을 지정하지 않았으므로 둘 다 정답이에요.', { transfer: true, glossary: '새 단어: fatigué / fatiguée = 피곤한', accepted: ['Je suis fatiguée.'] })
+    write('나는 피곤해.', 'Je suis fatigué.', 'Je suis 뒤에 fatigué 또는 fatiguée를 붙여요.', 'fatigué는 남성형, fatiguée는 여성형이에요. être 뒤의 형용사는 설명하는 사람의 성에 맞춰요.', { transfer: true, glossary: '새 단어: fatigué / fatiguée = 피곤한', accepted: ['Je suis fatiguée.'] })
   ]],
   [{ id: 'have', title: '가진 것과 필요한 휴식', subtitle: '소유와 몸 상태를 J’ai로 표현하기', pattern: 'J’ai + 명사', icon: 'bag', color: 'peach', promise: '가진 물건과 배고픔·목마름을 표현해요.' }, [
     choose('나는 가방 하나가 있어.', 'J’___ un sac.', 'ai', 'J’ai un sac.', ['ai', 'suis', 'a'], 'J’ai는 “나는 가지고 있다”예요. sac은 남성 명사라 un sac이라고 써요.', 'Je는 ai 앞에서 J’로 줄어요. Je ai라고 쓰지 않아요.'),
@@ -62,7 +62,7 @@ export const extraPackSpecs = [
   [{ id: 'order-food', title: '카페에서 내 주문은', subtitle: 'Je voudrais로 정중하게 주문하기', pattern: 'Je voudrais + 원하는 것', icon: 'coffee', color: 'butter', promise: '음료와 간식을 정중하게 주문해요.' }, [
     choose('커피 한 잔 주세요.', 'Je ___ un café.', 'voudrais', 'Je voudrais un café.', ['voudrais', 'suis', 'peux'], 'Je voudrais는 원하는 것을 정중하게 요청하는 표현이에요.', 'Je veux보다 부드러운 요청이에요. 주문할 메뉴를 뒤에 붙여요.'),
     blank('차 한 잔 주세요.', 'Je ___ un thé.', 'voudrais', 'Je voudrais un thé.', 'v로 시작하는 voudrais를 넣어요.', 'thé는 차라는 남성 명사예요. un thé는 차 한 잔이에요.', { glossary: 'un thé = 차 한 잔' }),
-    write('커피', 'café', 'c-a-f 뒤에 é를 붙여요.', 'café의 마지막 글자는 é예요. 아래 악센트 버튼으로 입력할 수 있어요.', { mode: 'word' }),
+    write('커피', 'café', 'c-a-f 뒤에 é를 붙여요.', 'café는 “커피, 카페”라는 남성 명사예요. 한 잔을 주문하면 un café라고 해요. 마지막 é를 확인해요.', { mode: 'word' }),
     arrange('크루아상 하나 주세요.', 'Je voudrais un croissant.', ['Je', 'voudrais', 'un', 'croissant'], 'Je → voudrais → un → croissant 순서예요.', 'croissant은 남성 명사이므로 un을 붙여요.', { glossary: 'un croissant = 크루아상 하나' }),
     choose('샐러드 하나 주세요.', 'Je voudrais ___ salade.', 'une', 'Je voudrais une salade.', ['une', 'un', 'de'], 'salade는 여성 명사라 une salade라고 해요.', '주문하는 메뉴가 여성 명사이면 une, 남성 명사이면 un을 써요.'),
     blank('차 한 잔 주세요.', 'Je voudrais un ___.', 'thé', 'Je voudrais un thé.', '차는 t-h-é예요.', 'thé는 음료인 “차”예요. 마지막의 é를 확인해요.'),
@@ -87,12 +87,12 @@ export const extraPackSpecs = [
     choose('기차역은 어디에 있나요?', 'Où ___ la gare ?', 'est', 'Où est la gare ?', ['est', 'sont', 'suis'], '한 장소의 위치를 물을 때 Où est를 써요. gare는 기차역이에요.', 'Où + est + la gare. où의 ù는 위치를 묻는 말임을 구분해 줘요.'),
     blank('카페는 어디에 있나요?', 'Où ___ le café ?', 'est', 'Où est le café ?', '카페 한 곳을 물으므로 est예요.', 'café는 남성 명사라 le café예요. Où est의 형태는 그대로예요.'),
     write('기차역', 'gare', 'g로 시작하는 네 글자예요.', 'gare는 여성 명사예요. 문장에서는 la gare라고 써요.', { mode: 'word' }),
-    arrange('기차역은 어디에 있나요?', 'Où est la gare ?', ['Où', 'est', 'la', 'gare'], 'Où → est → la → gare 순서예요.', '질문에서는 Où est 뒤에 찾는 장소를 넣어요. 물음표 유무는 채점에 영향을 주지 않아요.'),
+    arrange('기차역은 어디에 있나요?', 'Où est la gare ?', ['Où', 'est', 'la', 'gare'], 'Où → est → la → gare 순서예요.', 'Où est 뒤에 찾는 장소를 넣어요. la gare는 단수이므로 être의 단수형 est로 물어요.'),
     choose('화장실은 어디에 있나요?', 'Où ___ les toilettes ?', 'sont', 'Où sont les toilettes ?', ['sont', 'est', 'suis'], '화장실은 les toilettes처럼 복수로 표현하므로 sont를 써요.', '한국어로 화장실 한 곳을 찾아도 프랑스어 표현 les toilettes는 복수예요.'),
     blank('화장실은 어디에 있나요?', 'Où sont ___ toilettes ?', 'les', 'Où sont les toilettes ?', '복수 명사 앞의 정관사는 les예요.', 'les와 sont를 함께 기억해요: Où sont les toilettes ?'),
     arrange('화장실은 어디에 있나요?', 'Où sont les toilettes ?', ['Où', 'sont', 'les', 'toilettes'], 'Où → sont → les → toilettes 순서예요.', 'toilettes의 끝 s와 복수형 sont를 확인해요.'),
     blank('호텔은 어디에 있나요?', 'Où est l’___ ?', 'hôtel', 'Où est l’hôtel ?', 'h-ô-t-e-l을 써요.', 'hôtel의 h는 무음이에요. le hôtel 대신 l’hôtel로 줄여 써요.', { glossary: 'l’hôtel = 호텔' }),
-    write('카페는 어디에 있나요?', 'Où est le café ?', 'Où est 뒤에 le café를 붙여요.', '위치의 Où에는 ù, café에는 é가 있어요. 악센트 버튼을 이용해도 돼요.'),
+    write('카페는 어디에 있나요?', 'Où est le café ?', 'Où est 뒤에 le café를 붙여요.', '위치를 묻는 Où에는 ù, café에는 é가 있어요. le café는 남성 단수 명사라 Où est와 함께 써요.'),
     write('박물관은 어디에 있나요?', 'Où est le musée ?', 'Où est 뒤에 le musée를 붙여요.', 'musée는 ée로 끝나지만 남성 명사예요. la가 아니라 le를 써요.', { transfer: true, glossary: '새 단어: le musée = 박물관' })
   ]]
 ];
