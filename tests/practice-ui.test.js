@@ -239,6 +239,22 @@ test('grammar overlays keep arranged tiles without changing scoring',async()=>{
   assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.errors.length,0);
 });
 
+test('explicit grammar destinations open separate cards and preserve the answered question',async()=>{
+  const q=practicePacks[0].questions[0];
+  q.grammarIds=['vouloir','verb-prepositions'];
+  try{
+    const f=await setup();f.course(practicePacks[0].id);f.choose(q.answer);f.click('[data-action="practice-why"]');f.$('.answer-detail').open=true;
+    const body=f.$('.practice-body'),links=[...document.querySelectorAll('[data-action="practice-grammar"]')];
+    assert.equal(links.length,2);assert.equal(links[1].textContent,'동사 뒤 à·de·동사원형');
+    for(const link of links){
+      f.click(link);assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,link.dataset.grammarTarget);
+      f.click('[data-action="grammar-close"]');assert.equal(f.$('.practice-body'),body);assert.ok(f.$('.answer-detail').open);
+    }
+    const state=JSON.parse(f.dom.window.localStorage.getItem(GRAMMAR_KEY));
+    assert.equal(state.counts.vouloir,1);assert.equal(state.counts['verb-prepositions'],1);assert.equal(f.errors.length,0);
+  }finally{delete q.grammarIds;}
+});
+
 test('grammar tab keeps search and focus, shares personal counts and resets with learning records',async()=>{
   const f=await setup();f.nav('grammar');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,grammarArticles.length);
   const search=f.$('#grammar-search');search.value='vu';search.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));

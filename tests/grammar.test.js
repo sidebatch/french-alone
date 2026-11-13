@@ -9,7 +9,7 @@ import {GRAMMAR_KEY,createGrammarStore,parseGrammar,searchGrammar} from '../dist
 
 const memory=()=>{const data=new Map();return {getItem:key=>data.get(key)||null,setItem:(key,value)=>data.set(key,value)};};
 test('every mini lesson and all 210 questions have exactly one authored grammar destination',()=>{
-  assert.equal(grammarArticles.length,67);assert.equal(new Set(grammarArticles.map(a=>a.id)).size,67);
+  assert.equal(grammarArticles.length,126);assert.equal(new Set(grammarArticles.map(a=>a.id)).size,126);
   const ids=grammarArticles.flatMap(a=>a.lessonIds);
   assert.equal(ids.length,114);assert.equal(new Set(ids).size,114);
   assert.deepEqual(Object.keys(miniLessons).sort(),Object.keys(miniLessonArticleIds).sort());
@@ -33,7 +33,7 @@ test('library articles contain complete sections, useful tables and translated e
 test('search finds infinitives, irregular forms, Korean meanings and accent-free queries',()=>{
   for(const [query,id] of [['vu','participles'],['voir','participles'],['과거분사','participles'],['갔었다','etre-past'],['ETRE','etre'],[' café ','articles'],['ne pas','negation'],['subjonctif','subjunctive'],['voudrais','requests']])assert.equal(searchGrammar(query)[0]?.id,id,query);
   assert.ok(searchGrammar('여성형').some(a=>a.id==='agreement'));
-  assert.equal(searchGrammar('').length,67);assert.equal(searchGrammar('없는검색어').length,0);
+  assert.equal(searchGrammar('').length,126);assert.equal(searchGrammar('없는검색어').length,0);
   assert.equal(searchGrammar('lessonIds').length,0);assert.equal(searchGrammar('headers').length,0);
   assert.equal(searchGrammar('y')[0].id,'y');assert.equal(searchGrammar('en')[0].id,'en');
   assert.ok(searchGrammar('','tenses').every(a=>a.category==='tenses'));assert.ok(searchGrammar('vu','basics').every(a=>a.category==='basics'));

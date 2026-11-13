@@ -8,7 +8,7 @@ import { mascot, companionMessage } from './companion.js';
 import { createGrammar } from './grammar.js';
 import { renderGrammarText } from './grammar-terms.js';
 
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.10.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

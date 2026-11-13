@@ -66,7 +66,7 @@ test('manifest and real PNG icons install within the repository path',async()=>{
 test('offline precache contains every module, stylesheet, manifest and icon and preserves online updates',async()=>{
   const h=workerHarness();await h.lifecycle('install');
   const names=(await Promise.all(h.requests.map(url=>new URL(url).pathname))).map(path=>path.slice('/french-alone/'.length));
-  for(const name of ['app.js','core.js','data.js','practice.js','practice-core.js','practice-data.js','practice-content.js','practice-intermediate.js','practice-lessons.js','grammar-data.js','grammar-extra-data.js','grammar-terms.js','grammar-core.js','grammar.js','grammar.css','learning.css','play.css','companion.js','companion.css','polish.css','assets/lou-sprites-v2.webp','pwa.js','pwa.css','product.css','manifest.webmanifest','icons/icon-512.png'])assert.ok(names.includes(name),name);
+  for(const name of ['app.js','core.js','data.js','practice.js','practice-core.js','practice-data.js','practice-content.js','practice-intermediate.js','practice-lessons.js','grammar-data.js','grammar-extra-data.js','grammar-reference-basics.js','grammar-reference-verbs.js','grammar-reference-syntax.js','grammar-terms.js','grammar-core.js','grammar.js','grammar.css','learning.css','play.css','companion.js','companion.css','polish.css','assets/lou-sprites-v2.webp','pwa.js','pwa.css','product.css','manifest.webmanifest','icons/icon-512.png'])assert.ok(names.includes(name),name);
   for(const name of names)await access(new URL('../dist/'+(name||'index.html'),import.meta.url));
   assert.equal(h.stats().skipped,0,'install must not interrupt an existing lesson');
   h.setRevision('two');

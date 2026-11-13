@@ -1,5 +1,11 @@
 // Korean labels follow familiar course terminology; French labels also support lookup.
 export const grammarTerms={
+  '직접타동사':'verbe transitif direct','간접타동사':'verbe transitif indirect','서술어':'prédicat','명사문':'phrase nominale','부름말':'apostrophe','감탄사':'interjection','등위접속':'coordination','복문':'phrase complexe',
+  '부정법 과거':'infinitif passé','동사원형 과거':'infinitif passé','명령법 과거':'impératif passé','복합분사':'participe composé','과거 제롱디프':'gérondif passé','이중복합시제':'temps surcomposé',
+  '사역구문':'construction causative','지각동사':'verbe de perception','비인칭 동사':'verbe impersonnel','비인칭':'impersonnel','주어와 동사의 일치':'accord du verbe avec le sujet','과거분사 일치':'accord du participe passé',
+  '부정형용사':'adjectif indéfini','기수':'nombre cardinal','서수':'nombre ordinal','분수':'fraction','합성명사':'nom composé','집합 명사':'nom collectif','명사화':'nominalisation','접두사':'préfixe','접미사':'suffixe',
+  '동격':'apposition','선행사':'antécédent','보충절':'proposition complétive','분사절':'proposition participiale','원형절':'proposition infinitive','시간절':'subordonnée temporelle','허사 ne':'ne explétif',
+  '자유간접화법':'discours indirect libre','감탄문':'phrase exclamative','강조구문':'mise en relief','등위접속사':'conjonction de coordination','모음 생략':'élision','연음':'liaison','유음 h':'h aspiré','무음 h':'h muet',
   '동명사':'gérondif','소유한정사':'déterminant possessif','지시한정사':'déterminant démonstratif','한정사':'déterminant',
   '무관사':'absence d’article','명사구':'groupe nominal','동사구':'groupe verbal','부사구':'groupe adverbial','전치사구':'groupe prépositionnel','형용사구':'groupe adjectival',
   '분사구문':'proposition participiale','간접의문문':'interrogation indirecte','간접의문':'interrogation indirecte','본질적 대명동사':'verbe essentiellement pronominal','복합시제':'temps composé','단순시제':'temps simple','인칭':'personne',

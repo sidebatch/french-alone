@@ -1,0 +1,111 @@
+const S=(title,text,examples=[])=>({title,paragraphs:Array.isArray(text)?text:[text],examples});
+const T=(title,rows)=>({title,table:{headers:['형태·구분','규칙·예'],rows}});
+const A=(id,category,title,term,summary,aliases,sections)=>({id,category,title,fr:term,term,summary,aliases,lessonIds:[],sections});
+export const referenceVerbs=[
+ A('verb-construction','verbs','자동사·타동사와 동사 구문','constructions transitives et intransitives','동사가 요구하는 대상을 확인해요.',['자동사','타동사','직접타동사','간접타동사','construction verbale'],[
+  T('동사와 보충어',[['목적어 없는 자동사','Le bébé dort.'],['직접타동사','Elle regarde le ciel.'],['간접타동사','Elle répond à la question.'],['두 목적어','Elle donne un livre à Paul.'],['속성을 잇는 동사','Elle devient médecin.']]),
+  S('한국어 조사만 보고 고르지 않아요','attendre quelqu’un은 전치사 없이, téléphoner à quelqu’un은 à와 함께 써요. “누구를”이라는 한국어 번역만으로 COD인지 COI인지 결정하지 않아요.',[['Je l’attends. / Je lui téléphone.','나는 그를 기다려. / 나는 그에게 전화해.']]),
+  S('구문이 바뀌면 뜻도 바뀌어요','같은 동사도 목적어 유무·전치사에 따라 뜻이 달라져요. 이동동사가 직접목적어를 취하면 복합시제 조동사도 달라지는 경우가 있어요.',[['Elle sort. / Elle sort son téléphone.','그녀가 나가. / 그녀가 휴대전화를 꺼내.'],['Elle est sortie. / Elle a sorti son téléphone.','그녀가 나갔어. / 그녀가 휴대전화를 꺼냈어.']]),
+  S('보어와 목적어 구별','être·sembler·devenir 뒤의 명사·형용사는 주어를 설명하는 속성일 수 있어요. 목적어처럼 해석해서 모든 문장을 수동태로 바꿀 수는 없어요.')]),
+ A('verb-prepositions','verbs','동사 뒤 à·de·동사원형','verbe suivi de à, de ou de l’infinitif','동사와 함께 외워야 하는 연결 방식을 정리해요.',['동사 전치사','동사 원형 연결','essayer de','commencer à','arrêter de','penser à','penser de'],[
+  T('뒤에 원형을 붙일 때',[['전치사 없음','aimer, préférer, vouloir, pouvoir, devoir, savoir + 동사원형'],['à + 원형','commencer à, réussir à, apprendre à, hésiter à'],['de + 원형','décider de, essayer de, arrêter de, oublier de, promettre de'],['사람 + à + 원형','aider quelqu’un à, inviter quelqu’un à'],['à + 사람 + de + 원형','demander à quelqu’un de, dire à quelqu’un de'],['사람 + de + 원형','empêcher quelqu’un de']]),
+  S('직접목적어와 간접목적어','aider quelqu’un은 직접 연결하지만 demander à quelqu’un은 à로 연결해요. 원형을 이끄는 à·de와 사람 앞의 전치사는 서로 다른 역할이에요.',[['Je l’aide à comprendre.','나는 그가 이해하도록 도와줘.'],['Je lui demande de venir.','나는 그에게 와 달라고 부탁해.']]),
+  T('명사와 이어지는 주요 동사',[['penser à / penser de','~을 생각하다 / ~에 대해 평가하다'],['parler à / parler de','~에게 말하다 / ~에 대해 말하다'],['s’intéresser à / s’occuper de','~에 관심을 갖다 / ~을 돌보다'],['se souvenir de / avoir besoin de','~을 기억하다 / ~이 필요하다'],['participer à / dépendre de','~에 참여하다 / ~에 달려 있다']]),
+  S('항상 한 가지는 아니에요','continuer à·continuer de처럼 둘 다 쓰이는 동사도 있어요. jouer à는 놀이·스포츠, jouer de는 악기와 연결해요. 결합은 의미 단위로 익혀요.',[['Elle joue au tennis et du piano.','그녀는 테니스를 치고 피아노를 연주해.'],['Je pense à ce livre. Qu’en penses-tu ?','나는 그 책을 생각하고 있어. 너는 그 책을 어떻게 생각해?']])]),
+ A('adjective-prepositions','verbs','형용사 뒤의 전치사','compléments de l’adjectif','감정·능력·평가를 대상이나 행동과 연결해요.',['형용사 전치사','fier de','prêt à','difficile à','facile de'],[
+  T('형용사와 연결',[['de + 명사·원형','fier de, content de, capable de'],['à + 명사·원형','prêt à, habitué à'],['en + 명사','fort en maths'],['pour + 사람','utile pour les débutants'],['à + 사람','fidèle à ses amis']]),
+  S('행동의 주체 확인','Je suis content de venir는 내가 오는 것이 기뻐요. 다른 사람이 오는 것이 기쁘면 que절의 주어와 접속법을 쓸 수 있어요.',[['Je suis contente que tu viennes.','나는 네가 와서 기뻐. (여성 화자)']]),
+  S('difficile à와 difficile de','대상 자체가 어려운 일의 목적어이면 Ce livre est difficile à lire처럼 à를 써요. 비인칭 평가에서는 Il est difficile de lire ce livre처럼 de를 써요.',[['Ce texte est facile à comprendre.','이 글은 이해하기 쉬워.'],['Il est facile de comprendre ce texte.','이 글을 이해하는 것은 쉬워.']]),
+  S('전치사를 바꾸면 관계가 달라져요','content de는 만족의 대상, gentil avec는 친절하게 대하는 대상처럼 형용사의 뜻과 전치사를 함께 확인해요. 한국어 “~에”를 한 가지 전치사로 옮기지 않아요.')]),
+ A('causative','verbs','사역구문 faire·laisser','construction causative : faire et laisser','시키는 사람과 실제 행동하는 사람을 구분해요.',['사역구문','faire infinitif','laisser','se faire','fait réparer'],[
+  S('faire + 동사원형','주어가 직접 행동하기보다 누군가에게 하게 하거나 어떤 일을 일어나게 하는 구조예요. 시제는 faire에 표시하고 뒤의 동사는 원형이에요.',[['Je fais réparer mon vélo.','나는 자전거를 수리 맡겨.'],['Cette histoire me fait rire.','이 이야기는 나를 웃게 해.']]),
+  T('행동 주체와 대상',[['행동의 목적어가 없을 때','Je fais travailler Paul. · 폴에게 일하게 해'],['행동의 목적어가 있을 때','Je fais lire ce texte à Paul. · 폴에게 이 글을 읽게 해'],['행동자 par','Je fais réparer le toit par un artisan.'],['시키는 동사 앞 대명사','Je le fais travailler. / Je lui fais lire ce texte.']]),
+  S('laisser와 se faire','laisser는 하도록 두거나 허용해요. se faire + 원형은 자기에게 어떤 일이 일어나도록 맡기거나, 문맥에 따라 원치 않은 일을 당하는 뜻도 있어요.',[['Laisse-le dormir.','그가 자게 둬.'],['Elle se fait couper les cheveux.','그녀는 머리를 자르고 있어. (다른 사람이 잘라 줌)'],['Il s’est fait voler son sac.','그는 가방을 도둑맞았어.']]),
+  S('과거분사 fait는 불변','바로 뒤에 원형이 오는 사역의 fait는 앞의 목적어가 여성·복수여도 일치하지 않아요. laissé + 원형은 전통 규칙과 1990년 개정의 불변 표기가 함께 쓰여요.',[['Les robes que j’ai fait nettoyer sont prêtes.','내가 세탁 맡긴 원피스들이 준비됐어.']])]),
+ A('perception','verbs','지각동사와 동사원형','verbes de perception et proposition infinitive','보고 들은 행동을 원형으로 이어 말해요.',['지각동사','voir entendre','원형절','proposition infinitive'],[
+  S('누가 무엇을 하는지','voir·entendre·sentir·regarder·écouter 뒤에 행동자와 원형을 놓을 수 있어요. 행동자는 명사 또는 목적어 대명사로 나타나요.',[['Je vois les enfants courir.','나는 아이들이 뛰는 것을 봐.'],['Je les entends chanter.','나는 그들이 노래하는 것을 들어.']]),
+  T('비슷하지만 다른 구조',[['지각 + 원형','Je vois Paul partir. · 떠나는 행동을 봄'],['지각 + que절','Je vois que Paul est fatigué. · 피곤하다는 것을 알아봄'],['원형 앞 부정','Je le vois ne rien faire. · 그가 아무것도 하지 않는 모습을 봄']]),
+  S('과거분사 일치의 기준','앞에 놓인 직접목적어가 원형 행동의 주체라면 지각동사의 과거분사를 일치시켜요. 그 대상이 원형 행동을 당하는 대상이면 일치하지 않아요.',[['Les chanteuses que j’ai entendues chanter','내가 노래하는 것을 들은 가수들 (가수들이 노래함)'],['Les chansons que j’ai entendu chanter','내가 부르는 것을 들은 노래들 (노래는 불리는 대상)']]),
+  S('faire와 구별해요','voir partir는 떠나는 것을 보는 것이고 faire partir는 떠나게 하는 것이에요. 지각동사의 과거분사 일치를 사역의 fait에 그대로 적용하지 않아요.')]),
+ A('modal-verbs','verbs','의무·허락·가능성과 추측','modalité : devoir, pouvoir et falloir','해야 하는 일과 그럴 가능성이 있는 일을 구분해요.',['의무','허락','추측','devoir','falloir','probabilité','interdiction'],[
+  T('주요 의미',[['devoir + 원형','의무 또는 강한 추측'],['pouvoir + 원형','능력·허락·가능성'],['falloir + 원형','일반적인 필요: il faut만 사용'],['falloir que + 접속법','특정 주어가 해야 할 일'],['savoir + 원형','배워서 할 줄 앎']]),
+  S('문맥에 따라 뜻이 달라져요','Il doit partir는 떠나야 한다는 의무일 수 있어요. Il doit être chez lui는 집에 있을 것이라는 추측이 자연스러워요. 확률을 정확한 숫자로 고정하지 않아요.',[['Tu peux entrer.','들어와도 돼. / 들어올 수 있어.'],['Il a dû oublier.','그는 잊어버렸나 봐.']]),
+  S('금지와 불필요는 달라요','ne pas devoir는 금지로 이해될 수 있어요. “할 필요 없다”는 ne pas avoir besoin de 또는 il n’est pas nécessaire de로 분명히 표현해요.',[['Tu ne dois pas entrer.','들어가면 안 돼.'],['Tu n’as pas besoin de venir.','너는 올 필요 없어.']]),
+  T('다른 시제와 뉘앙스',[['devoir 현재','dois, dois, doit, devons, devez, doivent'],['falloir','il faut / il fallait / il faudra'],['조언','Tu devrais te reposer.'],['실현되지 않은 조언·후회','Tu aurais dû appeler.'],['과거의 실제 가능','J’ai pu entrer. · 들어갈 수 있었어']])]),
+ A('impersonal','verbs','비인칭 동사와 구문','verbes et constructions impersonnels','특정 사람을 가리키지 않는 il을 써요.',['비인칭','il pleut','il neige','il semble','il reste','il s’agit'],[
+  S('형식상 주어 il','날씨·필요·판단 등을 말할 때 il이 실제 남성 대상을 가리키지 않을 수 있어요. 이런 비인칭 il을 elle·ils로 바꾸지 않아요.',[['Il pleut.','비가 와.'],['Il fait froid.','날씨가 추워.']]),
+  T('자주 쓰는 구문',[['il faut + 명사·원형','Il faut du temps. / Il faut attendre.'],['il reste + 명사','Il reste trois places.'],['il s’agit de','Il s’agit d’un problème urgent.'],['il est + 형용사 + de','Il est utile de vérifier.'],['il est + 형용사 + que','Il est important que tu viennes.']]),
+  S('뒤 명사의 수와 관계없어요','Il reste trois places에서도 활용된 동사는 단수예요. Trois places restent는 places가 주어인 다른 구조예요. 비인칭 구문의 과거분사는 보통 불변이에요.',[['Les efforts qu’il a fallu faire','해야 했던 노력들']]),
+  S('판단 뒤의 법','il est certain que는 보통 직설법, il est possible que·il faut que는 접속법이에요. il semble que는 확실하게 단정하지 않는 경우 접속법을 자주 쓰지만 il me semble que는 개인의 판단으로 직설법이 흔해요.',[['Il est certain qu’elle vient.','그녀가 오는 것은 확실해.'],['Il est possible qu’elle vienne.','그녀가 올 수도 있어.']])]),
+ A('presentatives','verbs','c’est·il est·il y a','présentatifs et identification','정체·성질·존재를 서로 다르게 말해요.',['c’est','ce sont','il est','il y a','voici','voilà'],[
+  T('기본 선택',[['c’est + 한정사 있는 명사구','C’est une actrice.'],['il / elle est + 직업·국적·형용사','Elle est actrice. / Elle est française.'],['il y a + 존재하는 대상','Il y a un chat dans le jardin.'],['위치가 주된 정보','Le chat est dans le jardin.'],['voici / voilà','Voici votre billet.']]),
+  S('복수와 중성 평가','격식을 갖춘 글에서 복수 명사구를 소개할 때 ce sont를 써요. 상황 전체를 평가하는 c’est 뒤의 형용사는 기본 남성 단수예요.',[['Ce sont mes amies.','이들은 내 친구들이야.'],['Voyager, c’est intéressant.','여행하는 것은 흥미로워.']]),
+  S('il y a의 시제와 부정','시간에 맞춰 avoir를 바꿔요. 존재를 부정할 때 보통 de를 써요. il y a + 기간은 “~전에”라는 다른 시간 표현일 수도 있어요.',[['Il y avait beaucoup de monde.','사람이 많았어.'],['Il n’y a pas de problème.','문제없어.'],['Je suis arrivé il y a deux jours.','나는 이틀 전에 도착했어. (남성 화자)']]),
+  S('ce를 대명사로 쓸 때','c’est의 c’는 중성 ce예요. 일반 동사 앞에서는 cela·ça를 쓰는 것이 기본이에요. Ça me plaît처럼 표현하고 Ce me plaît라고 쓰지 않아요.')]),
+ A('subject-agreement','verbs','주어와 동사의 일치','accord du verbe avec le sujet','가까운 명사보다 실제 주어를 먼저 찾아요.',['주어 동사 일치','la plupart','collectif','c’est moi qui','ni ni'],[
+  S('중심어와 인칭','주어 안에 전치사구가 있어도 동사는 중심어와 일치해요. moi et toi처럼 여러 인칭을 합치면 1인칭을 포함할 때 nous, 1인칭 없이 2인칭을 포함할 때 vous형을 써요.',[['Le prix des billets augmente.','표 가격이 올라.'],['Toi et moi, nous partons.','너와 나는 떠나.']]),
+  T('특별히 확인할 주어',[['qui의 선행사가 나','C’est moi qui ai raison.'],['qui의 선행사가 너','C’est toi qui es prêt.'],['la plupart + 복수','La plupart des élèves viennent.'],['beaucoup de + 복수','Beaucoup de gens attendent.'],['chacun / personne / rien','Chacun sait. / Personne ne vient.']]),
+  S('집합 명사','un groupe de·une foule de는 집합을 하나로 보면 단수, 구성원들의 행동을 강조하면 복수가 가능할 수 있어요. 문맥과 한정사에 따라 선택이 달라져요. 중심이 분명한 le groupe는 보통 단수예요.',[['Le groupe d’élèves arrive.','학생 무리가 도착해.']]),
+  S('et·ou·ni로 연결하면','et로 이어진 별개 주어는 보통 복수예요. ou는 하나만 가능한 선택이면 단수, 둘 모두 가능하면 복수가 가능해요. ni… ni도 의미와 명사 수에 따라 일치하므로 “항상 단수”로 외우지 않아요.',[['Paul et Léa viennent.','폴과 레아가 와.'],['Paul ou Léa sera responsable.','폴이나 레아 한 사람이 담당할 거야.']])]),
+ A('participle-agreement','verbs','과거분사 일치의 전체 규칙','accord du participe passé','조동사와 목적어의 위치를 순서대로 확인해요.',['과거분사 일치','accord participe','COD 앞','fait','laissé','coûté'],[
+  T('첫 번째 판단',[['조동사 없이 형용사 역할','des portes fermées · 명사와 일치'],['être: 일반 동사','Elles sont arrivées. · 주어와 일치'],['avoir: COD가 뒤 또는 없음','Elle a écrit des lettres.'],['avoir: COD가 앞','Les lettres qu’elle a écrites'],['대명동사','se의 역할과 COD의 위치를 추가 확인']]),
+  S('대명동사를 한 규칙으로 묶지 않아요','본질적 대명동사와 수동 의미의 대명동사는 일반적으로 주어와 일치해요. 재귀·상호 의미에서는 직접목적어를 찾아요. se parler의 se는 간접목적어라 parlé는 일치하지 않아요.',[['Elles se sont souvenues de lui.','그녀들은 그를 기억해 냈어.'],['Elles se sont lavé les mains.','그녀들은 손을 씻었어.'],['Les mains qu’elles se sont lavées','그녀들이 씻은 손'],['Elles se sont parlé.','그녀들은 서로 이야기했어.']]),
+  S('en·중성 le·비인칭','en이 부분량을 받는 직접목적어이면 과거분사는 일반적으로 불변이에요. 앞 문장 전체를 받는 중성 le와 비인칭 구문의 과거분사도 불변이에요.',[['Des erreurs, j’en ai fait.','실수라면 나도 했어.'],['Elle est arrivée plus tôt que je ne l’avais prévu.','그녀는 내가 예상한 것보다 일찍 도착했어.']]),
+  S('원형이 뒤따르는 경우','fait + 원형은 불변이에요. vu·entendu 뒤 원형은 앞의 COD가 그 행동을 하는 주체일 때 일치해요. laissé + 원형은 전통적 주체 기준 일치와 개정 표기의 불변이 모두 쓰여요.',[['Les enfants que j’ai vus courir','내가 뛰는 것을 본 아이들'],['Les maisons que j’ai vu construire','내가 짓는 것을 본 집들'],['Elles se sont fait aider.','그녀들은 도움을 받았어.']]),
+  S('측정값과 직접목적어','coûter·peser·courir 등이 문자 그대로 가격·무게·기간·거리를 나타내면 측정 보충어와 일치하지 않아요. 비유적 의미에서 직접목적어를 취하면 앞에 놓인 COD와 일치해요.',[['Les cent euros que cela a coûté','그것에 든 100유로'],['Les efforts que cela a coûtés','그것에 든 노력들']])]),
+ A('spelling-verbs','verbs','철자가 바뀌는 동사 활용','verbes à particularités orthographiques','어미뿐 아니라 어간의 철자 변화도 확인해요.',['철자 변화','manger','commencer','acheter','appeler','jeter','payer','envoyer'],[
+  T('현재형의 변화',[['-ger','manger → je mange / nous mangeons'],['-cer','commencer → je commence / nous commençons'],['e → è','acheter → j’achète / nous achetons'],['é → è','préférer → je préfère / nous préférons'],['자음 겹침','appeler → j’appelle / nous appelons; jeter → je jette'],['-yer','nettoyer → je nettoie / nous nettoyons'],['-ayer의 두 형태','payer → je paie 또는 je paye']]),
+  S('소리를 유지하는 철자','g·c 뒤에 a·o가 오면 소리가 달라질 수 있어서 mangeons·commençons처럼 적어요. 반과거에서도 je mangeais·je commençais지만 nous mangions·nous commencions예요.',[['Nous mangeons ici.','우리는 여기에서 먹어.']]),
+  S('미래 어간도 확인','acheter는 achèter-, appeler는 appeller-, jeter는 jetter-, envoyer는 enverr-를 써요. nettoyer는 nettoier-예요. 모든 -er 동사가 단순히 원형을 그대로 유지하는 것은 아니에요.',[['J’achèterai ce livre.','나는 이 책을 살 거야.'],['Je t’enverrai un message.','너에게 메시지를 보낼게.']]),
+  S('개정 표기의 범위','1990년 개정은 많은 -eler·-eter 동사에 è형을 인정하지만 appeler·jeter 및 그 파생어는 자음 겹침을 유지해요. 전통 표기도 쓰이므로 두 표기를 오답으로 단정하지 않아요.')]),
+ A('common-verb-contrasts','verbs','비슷한 동사의 뜻과 결합','constructions et sens de verbes proches','뜻이 비슷해도 문장 구조가 달라질 수 있어요.',['savoir connaître','manquer','apporter','amener','retourner','rendre','jouer'],[
+  T('savoir와 connaître',[['사실·하는 방법을 앎','Je sais qu’il vient. / Je sais nager.'],['사람·장소·작품을 알고 있음','Je connais Léa. / Je connais Paris.'],['savoir 현재','sais, sais, sait, savons, savez, savent'],['connaître 현재','connais, connais, connaît, connaissons, connaissez, connaissent']]),
+  S('manquer의 방향','Tu me manques는 “네가 나에게 부족하다”라는 구조이므로 나는 네가 보고 싶다는 뜻이에요. manquer le train은 기차를 놓치다, manquer de temps는 시간이 부족하다예요.',[['Tu me manques.','네가 보고 싶어.'],['Je manque de temps.','나는 시간이 부족해.']]),
+  S('가져오다·데려오다','porter 계열은 보통 들고 운반하는 물건, mener 계열은 사람·동물처럼 이끄는 대상을 말해요. a-는 목적지로 가져오거나 데려오는 방향, em-는 출발점에서 가지고 나가거나 데리고 가는 방향이에요.',[['Apporte ton livre et amène ton frère.','책을 가져오고 동생도 데려와.'],['Emporte un parapluie.','우산을 가지고 가.']]),
+  S('돌아가다와 돌려주다','retourner는 돌아가다 또는 뒤집다 등으로 쓰여요. 빌린 물건을 돌려주는 뜻은 rendre quelque chose à quelqu’un이 기본이에요.',[['Je retourne chez moi.','나는 집으로 돌아가.'],['Je te rends ton livre.','네 책을 돌려줄게.']])]),
+ A('tense-map','tenses','법·시제의 전체 지도','modes et temps verbaux','현재·과거·미래와 말하는 태도를 함께 정리해요.',['전체 시제','시제표','법','indicatif','temps composés','시제 지도'],[
+  S('법과 시제는 달라요','법은 사실·바람·명령 등을 표현하는 문법 체계이고, 시제는 시간 관계를 나타내요. 조건법은 전통 문법에서 별도 법으로, 일부 현대 문법에서는 직설법의 시제로 분류해요. 여기서는 찾기 쉽게 별도 항목으로 두어요.'),
+  T('단순형과 복합형의 짝',[['직설법 현재 → 복합과거','je parle → j’ai parlé'],['반과거 → 대과거','je parlais → j’avais parlé'],['단순미래 → 미래완료','je parlerai → j’aurai parlé'],['단순과거 → 전과거','je parlai → j’eus parlé'],['조건법 현재 → 조건법 과거','je parlerais → j’aurais parlé'],['접속법 현재 → 접속법 과거','que je parle → que j’aie parlé'],['접속법 반과거 → 접속법 대과거','que je parlasse → que j’eusse parlé'],['명령법 현재 → 명령법 과거','parle → aie parlé']]),
+  S('복합형의 공통 원리','복합형은 해당 시제로 활용한 avoir·être + 과거분사예요. 앞선 완료를 나타내는 일이 많지만, 복합과거처럼 독립적인 과거 사건도 나타내요. 조동사 선택과 과거분사 일치 규칙은 각각 확인해요.',[['Quand tu arriveras, j’aurai fini.','네가 도착할 때 나는 끝내 놓았을 거야.']]),
+  S('인칭이 없는 형태','동사원형은 parler·avoir parlé, 현재분사는 parlant, 복합분사는 ayant parlé예요. en parlant은 제롱디프예요. 근접미래·최근과거·진행 표현은 aller·venir de·être en train de와 원형으로 만드는 구문이에요.')]),
+ A('infinitive-past','tenses','동사원형 과거','infinitif passé','다른 행동보다 먼저 끝난 일을 원형으로 표현해요.',['부정법 과거','동사원형 과거','avoir fait','être parti','après avoir'],[
+  S('avoir·être 원형 + 과거분사','원형 자체는 인칭에 맞춰 바뀌지 않지만 조동사 선택과 과거분사 일치는 그대로 적용해요. 특히 après 뒤에서 “~한 뒤”를 나타낼 때 자주 써요.',[['Après avoir mangé, je sors.','먹은 뒤에 나는 나가.'],['Elle regrette d’être partie.','그녀는 떠난 것을 후회해.']]),
+  T('원형 현재와 과거',[['finir → avoir fini','끝내다 → 이미 끝낸 것'],['venir → être venu(e)(s)','오다 → 이미 온 것'],['se lever → s’être levé(e)(s)','일어나다 → 이미 일어난 것'],['대명사·부정','ne pas l’avoir vu / ne pas s’être levé']]),
+  S('앞선 행동의 주체','Après avoir mangé, Paul est sorti에서는 먹은 사람과 나간 사람이 Paul이에요. 주체가 다르면 après que + 주어 + 직설법으로 분명히 써요.',[['Après que Paul a mangé, Léa est sortie.','폴이 먹은 뒤 레아가 나갔어.']]),
+  S('감사·후회·이유에도','merci de·regretter de·pour 뒤에서 완료된 행동을 나타낼 수 있어요. 현재 원형과 바꾸면 행동의 시간 관계가 달라져요.',[['Merci d’avoir attendu.','기다려 줘서 고마워.'],['Il a été puni pour avoir menti.','그는 거짓말한 일로 벌을 받았어.']])]),
+ A('literary-subjunctive','tenses','접속법 반과거·대과거','imparfait et plus-que-parfait du subjonctif','과거 시점을 나타내는 문학적 접속법 두 형태예요.',['접속법 반과거','접속법 대과거','fût','eût','fusse','eusse','parlasse'],[
+  S('오늘날의 쓰임','과거 주절에 맞춘 문어체 시제 일치에서 써요. 현대 대화에서는 보통 접속법 현재·과거로 바꿔요. 직설법 단순과거 fut·eut와 접속법 fût·eût의 악센트 차이를 확인해요.',[['Il voulait que je vienne.','그는 내가 오기를 원했어. (현대의 일반적 표현)'],['Il voulait que je vinsse.','그는 내가 오기를 원했다. (문학적 표현)']]),
+  T('접속법 반과거의 여섯 형태',[['parler','parlasse, parlasses, parlât, parlassions, parlassiez, parlassent'],['finir','finisse, finisses, finît, finissions, finissiez, finissent'],['avoir','eusse, eusses, eût, eussions, eussiez, eussent'],['être','fusse, fusses, fût, fussions, fussiez, fussent'],['venir','vinsse, vinsses, vînt, vinssions, vinssiez, vinssent']]),
+  S('만드는 기준','단순과거 2인칭 단수에서 마지막 s를 뺀 형태에 -sse·-sses·-t·-ssions·-ssiez·-ssent를 붙이는 패턴이에요. 3인칭 단수는 모음에 곡절 악센트를 붙여 parlât·finît·fût·vînt처럼 써요.'),
+  S('접속법 대과거','avoir·être의 접속법 반과거 + 과거분사예요. 과거 주절보다 먼저 완료된 일을 나타내요. 3인칭 단수는 qu’il eût fini·qu’elle fût partie예요.',[['Il regrettait qu’elle fût partie.','그는 그녀가 떠난 것을 유감스럽게 여겼다.'],['Il regrettait qu’elle soit partie.','같은 뜻을 현대적인 접속법 과거로 표현한 문장']]),
+  S('조건법 과거 제2형','문학에서는 j’eusse aimé 같은 형태가 조건법 과거 j’aurais aimé와 같은 값으로 쓰이기도 해요. 형태가 같다고 모든 문장을 접속법 종속절로 해석하지 않아요.')]),
+ A('past-imperative','tenses','명령법 과거','impératif passé','정해진 때까지 완료해 두라는 뜻이에요.',['명령법 과거','aie fini','ayez terminé','sois rentré'],[
+  S('조동사의 명령형 + 과거분사','avoir는 aie·ayons·ayez, être는 sois·soyons·soyez를 쓰고 뒤에 과거분사를 놓아요. 과거에 명령했다는 뜻이 아니라 요구하는 완료 시점을 나타내요.',[['Aie fini avant midi.','정오 전까지 끝내 놓아라.']]),
+  T('세 인칭의 형태',[['tu','aie terminé / sois rentré(e)'],['nous','ayons terminé / soyons rentré(e)s'],['vous','ayez terminé / soyez rentré(e)(s)']]),
+  S('일치와 부정','être를 쓰는 일반 동사는 주어의 성·수에 맞춰요. 부정은 조동사를 ne… pas로 감싸고 대명사는 부정 명령의 위치에 놓아요.',[['Soyez revenues avant six heures.','6시 전까지 돌아와 있어라. (여성 여러 명)'],['N’ayez pas oublié vos billets à ce moment-là.','그때 표를 잊은 상태여서는 안 됩니다.']]),
+  S('사용 빈도','일상에서는 명령법 현재나 devoir를 써서 기한을 말하는 편이 흔해요. Finis avant midi처럼 바꾸면 더 자연스럽고 간단한 지시가 될 수 있어요.')]),
+ A('compound-participle','tenses','복합분사와 과거 제롱디프','participe composé et gérondif passé','먼저 일어난 행동을 분사 형태로 압축해요.',['복합분사','과거 제롱디프','ayant','étant','en ayant','en étant'],[
+  T('형태 만들기',[['avoir 동사','ayant fini / ayant vu'],['être 동사','étant parti(e)(s)'],['대명동사','s’étant levé(e)(s)'],['과거 제롱디프','en ayant fini / en étant parti(e)(s)']]),
+  S('앞선 완료와 이유','ayant·étant + 과거분사는 주절의 행동보다 먼저 완료된 일을 나타내며 이유로 해석되는 경우도 많아요. 떨어진 분사구의 주체는 보통 주절의 주어와 같아야 해요.',[['Ayant terminé son travail, Léa est sortie.','일을 마친 레아는 밖으로 나갔어.']]),
+  S('과거 제롱디프','en + 복합분사는 먼저 완료된 행동과 주절을 연결해요. 현재 제롱디프보다 드물고 무거워서 après + 원형 과거로 풀어 쓰기도 해요.',[['En ayant réservé à l’avance, nous avons obtenu une réduction.','미리 예약한 덕분에 우리는 할인을 받았어.']]),
+  S('주어가 별도라면','Le travail étant terminé처럼 분사구 자체에 주어를 두는 구조도 있어요. 이는 주어를 공유하는 일반 분사 수식과 다른 독립 분사절이에요.',[['Le travail étant terminé, nous sommes partis.','일이 끝나서 우리는 떠났어.']])]),
+ A('aspect','tenses','동작의 시작·진행·완료','aspect et périphrases verbales','언제인지와 별개로 동작의 어느 단계인지 나타내요.',['상','aspect','commencer','finir de','cesser de','sur le point','aller imparfait'],[
+  T('진행 단계',[['곧 일어나려 함','être sur le point de partir'],['시작','commencer à travailler'],['진행 중','être en train de travailler'],['계속','continuer à travailler'],['끝냄','finir de travailler'],['중단','cesser de travailler / arrêter de travailler']]),
+  S('과거·미래에도 쓸 수 있어요','앞 동사를 원하는 시제로 활용하고 뒤 행동은 원형으로 유지해요. J’allais partir는 과거 시점에서 곧 떠날 예정이었다는 뜻이에요. venait de는 과거 시점에서 막 끝난 일이에요.',[['J’allais sortir quand tu as appelé.','네가 전화했을 때 나는 막 나가려던 참이었어.'],['Elle venait de rentrer.','그녀는 막 돌아온 참이었어.']]),
+  S('반과거와 복합과거의 관점','같은 행동도 진행 과정·배경으로 보면 반과거, 경계가 있는 사건으로 보면 복합과거를 써요. 문장이 실제로 얼마나 오래 걸렸는지만으로 결정하지 않아요.',[['Il a travaillé pendant dix ans.','그는 10년 동안 일했어. (완결된 기간)'],['Il travaillait quand je suis arrivé.','내가 도착했을 때 그는 일하고 있었어.']]),
+  S('과거형으로 뜻이 달라지는 동사','savoir의 반과거는 알고 있었음, 복합과거는 알게 됨을 나타내기도 해요. pouvoir·vouloir도 시제와 부정에 따라 실현·의도·거절의 해석이 달라져요.',[['Je savais la réponse. / J’ai su la réponse hier.','나는 답을 알고 있었어. / 나는 어제 답을 알게 됐어.']])]),
+ A('passe-simple-forms','tenses','단순과거 활용표','conjugaison du passé simple','소설·전기에서 사건을 이어 가는 형태를 알아봐요.',['단순과거 활용','parlai','fut','eut','vint','prit'],[
+  S('글 속의 완료된 사건','현대 대화의 복합과거에 대응하여 서사적 사건을 나타내는 일이 많아요. 반과거는 배경·진행, 단순과거는 이어지는 사건을 나타낼 수 있어요.',[['Il pleuvait. Elle ouvrit la porte.','비가 내리고 있었다. 그녀가 문을 열었다.']]),
+  T('여섯 인칭 순서: je·tu·il·nous·vous·ils',[['parler: -a형','parlai, parlas, parla, parlâmes, parlâtes, parlèrent'],['finir: -i형','finis, finis, finit, finîmes, finîtes, finirent'],['prendre: -i형','pris, pris, prit, prîmes, prîtes, prirent'],['avoir: -u형','eus, eus, eut, eûmes, eûtes, eurent'],['être: -u형','fus, fus, fut, fûmes, fûtes, furent'],['venir: -in형','vins, vins, vint, vînmes, vîntes, vinrent']]),
+  T('주요 불규칙 어간: il형',[['faire / voir / mettre','fit / vit / mit'],['dire / écrire / lire','dit / écrivit / lut'],['pouvoir / vouloir / devoir','put / voulut / dut'],['savoir / boire / vivre','sut / but / vécut'],['tenir / naître / mourir','tint / naquit / mourut']]),
+  S('현재형과 같은 철자','je finis·il dit처럼 현재형과 단순과거가 같아 보일 수 있어요. 앞뒤 사건과 다른 동사 시제를 함께 읽어요. nous·vous의 곡절 악센트와 ils의 -èrent·-irent·-urent를 확인해요.')]),
+ A('anterior-past','tenses','전과거','passé antérieur','단순과거의 사건보다 먼저 끝난 일을 말해요.',['전과거','eut fini','fut parti','passé antérieur'],[
+  S('조동사의 단순과거 + 과거분사','avoir·être를 단순과거로 활용해요. 문학적 서술에서 dès que·quand·aussitôt que 뒤에 많이 나타나요.',[['Dès qu’elle eut fini, elle sortit.','그녀는 끝내자마자 밖으로 나갔다.']]),
+  T('형태',[['avoir 계열','j’eus fini, tu eus fini, il eut fini'],['avoir 복수','nous eûmes fini, vous eûtes fini, ils eurent fini'],['être 계열','je fus parti(e), tu fus parti(e), elle fut partie'],['être 복수','nous fûmes partis, vous fûtes partis, elles furent parties']]),
+  S('대과거와 비교','둘 다 과거보다 앞선 일을 말할 수 있지만 전과거는 문어체 사건 연결에서 완료를 또렷하게 표시해요. 대과거는 배경·회상 등 더 넓은 상황에서 써요.',[['Elle était déjà partie quand il arriva.','그가 도착했을 때 그녀는 이미 떠나 있었다.']]),
+  S('현대적인 표현','문맥에 맞춰 복합과거·대과거 또는 après + 원형 과거로 풀 수 있어요. 시제를 한 단어씩 기계적으로 바꾸기보다 두 행동의 순서를 유지해요.',[['Après avoir fini, elle est sortie.','끝낸 뒤 그녀는 밖으로 나갔어.']])]),
+ A('double-compound','tenses','이중복합시제','temps surcomposés','완료를 한 단계 더 앞에 놓는 드문 시제예요.',['이중복합시제','surcomposé','a eu fini','ai eu terminé'],[
+  S('조동사를 복합형으로','대표적인 과거 이중복합형은 avoir의 복합과거 + 본동사의 과거분사예요. 복합과거 사건 앞의 완료를 강조하며 지역·문체에 따라 사용 빈도가 달라요.',[['Quand j’ai eu terminé, je suis sorti.','다 끝냈을 때 나는 나갔어. (남성 화자)']]),
+  T('대표 형태와 대안',[['단순한 복합과거','j’ai terminé'],['과거 이중복합형','j’ai eu terminé'],['사건을 풀어 쓰기','Après avoir terminé, je suis sorti.'],['대과거와 구별','j’avais terminé · 과거 기준보다 앞선 상태·완료']]),
+  S('일상에서 꼭 만들어 쓸 필요는 없어요','일부 지역과 구어·문헌에서 보이므로 읽을 때 알아보는 용도로 유용해요. 모든 동사를 같은 방식으로 확장하려 하지 말고, 보통은 대과거·시간절·원형 과거로 명확히 표현할 수 있어요.')])
+];

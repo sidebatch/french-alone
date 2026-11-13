@@ -1,6 +1,9 @@
 import {miniLessons,questionLessonIds} from './practice-lessons.js';
 import {extraGrammarArticles} from './grammar-extra-data.js';
 import {existingArticleTerms} from './grammar-terms.js';
+import {referenceBasics} from './grammar-reference-basics.js';
+import {referenceVerbs} from './grammar-reference-verbs.js';
+import {referenceSyntax} from './grammar-reference-syntax.js';
 
 export const grammarCategories=[{id:'basics',title:'문장의 기본'},{id:'verbs',title:'동사와 표현'},{id:'tenses',title:'시제와 가정'},{id:'connections',title:'대명사와 연결'}];
 const S=(title,text,examples=[])=>({title,paragraphs:Array.isArray(text)?text:[text],examples});
@@ -144,13 +147,24 @@ const coreGrammarArticles=[
 
 // A reference outline independent of the currently available exercise courses.
 export const grammarOutline={
-  basics:['word-classes','articles','gender-plural','partitive-articles','possessive-adjectives','demonstrative-adjectives','agreement','adjective-position','adverbs','quantity','infinitive','negation','questions','interrogatives','places','countries-prepositions','time-prepositions'],
-  verbs:['present-regular','present-irregular','etre','avoir','aller','vouloir','pouvoir','aimer','pronominal-verbs','imperative','requests','need','avoir-states'],
-  tenses:['ongoing-present','recent-past','compound-past','participles','etre-past','past-negation','imparfait','past-contrast','pluperfect','future','future-perfect','conditions','conditional','conditional-past','past-subjunctive','literary-past'],
-  connections:['object-pronouns','indirect-objects','pronoun-order','stressed-pronouns','y','en','possessive-pronouns','demonstrative-pronouns','relatives','relative-dont-ou','relative-compound','comparison','superlative','connectors','subordinating-conjunctions','opinion','subjunctive','gerund','present-participle','passive','reported-speech']
+  basics:['word-classes','sentence-elements','subject-pronouns','noun-expansion','articles','article-omission','gender-plural','compound-nouns','partitive-articles','possessive-adjectives','demonstrative-adjectives','agreement','adjective-irregular','colors','adjective-position','adverbs','quantity','indefinite-words','tout','numbers','ordinals-fractions','dates-time','infinitive','negation','questions','interrogatives','places','spatial-prepositions','countries-prepositions','time-prepositions','elision','homophones','punctuation','word-formation'],
+  verbs:['verb-construction','present-regular','spelling-verbs','present-irregular','etre','avoir','aller','vouloir','pouvoir','aimer','common-verb-contrasts','verb-prepositions','adjective-prepositions','modal-verbs','pronominal-verbs','subject-agreement','participle-agreement','causative','perception','impersonal','presentatives','imperative','requests','need','avoir-states'],
+  tenses:['tense-map','ongoing-present','recent-past','aspect','compound-past','participles','etre-past','past-negation','imparfait','past-contrast','pluperfect','future','future-perfect','conditions','conditional','conditional-past','past-subjunctive','infinitive-past','past-imperative','compound-participle','literary-past','passe-simple-forms','anterior-past','literary-subjunctive','double-compound'],
+  connections:['object-pronouns','indirect-objects','pronoun-order','stressed-pronouns','y','en','possessive-pronouns','demonstrative-pronouns','relatives','relative-dont-ou','relative-compound','neutral-relatives','relative-meaning','comparison','quantity-comparison','superlative','advanced-negation','inversion','exclamation-emphasis','connectors','coordination','subordinating-conjunctions','completive','indirect-questions','cause','consequence','purpose','opposition','concession','condition-connectors','time-clauses','opinion','subjunctive','subjunctive-choice','gerund','present-participle','participial-clauses','passive','reported-speech','discourse-types','cohesion','enunciation']
 };
-const allArticles=[...coreGrammarArticles.map(article=>({...article,term:existingArticleTerms[article.id]||''})),...extraGrammarArticles];
+export const referenceGrammarArticles=[...referenceBasics,...referenceVerbs,...referenceSyntax];
+const allArticles=[...coreGrammarArticles.map(article=>({...article,term:existingArticleTerms[article.id]||''})),...extraGrammarArticles,...referenceGrammarArticles];
 export const grammarArticles=Object.values(grammarOutline).flat().map(id=>allArticles.find(article=>article.id===id));
 export const grammarById=id=>grammarArticles.find(article=>article.id===id);
 export const miniLessonArticleIds=Object.fromEntries(grammarArticles.flatMap(article=>article.lessonIds.map(id=>[id,article.id])));
-export const grammarForQuestion=id=>grammarById(miniLessonArticleIds[questionLessonIds[id]]);
+// New questions may link directly to reference entries, independently of mini lessons.
+// Older question IDs keep their existing destinations and personal view counts.
+export function grammarsForQuestion(question){
+  const explicit=typeof question==='object'&&question?question.grammarIds??(question.grammarId?[question.grammarId]:[]):[];
+  const articles=[...new Set(Array.isArray(explicit)?explicit:[])].map(grammarById).filter(Boolean);
+  if(articles.length)return articles;
+  const id=typeof question==='string'?question:question?.id;
+  const fallback=grammarById(miniLessonArticleIds[questionLessonIds[id]]);
+  return fallback?[fallback]:[];
+}
+export const grammarForQuestion=question=>grammarsForQuestion(question)[0];
