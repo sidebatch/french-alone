@@ -1,6 +1,6 @@
 # v1.12.0 · 루의 방 꾸미기와 스탬프 가게
 
-2026년 11월 13일 로컬 구현·검증. 공개 배포에는 아직 반영하지 않았습니다.
+2026년 11월 13일 GitHub Pages 공개 배포 완료. [배포 기록](https://github.com/sidebatch/french-alone/actions/runs/43550920510)
 
 ## 바뀐 학습 인증 카드
 

@@ -1,13 +1,13 @@
 # Changelog
 
-## 1.12.0 — 2026-11-13 (local, not yet deployed)
+## 1.12.0 — 2026-11-13 (published on GitHub Pages)
 
 - Add 27 room decorations, stamp purchases, reusable copies, a saved wish list and a room editor with drag/touch/keyboard movement, scaling, rotation, flipping, ordering, wall colors and floor styles.
 - Award room currency at 3, 10 and 20 completed practice questions per day, up to three stamps; include legacy days and keep the existing 1/3/7-day gifts. Spending never reduces learning achievements or XP.
 - Save the decorated room in the home view and certificate, preserving dated arrangements for past cards. Remove cumulative stamps from certificates and shorten the reward to “+20 XP / 경험치”.
 - Verify 121 tests, responsive editor layouts, browser purchases, touch dragging, real PNG export and offline shopping. Keep purchases when cancelling layout changes and report storage failures without claiming a successful save.
 
-## 1.11.0 — 2026-11-13 (local, not yet deployed)
+## 1.11.0 — 2026-11-13 (included in the 1.12.0 release)
 
 - Add a monthly learning calendar with daily detail, real completed-question totals, XP and stamps. Preserve historical records without inferring missing basic-quiz counts from XP.
 - Create 1080×1350 PNG learning cards with the selected date, results and Lou's room as earned by that date. Open from home, completion screens or the calendar; download or explicitly share on supported devices.
