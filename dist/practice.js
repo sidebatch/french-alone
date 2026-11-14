@@ -1,8 +1,9 @@
 import { practicePacks, practiceUnits, questionById } from './practice-data.js';
 import { renderMiniLesson } from './practice-lessons.js';
+import { goalForQuestion } from './practice-goals.js';
 import { grammarsForQuestion } from './grammar-data.js';
 import { renderGrammarText } from './grammar-terms.js';
-import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, normalizeAnswer, isCorrect, alternativeFeedback, recordPractice, answerFeedback } from './practice-core.js';
 import { stampsForQuestions } from './room-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
@@ -76,7 +77,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     return '<div class="tile-answer" aria-label="선택한 단어">'+(session.status==='revealed'?'<span class="revealed-tiles" lang="fr">'+escape(q.answer)+'</span>':session.selected.length?session.selected.map((index,i)=>'<button class="word-tile selected '+(i===session.justPlaced?'just-placed':'')+'" data-action="practice-unpick" data-index="'+i+'" '+(finished?'disabled':'')+' aria-label="'+escape(session.tiles[index])+' 선택 취소">'+escape(session.tiles[index])+'</button>').join(''):'<span class="tile-placeholder">카드를 눌러 완성해요</span>')+'</div><div class="tile-pool" aria-label="문장을 만들 단어">'+session.tiles.map((tile,i)=>'<button class="word-tile" data-action="practice-pick" data-index="'+i+'" '+(finished||session.selected.includes(i)?'disabled':'')+'>'+escape(tile)+'</button>').join('')+'</div><div class="tile-tools"><span>선택한 카드를 누르면 취소돼요</span><button class="text-link" data-action="practice-clear" '+(finished||!session.selected.length?'disabled':'')+'>다시 배열</button></div>'+(session.supported&&!finished?'<button class="text-link type-again" data-action="practice-type">직접 쓸게요</button>':'');
   }
   function inputHTML(q) {
-    return '<form id="practice-form"><label class="visually-hidden" for="practice-input">'+modeLabel(q)+'</label><input id="practice-input" class="practice-input" lang="fr" type="text" maxlength="180" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="typing-help" placeholder="'+(q.mode==='word'?'배운 단어':q.cue?'여기에 답을 써요':'프랑스어로 써보세요')+'" value="'+escape(session.draft)+'"></form><div class="typing-tools"><span id="typing-help">대소문자·마침표는 자유롭게</span><button class="accent-toggle" data-action="practice-accents" aria-expanded="false" aria-controls="accent-keys">é · 악센트</button></div><div id="accent-keys" class="accent-keys" role="group" aria-label="프랑스어 글자 입력" hidden>'+['é','è','ê','ë','à','â','ç','î','ï','ô','ù','û','ü','œ','’'].map(letter=>'<button type="button" data-action="practice-accent" data-value="'+letter+'" aria-label="'+letter+' 입력">'+letter+'</button>').join('')+'</div>';
+    return '<form id="practice-form"><label class="visually-hidden" for="practice-input">'+modeLabel(q)+'</label><input id="practice-input" class="practice-input" lang="fr" type="text" maxlength="180" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="practice-goal typing-help" placeholder="'+(q.mode==='word'?'배운 단어':q.cue?'여기에 답을 써요':'프랑스어로 써보세요')+'" value="'+escape(session.draft)+'"></form><div class="typing-tools"><span id="typing-help">대소문자·마침표는 자유롭게</span><button class="accent-toggle" data-action="practice-accents" aria-expanded="false" aria-controls="accent-keys">é · 악센트</button></div><div id="accent-keys" class="accent-keys" role="group" aria-label="프랑스어 글자 입력" hidden>'+['é','è','ê','ë','à','â','ç','î','ï','ô','ù','û','ü','œ','’'].map(letter=>'<button type="button" data-action="practice-accent" data-value="'+letter+'" aria-label="'+letter+' 입력">'+letter+'</button>').join('')+'</div>';
   }
   function choicesHTML(q) {
     if(session.choicesFor!==q.id){session.choicesFor=q.id;session.choices=shuffle(q.choices||[]);}
@@ -84,6 +85,9 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   }
   function feedbackText() {
     if(session.status==='revealed')return '확인했어요. 다음에 다시 떠올려봐요.';
+    if(session.status==='alternative')return session.message || alternativeFeedback(active(),answerValue());
+    if(session.status==='correct' && active().id==='past-background-4')return '맞아요! lisais가 그때 하던 일을 나타내요. 시간 표현은 문장 앞이나 뒤에 올 수 있어요.';
+    if(session.status==='correct' && !active().cue && normalizeAnswer(answerValue())!==normalizeAnswer(active().answer))return '맞아요! 이렇게 말해도 뜻이 잘 전달돼요.';
     if(session.status==='correct')return combo()>=3?combo()+'개 연속 정답!':session.hadError?'이번엔 해냈어요!':session.hints?'잘 완성했어요!':'좋아요, 정답!';
     if(session.supported&&session.status!=='correct')return '카드로 한 번 만들어볼까요?';
     if(session.message)return session.message;
@@ -91,10 +95,10 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     return active().kind==='choice'?'맞는 말을 골라요.':tileMode()?'카드를 눌러 문장을 만들어요.':'떠오르는 답을 써보세요.';
   }
   function renderFooter() {
-    const q=active(),finished=done(),color=session.status==='correct'?'success':session.status==='wrong'?'retry':session.status==='revealed'?'revealed':'neutral';
+    const q=active(),finished=done(),color=session.status==='correct'?'success':session.status==='wrong'?'retry':session.status==='revealed'?'revealed':session.status==='alternative'?'alternative':'neutral';
     const why=finished||session.status==='wrong';
     const action=finished?'<button class="primary-button" data-action="practice-next">'+(session.index===session.deck.length-1?'한 판 마치기':'다음')+icon('arrow')+'</button>':q.kind==='choice'&&!session.supported?'<button class="text-link footer-hint" data-action="practice-hint">'+(session.hints?'정답 보기':'힌트')+'</button>':'<button class="primary-button" '+(tileMode()?'data-action="practice-check"':'type="submit" form="practice-form"')+' '+((tileMode()?session.selected.length!==session.tiles.length:!session.draft.trim())?'disabled':'')+'>확인'+icon('check')+'</button>';
-    return '<div class="feedback-strip '+color+'"><div class="feedback-signal" aria-hidden="true">'+icon(session.status==='correct'?'check':session.status==='wrong'?'sparkles':'book')+'</div><p class="feedback-message" role="status">'+escape(feedbackText())+'</p>'+(why?'<button class="why-button" data-action="practice-why" aria-expanded="'+Boolean(session.explain)+'" aria-controls="practice-explanation">'+(session.explain?'접기':'왜?')+'</button>':q.kind!=='choice'?'<button class="why-button" data-action="practice-hint">'+(session.hints?'정답':'힌트')+'</button>':'')+'</div><div class="footer-action">'+(session.status==='wrong'&&q.kind!=='choice'?'<button class="text-link footer-reveal" data-action="practice-hint">정답 보기</button>':'')+action+'</div>';
+    return '<div class="feedback-strip '+color+'"><div class="feedback-signal" aria-hidden="true">'+(session.status==='alternative'?mascot('idle'):icon(session.status==='correct'?'check':session.status==='wrong'?'sparkles':'book'))+'</div><p class="feedback-message" role="status">'+escape(feedbackText())+'</p>'+(why?'<button class="why-button" data-action="practice-why" aria-expanded="'+Boolean(session.explain)+'" aria-controls="practice-explanation">'+(session.explain?'접기':'왜?')+'</button>':q.kind!=='choice'?'<button class="why-button" data-action="practice-hint">'+(session.hints?'정답':'힌트')+'</button>':'')+'</div><div class="footer-action">'+(session.status==='wrong'&&q.kind!=='choice'?'<button class="text-link footer-reveal" data-action="practice-hint">정답 보기</button>':'')+action+'</div>';
   }
   function render({tilesChanged=false,focusAction=null,focusIndex=null}={}) {
     if(!session)return;
@@ -103,9 +107,10 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     const rebuild=session.renderKey!==key;
     const scroll=content.querySelector('.dialog-body')?.scrollTop||0;
     if(rebuild) {
+      const goal='<div class="practice-goal">'+mascot('idle')+'<p id="practice-goal"><span class="visually-hidden">루의 연습 목표. </span>'+escape(goalForQuestion(q.id))+'</p></div>';
       const model=q.model?'<div class="practice-model"><span>처음 보는 표현</span><b lang="fr">'+escape(q.model.fr)+'</b></div>':'';
       const interaction=tileMode()?tilesHTML():q.kind==='choice'?choicesHTML(q):inputHTML(q);
-      content.innerHTML=dialogHeader(session.title,1,(session.index+1)+' / '+session.deck.length,!saveFailed)+'<div class="dialog-body practice-body game-body" data-practice-question="'+q.id+'"><div class="exercise-heading"><span class="exercise-mode">'+modeLabel(q)+'</span><span class="exercise-stage">'+(q.transfer?'새 문장 도전':q.phase)+'</span></div><div class="practice-question"><div class="question-copy">'+model+'<h3 class="practice-prompt">'+escape(q.ko)+'</h3>'+(q.glossary?'<p class="practice-glossary">'+escape(q.glossary).replace(/^새 단어: /,'')+'</p>':'')+(q.cue?'<p class="practice-cue" lang="fr"></p>':'')+'</div><div class="answer-zone" id="practice-answer">'+interaction+'</div><div id="word-feedback"></div></div><section id="practice-explanation" class="explanation-sheet" hidden></section></div><div class="dialog-footer practice-footer game-footer"></div>';
+      content.innerHTML=dialogHeader(session.title,1,(session.index+1)+' / '+session.deck.length,!saveFailed)+'<div class="dialog-body practice-body game-body" data-practice-question="'+q.id+'"><div class="exercise-heading"><span class="exercise-mode">'+modeLabel(q)+'</span><span class="exercise-stage">'+(q.transfer?'새 문장 도전':q.phase)+'</span></div><div class="practice-question"><div class="question-copy">'+model+'<h3 class="practice-prompt">'+escape(q.ko)+'</h3>'+goal+(q.glossary?'<p class="practice-glossary">'+escape(q.glossary).replace(/^새 단어: /,'')+'</p>':'')+(q.cue?'<p class="practice-cue" lang="fr"></p>':'')+'</div><div class="answer-zone" id="practice-answer">'+interaction+'</div><div id="word-feedback"></div></div><section id="practice-explanation" class="explanation-sheet" hidden></section></div><div class="dialog-footer practice-footer game-footer"></div>';
       session.renderKey=key;focusDialog();
     } else if(tileMode()&&(tilesChanged||finished))content.querySelector('#practice-answer').innerHTML=tilesHTML();
     content.querySelector('.practice-footer').innerHTML=renderFooter();
@@ -135,7 +140,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     const body=content.querySelector('.dialog-body');if(!rebuild)body.scrollTop=scroll;
     stash();
     if(finished)content.querySelector('[data-action="practice-next"]')?.focus({preventScroll:true});
-    else if(session.status==='wrong'&&input)input.focus({preventScroll:true});
+    else if((session.status==='wrong'||session.status==='alternative')&&input)input.focus({preventScroll:true});
     if(focusAction)content.querySelector('[data-action="'+focusAction+'"]'+(focusIndex!==null?'[data-index="'+focusIndex+'"]':''))?.focus({preventScroll:true});
     session.justPlaced=null;
   }
@@ -145,8 +150,11 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     if(!value?.trim())return;
     if(tileMode()&&session.selected.length!==session.tiles.length)return;
     session.explain=false;
+    const alternative=alternativeFeedback(q,value);
     if(isCorrect(q,value)){session.status='correct';session.message='';playFeedback('correct');}
-    else {
+    else if(alternative) {
+      session.status='alternative';session.message=alternative;
+    } else {
       session.hadError=true;session.status='wrong';session.errors++;session.hints=Math.max(1,session.hints);
       const feedback=q.kind==='input'&&!session.supported?answerFeedback(q,value):null;
       session.message=feedback?.accentOnly?'철자는 맞아요. 악센트만 확인해요.':feedback?.tokens.some(t=>t.kind==='missing')?'빠진 단어가 있어요.':tileMode()?'단어 순서를 한 번 바꿔봐요.':q.kind==='choice'?q.hint:'표시된 부분을 다시 써볼까요?';
@@ -244,7 +252,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
       case 'practice-type':if(!finished){session.supported=false;session.tiles=[];session.selected=[];render();content.querySelector('#practice-input')?.focus({preventScroll:true});}break;
       case 'practice-check':check();break;
       case 'practice-hint':
-        if(!finished){if(session.hints){session.hints=2;session.status='revealed';}else {session.hints=1;session.message=active().hint;}render({tilesChanged:true});}break;
+        if(!finished){if(session.hints){session.hints=2;session.status='revealed';}else {session.hints=1;session.message=active().hint;if(session.status==='alternative')session.status='idle';}render({tilesChanged:true});}break;
       case 'practice-why':
         session.explain=!session.explain;if(!finished)session.hints=Math.max(1,session.hints);
         render();if(session.explain)content.querySelector('#practice-explanation')?.scrollIntoView?.({block:'nearest',behavior:'instant'});break;
@@ -259,15 +267,17 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
         const input=content.querySelector('#practice-input');if(finished||!input)return;
         const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
         if(input.value.length-(end-start)+button.dataset.value.length>input.maxLength)return;
-        input.setRangeText(button.dataset.value,start,end,'end');session.draft=input.value;
-        content.querySelector('[form="practice-form"]').disabled=!session.draft.trim();
-        input.focus({preventScroll:true});stash();break;
+        input.setRangeText(button.dataset.value,start,end,'end');
+        input.dispatchEvent(new window.Event('input',{bubbles:true}));
+        input.focus({preventScroll:true});break;
       }
     }
   });
   document.addEventListener('input',event=>{
     if(event.target.id==='practice-input'&&session&&!session.summary){
-      session.draft=event.target.value;content.querySelector('[form="practice-form"]').disabled=!session.draft.trim();stash();
+      session.draft=event.target.value;
+      if(session.status==='alternative'){session.status='idle';session.message='';render();return;}
+      content.querySelector('[form="practice-form"]').disabled=!session.draft.trim();stash();
     }
   });
   document.addEventListener('compositionstart',event=>{if(event.target.id==='practice-input'&&session)session.composing=true;});

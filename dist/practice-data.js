@@ -5,7 +5,10 @@ export const practiceUnits = [...beginnerUnits.map(unit=>({...unit,level:'beginn
 const makePack = (meta, questions) => ({ level:'beginner', ...meta, guide: meta.guide || patternGuides[meta.id], questions: questions.map((q, index) => ({
   id: `${meta.id}-${index + 1}`, packId: meta.id, level:meta.level||'beginner',
   phase: index < 2 ? '패턴 발견' : index < 8 ? '꺼내 보고 바꿔 보기' : '내 말로 완성',
-  ...q
+  ...q,
+  ...(meta.id === 'order-food' && q.mode !== 'word' ? {
+    accepted: [...new Set([...(q.accepted || []), ...['plaît','plait'].map(verb => q.full.replace(/\.$/, ', s’il vous ' + verb + '.'))])]
+  } : {})
 })) });
 
 export const practicePacks = [

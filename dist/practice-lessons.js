@@ -124,7 +124,7 @@ Object.assign(miniLessons, {
   imparfaitEtre:lesson('être의 반과거는 ét-에서 시작해요','être는 nous sommes에서 어간을 만들지 않는 예외예요. ét-에 반과거 어미를 붙여요.',
     [['je → j’','étais'],['tu','étais'],['il / elle','était'],['nous','étions'],['vous','étiez'],['ils / elles','étaient']],['J’étais à la maison.','나는 집에 있었어.'],'être의 현재형 suis와 반과거 étais를 구분해요. ét-의 é도 유지해요.'),
   imparfaitLire:lesson('lire의 반과거: lisais','현재형 nous lisons에서 -ons를 빼면 lis-예요. je의 반과거 어미 -ais를 붙이면 lisais가 돼요.',
-    [['원형','lire'],['현재 · 우리','nous lisons'],['반과거 · 나','je lisais'],['반과거 · 우리','nous lisions']],['Hier, à huit heures, je lisais.','어제 8시에 나는 읽고 있었어.'],'여기서는 그 시점에 진행 중이던 읽기를 보여줘요. “읽었다”라는 완료 사건은 j’ai lu로 표현할 수 있어요.'),
+    [['원형','lire'],['현재 · 우리','nous lisons'],['반과거 · 나','je lisais'],['반과거 · 우리','nous lisions']],['Je lisais un livre hier à huit heures.','어제 여덟 시에 책을 읽고 있었어.'],'여기서는 그 시점에 진행 중이던 읽기를 보여줘요. “읽었다”라는 완료 사건은 j’ai lu로 표현할 수 있어요.'),
   backgroundEvent:lesson('진행 중인 배경과 새로 생긴 사건','~하는 중이었다는 배경은 반과거, 그때 생긴 사건은 복합과거로 연결해요. quand는 “~할 때”예요.',
     [['읽던 배경 · lisons → lis-','je lisais'],['요리하던 배경 · cuisinons → cuisin-','je cuisinais'],['자던 배경 · dormons → dorm-','je dormais'],['전화벨이 울린 사건','le téléphone a sonné']],['Je dormais quand le téléphone a sonné.','내가 자고 있을 때 전화가 울렸어.'],'je의 반과거 어미는 -ais예요. 전화의 주어 le téléphone은 단수라 a sonné를 써요.'),
   pastWeather:lesson('날씨와 상태를 반과거로','배경을 설명할 때 “비가 오고 있었다”는 il pleuvait, “집에 있었다”는 j’étais à la maison이에요.',

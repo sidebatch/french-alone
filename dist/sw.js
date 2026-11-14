@@ -1,11 +1,11 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-13-release-1.12.1';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-14-release-1.13.0';
 const APP_FILES = [
   './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
   './room-catalog.js', './room-core.js', './room-art.js', './room.js', './room.css',
   './records-core.js', './records.js', './record-card.js', './records.css',
-  './practice-content.js','./practice-intermediate.js','./practice-lessons.js','./grammar-data.js','./grammar-extra-data.js','./grammar-reference-basics.js','./grammar-reference-verbs.js','./grammar-reference-syntax.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css', './learning.css', './play.css', './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
+  './practice-content.js','./practice-intermediate.js','./practice-lessons.js','./practice-goals.js','./grammar-data.js','./grammar-extra-data.js','./grammar-reference-basics.js','./grammar-reference-verbs.js','./grammar-reference-syntax.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css', './learning.css', './play.css', './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
   './companion.js', './companion.css', './polish.css', './assets/lou-sprites-v2.webp', './manifest.webmanifest', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];

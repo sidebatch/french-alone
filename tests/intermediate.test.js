@@ -4,6 +4,15 @@ import { practicePacks,practiceQuestions,practiceUnits,questionById } from '../d
 import { freshPractice,dailyDeck,readPractice,readPracticeDrafts,recordPractice,reviewDeck,nextPack,isCorrect,normalizeAnswer } from '../dist/practice-core.js';
 
 const date='2026-11-12';
+
+test('accepted word orders retain the time, object, tense and conditional meaning',()=>{
+  const reading=questionById('past-background-4');
+  for(const answer of ['Hier, je lisais un livre à huit heures.', 'Je lisais un livre hier à 8 h.', 'À 8 heures hier, je lisais un livre.'])assert.ok(isCorrect(reading,answer));
+  for(const answer of ['Je lis un livre hier à huit heures.', 'Je lisais un livre à huit heures.', 'Je lisais hier à huit heures.'])assert.equal(isCorrect(reading,answer),false);
+  assert.ok(isCorrect(questionById('need-10'),'J’ai besoin de manger quelque chose.'));
+  assert.ok(isCorrect(questionById('real-conditions-4'),'Je travaillerai si j’ai le temps.'));
+  assert.equal(isCorrect(questionById('real-conditions-4'),'Je travaillerai si j’aurai le temps.'),false);
+});
 const load=state=>readPractice({getItem:()=>JSON.stringify(state)});
 const results=deck=>deck.map(q=>({id:q.id,correct:true,independent:q.kind==='input'}));
 

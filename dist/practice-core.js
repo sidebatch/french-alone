@@ -1,5 +1,6 @@
 import { today } from './core.js';
 import { practicePacks, practiceQuestions, questionById } from './practice-data.js';
+import { alternativeForQuestion } from './practice-goals.js';
 
 export const PRACTICE_KEY = 'bonjour-practice-v1';
 export const PRACTICE_DRAFT_KEY = 'bonjour-practice-drafts-v1';
@@ -12,7 +13,14 @@ export function normalizeAnswer(value) {
   return String(value).normalize('NFC').toLocaleLowerCase('fr').replace(/[’‘ʼ`]/g,"'")
     .replace(/[.!?…,;:]/g,'').replace(/\s*'\s*/g,"'").replace(/\s+/g,' ').trim();
 }
-export const isCorrect = (question, value) => [question.answer, ...(question.accepted || []), ...(question.cue?[question.full]:[])].some(answer => normalizeAnswer(answer) === normalizeAnswer(value));
+const answersFor = q => [q.answer, ...(q.accepted || []), ...(q.cue ? [q.full] : [])];
+export const isCorrect = (q, value) => answersFor(q).some(answer => normalizeAnswer(answer) === normalizeAnswer(value));
+export function alternativeFeedback(q, value) {
+  const entry = alternativeForQuestion(q.id);
+  if (!entry || !value) return '';
+  const attempt = normalizeAnswer(value);
+  return entry.forms.some(form => normalizeAnswer(form) === attempt) ? entry.feedback : '';
+}
 export const asRecall = q => ({...q,kind:'input',phase:'기억 꺼내기',transfer:false,model:undefined,choices:undefined,tiles:undefined});
 export function supportTiles(q) {
   const answer=q.answer.replace(/[.!?]+$/g,'').trim();
@@ -35,7 +43,7 @@ export const dailyProgress = (state,date=today()) => ({questions:state.days[date
 // marker instead of incorrectly marking every subsequent word as a typo.
 export function answerFeedback(question, value) {
   const attempt = String(value).trim().split(/\s+/).filter(Boolean);
-  const candidates = [question.answer, ...(question.accepted || []), ...(question.cue ? [question.full] : [])];
+  const candidates = answersFor(question);
   const compared = candidates.map(answer => {
     const expected = answer.trim().split(/\s+/).filter(word => normalizeAnswer(word));
     const actual = attempt.filter(word => normalizeAnswer(word));
@@ -138,12 +146,13 @@ export function readPracticeDrafts(storage) {
       const expected=supported?supportTiles(q).tiles:q.tiles||[];
       const sameTiles=Array.isArray(current.tiles)&&[...expected].sort().join('\0')===[...current.tiles].sort().join('\0');
       const tiles=sameTiles?[...current.tiles]:[...expected];
-      const selected=Array.isArray(current.selected)?[...new Set(current.selected.filter(i=>Number.isInteger(i)&&i>=0&&i<tiles.length))]:[];
+      const selected=sameTiles&&Array.isArray(current.selected)?[...new Set(current.selected.filter(i=>Number.isInteger(i)&&i>=0&&i<tiles.length))]:[];
       const draft=typeof current.draft==='string'?current.draft.slice(0,180):'';
       const choice=q.choices?.includes(current.choice)?current.choice:null;
-      let status=['idle','wrong','correct','revealed'].includes(current.status)?current.status:'idle';
+      let status=['idle','wrong','alternative','correct','revealed'].includes(current.status)?current.status:'idle';
       const value=supported?selected.map(i=>tiles[i]).join(supportTiles(q).joiner):q.kind==='choice'?choice:q.kind==='order'?selected.map(i=>tiles[i]).join(' '):draft;
       if(status==='correct'&&!isCorrect(q,value||''))status='idle';
+      if(status==='alternative'&&!alternativeFeedback(q,value))status='idle';
       drafts[packId]={packId,questionIds:[...ids],formats,index:item.index,...(typeof item.runId==='string'?{runId:item.runId.slice(0,80)}:{}),
         results:item.results.map((r,i)=>({id:r.id,correct:r.correct,independent:r.independent&&formats[i]==='input',needsReview:r.needsReview===true||!r.correct})),
         continued:item.continued===true,updatedAt:Number.isFinite(item.updatedAt)?item.updatedAt:0,

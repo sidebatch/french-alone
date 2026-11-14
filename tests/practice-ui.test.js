@@ -5,12 +5,52 @@ import { JSDOM } from 'jsdom';
 import { today, STORAGE_KEY } from '../dist/core.js';
 import { practicePacks, questionById } from '../dist/practice-data.js';
 import { lessonForQuestion, questionLessonIds } from '../dist/practice-lessons.js';
+import { goalForQuestion } from '../dist/practice-goals.js';
 import { grammarForQuestion, grammarArticles } from '../dist/grammar-data.js';
 import { renderGrammarText } from '../dist/grammar-terms.js';
 import { GRAMMAR_KEY } from '../dist/grammar-core.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDays, supportTiles } from '../dist/practice-core.js';
 
 let fixtureNumber=0;
+
+test('Lou recognizes a natural order, preserves it on resume and gives credit only for the requested form',async()=>{
+  const f=await setup();
+  f.course('order-food');
+  while(f.current().id!=='order-food-9') f.answer();
+  assert.match(f.$('#practice-goal').textContent,/Je voudrais/);
+  f.type('Un thé, s’il vous plaît.');
+  assert.match(f.$('.feedback-message').textContent,/카페.*Je voudrais/);
+  assert.equal(f.$('[data-action="practice-next"]'),null);
+  assert.equal(f.$('#practice-input').getAttribute('aria-invalid'),'false');
+  assert.equal(f.$('#word-feedback').textContent,'');
+  f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  const current=drafts.sessions['order-food'].current;
+  assert.equal(current.status,'alternative');
+  assert.equal(current.errors,0);
+  assert.equal(current.hints,0);
+  assert.equal(current.hadError,false);
+  const resumed=await setup(undefined,drafts);
+  resumed.click('[data-action="practice-resume"]');
+  assert.match(resumed.$('.feedback-message').textContent,/카페.*Je voudrais/);
+  resumed.type('Je voudrais un thé, s’il vous plaît.');
+  resumed.click('[data-action="practice-next"]');
+  resumed.type('Un thé, s’il vous plaît.');
+  assert.equal(resumed.$('#practice-input').getAttribute('aria-invalid'),'true','the item ordered must match');
+  resumed.answer();
+  assert.equal(resumed.saved().cards['order-food-9'].independent,true);
+});
+
+test('a learner can place the time after the action with the supplied word tiles',async()=>{
+  const f=await setup();
+  f.course('past-background');
+  while(f.current().id!=='past-background-4') f.answer();
+  assert.match(f.$('#practice-goal').textContent,/반과거/);
+  for(const tile of ['je','lisais','un','livre','Hier','à','huit','heures']) f.pick(tile);
+  f.click('[data-action="practice-check"]');
+  assert.ok(f.$('[data-action="practice-next"]'));
+  assert.match(f.$('.feedback-message').textContent,/lisais/);
+});
 async function setup(initialPractice,initialDrafts,initialGrammar) {
   const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
   const dom=new JSDOM(html,{url:'https://sidebatch.github.io/french-alone/',pretendToBeVisual:true,runScripts:'outside-only'});
@@ -184,6 +224,8 @@ test('all 210 questions open their targeted mini lesson without changing scores 
     f.course(pack.id);
     while(f.current())f.answer(q=>{
       assert.equal(f.$('#practice-explanation').hidden,true);
+      assert.ok(goalForQuestion(q.id),q.id);
+      assert.ok(f.$('#practice-goal').textContent.includes(goalForQuestion(q.id)),q.id);
       f.click('[data-action="practice-why"]');
       assert.equal(f.$('.answer-detail').open,false,'lesson is optional: '+q.id);
       f.click('.answer-detail summary');assert.equal(f.$('.answer-detail').open,true);

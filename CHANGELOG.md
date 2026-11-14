@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.0 — 2026-11-14
+
+- Show Lou’s short learning goal beside each of the 210 practice prompts, including daily rounds and review.
+- Accept additional sentence orders and equivalent wording. Recognize selected natural alternatives to the requested structure and invite another try without marking a mistake.
+
 ## 1.12.1 — 2026-11-13
 
 - Correct French grammar examples and Korean explanations in the reference library, exercise feedback and phrase cards. Clarify pronoun roles, agreement, verb forms and time expressions.
