@@ -30,6 +30,8 @@ test('learner can finish a quiz, save progress, search, review mistakes, and res
   }
   assert.match($('#dialog-content').textContent,/5 \/ 6/);assert.deepEqual(saved().completed,['greetings']);assert.equal(saved().mastered.length,5);assert.equal(saved().mistakes.length,1);
   assert.equal(Object.values(saved().activity)[0].xp,70);
+  assert.equal(Object.values(saved().activity)[0].basicQuestions,6);
+  assert.equal(Object.values(saved().activity)[0].basicRounds,1);
   click('#study-dialog [data-action="close"]');assert.equal($('#study-dialog').open,false);
   navigate('vocabulary');assert.equal(document.querySelectorAll('.expression').length,phrases.length);
   const search=$('#phrase-search');search.value='cafe';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(document.querySelectorAll('.expression').length,1);assert.match($('#phrase-list').textContent,/Un café/);
@@ -37,6 +39,9 @@ test('learner can finish a quiz, save progress, search, review mistakes, and res
   search.value='';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));click('[data-action="vocab-filter"][data-value="틀린 표현"]');assert.equal(document.querySelectorAll('.expression').length,1);
   click('[data-action="review"]');assert.equal($('[data-action="review-answer"]').disabled,true);click('[data-action="flip"]');click('[data-action="review-answer"][data-known="true"]');assert.equal(saved().mistakes.length,0);assert.match($('#dialog-content').textContent,/복습 완료/);click('#study-dialog [data-action="close"]');
   navigate('progress');assert.match($('#main').textContent,/70 XP/);
+  assert.match($('.record-day-stats').textContent,/6문제/);
+  assert.match($('.record-detail').textContent,/기초 퀴즈 6문제/);
+  assert.equal($('.calendar-date.has-stamp'),null,'basic quizzes do not earn practice stamps');
   click('[data-action="settings"]');const slow=$('#slow-speech');slow.checked=true;slow.dispatchEvent(new dom.window.Event('change',{bubbles:true}));assert.equal(saved().slow,true);
   click('[data-action="reset-confirm"]');click('[data-action="reset-cancel"]');assert.equal(saved().completed.length,1);
   click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().completed,[]);assert.deepEqual(saved().favorites,[]);assert.equal(errors.length,0);

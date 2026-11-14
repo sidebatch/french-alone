@@ -7,8 +7,12 @@ import { bindStudyViewport } from './study-viewport.js';
 import { mascot, companionMessage } from './companion.js';
 import { createGrammar } from './grammar.js';
 import { renderGrammarText } from './grammar-terms.js';
+import { learningRecords } from './records-core.js';
+import { createRecords } from './records.js';
+import { createRoom } from './room.js';
+import { stampsForQuestions } from './room-core.js';
 
-const APP_VERSION = '1.10.0';
+const APP_VERSION = '1.12.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -28,8 +32,11 @@ const practice = createPractice({
   openGrammar:(id,options)=>grammar.open(id,options),
   onSaveError:()=>{storageWarning=true;toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');},
   onLevelChange:()=>renderPage(),
-  onFinish:summary=>{if(summary.duplicate)return;const activity=state.activity[today()] ||= {xp:0,words:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();}
+  rewardNote:()=>room.rewardNote(),
+  onFinish:summary=>{if(summary.duplicate)return;const activity=state.activity[summary.date||today()] ||= {xp:0,words:0,basicQuestions:0,basicRounds:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();room.onProgress();}
 });
+const room = createRoom({storage,getDays:()=>practice.dayRecords(),icon,escape,onChange:()=>renderPage(),onSaveError:()=>{storageWarning=true;}});
+const records = createRecords({getRecords:()=>learningRecords(state.activity,practice.dayRecords()),getRoom:date=>room.snapshot(date),icon,escape});
 function persist() {
   try {storage.setItem(STORAGE_KEY,JSON.stringify(state));}
   catch {storageWarning=true; toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');}
@@ -59,16 +66,14 @@ function heading(title) {return `<div class="page-heading"><h1>${title}</h1><spa
 function renderHome() {
   const resume=practice.resumeInfo(),progress=practice.dailyProgress(),stamp=progress.questions>=3;
   const next=practice.recommended();
-  const gifts=[{days:1,name:'작은 화분'},{days:3,name:'책 한 묶음'},{days:7,name:'포근한 러그'}];
-  const gift=gifts.find(item=>item.days>progress.days);
-  const room='<div class="lou-room '+(progress.days>=1?'has-plant ':'')+(progress.days>=3?'has-books ':'')+(progress.days>=7?'has-rug':'')+'" aria-label="루의 작은 방"><div class="room-window" aria-hidden="true"><i></i></div><div class="room-floor" aria-hidden="true"></div><div class="room-rug" aria-hidden="true"></div><div class="room-plant" aria-hidden="true"><i></i><i></i><i></i><span></span></div><div class="room-books" aria-hidden="true"><i></i><i></i><i></i></div><button class="hero-companion room-lou" type="button" data-action="mascot-hello" aria-label="루에게 인사하기"><span class="companion-bubble" lang="fr">'+(stamp?'Bravo !':'Bonjour !')+'</span>'+mascot(stamp?'complete':'wave')+'</button></div>';
+  const roomMarkup=room.renderScene(stamp?'complete':'wave');
   return '<div class="page-heading home-heading play-home-heading"><div><p class="home-eyebrow">A LITTLE FRENCH, EVERY DAY</p><h1>루와, 가볍게 한 판.</h1></div><a class="home-streak" href="#progress">'+icon('flame')+streak(state)+'일</a></div>'+
-    practice.renderLevelPicker()+'<div class="play-home-grid"><section class="hero play-home-hero" aria-label="오늘의 한 판"><div class="today-line"><span>'+icon('sparkles')+(resume?'이어서 한 판':stamp?'오늘도 해냈어요':practice.level()==='intermediate'?'오늘의 중급 한 판':'오늘의 한 판')+'</span><span class="stamp-label '+(stamp?'is-done':'')+'">'+icon(stamp?'check':'sun')+(stamp?'스탬프 완료':'오늘 '+Math.min(progress.questions,3)+' / 3')+'</span></div>'+room+
+    practice.renderLevelPicker()+'<div class="play-home-grid"><section class="hero play-home-hero" aria-label="오늘의 한 판"><div class="today-line"><span>'+icon('sparkles')+(resume?'이어서 한 판':stamp?'오늘도 해냈어요':practice.level()==='intermediate'?'오늘의 중급 한 판':'오늘의 한 판')+'</span><span class="stamp-label '+(stamp?'is-done':'')+'">'+icon(stamp?'check':'sun')+(stamp?'오늘 스탬프 '+stampsForQuestions(progress.questions)+'개':'오늘 '+Math.min(progress.questions,3)+' / 3')+'</span></div>'+roomMarkup+
     '<div class="home-mission"><h2>'+(resume?'멈춘 곳부터 이어가요.':stamp?'한 번 더 해볼까요?':'다섯 문제면 충분해요.')+'</h2><p>'+(resume?escape(resume.title)+' · '+(resume.total-resume.index)+'문제 남음':practice.level()==='intermediate'?escape(next.title)+' · 읽고, 직접 쓰기':'<span lang="fr">'+escape(next.pattern.split('+')[0].trim())+'</span> · 읽고, 맞추고, 직접 쓰기')+'</p></div>'+
     '<button class="primary-button home-play" data-action="'+(resume?'practice-resume':'practice-daily')+'">'+(resume?'이어서 학습하기':'5문제 시작')+icon('arrow')+'</button>'+
     '<div class="home-play-meta"><span>'+icon('check')+'자동 저장</span><button class="text-link" data-action="practice-light">가볍게 3문제</button></div></section>'+
-    '<aside class="play-home-side"><section class="room-collection"><div class="collection-heading"><span>'+icon('heart')+'루의 작은 방</span><b>스탬프 '+progress.days+'개</b></div><div class="collection-items">'+gifts.map(item=>'<div class="collection-item '+(progress.days>=item.days?'earned':'locked')+'"><span>'+icon(item.days===1?'sun':item.days===3?'book':'heart')+'</span><b>'+item.name+'</b><small>'+(progress.days>=item.days?'함께 모았어요':item.days+'개에 열려요')+'</small></div>').join('')+'</div><p class="collection-next">'+(gift?gift.name+'까지 스탬프 <b>'+(gift.days-progress.days)+'개</b>':'루의 방이 포근해졌어요.')+'</p><p class="collection-rule">하루 3문제면 스탬프 하나.</p></section>'+
-    '<section class="side-card goal-card home-week"><div class="goal-heading"><h2>이번 주의 발자국</h2><a class="text-link" href="#progress">기록 보기'+icon('chevron')+'</a></div><div class="goal-days">'+weekDates().map((d,i)=>'<div class="day '+(today(d)===today()?'today ':'')+(state.activity[today(d)]?'done':'')+'" aria-label="'+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+(state.activity[today(d)]?'학습 완료':'학습 기록 없음')+'">'+['월','화','수','목','금','토','일'][i]+'<span>'+(state.activity[today(d)]?icon('check'):d.getDate())+'</span></div>').join('')+'</div></section></aside></div>'+
+    '<aside class="play-home-side">'+room.renderSummary()+
+    '<section class="side-card goal-card home-week"><div class="goal-heading"><h2>이번 주의 발자국</h2><a class="text-link" href="#progress">기록 보기'+icon('chevron')+'</a></div><div class="goal-days">'+weekDates().map((d,i)=>'<div class="day '+(today(d)===today()?'today ':'')+(state.activity[today(d)]?'done':'')+'" aria-label="'+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+(state.activity[today(d)]?'학습 완료':'학습 기록 없음')+'">'+['월','화','수','목','금','토','일'][i]+'<span>'+(state.activity[today(d)]?icon('check'):d.getDate())+'</span></div>').join('')+'</div>'+(state.activity[today()]?'<button class="home-record-link" data-action="record-open">'+icon('sparkles')+'오늘 학습 인증</button>':'')+'</section></aside></div>'+
     '<nav class="home-destinations" aria-label="다른 학습"><a href="#lessons" data-action="open-practice"><span>'+icon('book')+'</span><div><b>코스 골라보기</b><small>21개 코스 · 210문제</small></div>'+icon('chevron')+'</a><a href="#vocabulary" data-action="open-saved"><span>'+icon('cards')+'</span><div><b>나의 단어장</b><small>저장한 표현 '+state.favorites.length+'개</small></div>'+icon('chevron')+'</a><a href="#lessons" data-action="open-basics"><span>'+icon('sun')+'</span><div><b>기초 표현</b><small>짧게 익히는 한마디</small></div>'+icon('chevron')+'</a></nav>';
 }
 function renderLessons() {
@@ -93,7 +98,7 @@ function renderVocabulary() {
 }
 function renderProgress() {
   const dates=weekDates(),maxXP=Math.max(80,...dates.map(d=>state.activity[today(d)]?.xp||0));
-  return `${heading('기록')} ${practice.renderStats()}<div class="summary-grid">${[['flame',streak(state)+'일','연속 학습'],['book',(expressionCount())+'개','익힌 표현'],['check',state.completed.length+'개','완료한 기초 레슨'],['sparkles',totalXP(state)+' XP','총 경험치']].map(([i,n,t])=>`<div class="summary-card">${icon(i)}<strong>${n}</strong><p>${t}</p></div>`).join('')}</div><div class="progress-layout"><section class="progress-panel"><h2>이번 주의 발자국</h2><div class="week-chart" aria-label="이번 주 일별 경험치">${dates.map((d,i)=>{const xp=state.activity[today(d)]?.xp||0;return `<div class="bar-column" aria-label="${['월','화','수','목','금','토','일'][i]}요일 ${xp} XP"><strong>${xp}</strong><div class="bar" style="height:${Math.max(4,xp/maxXP*105)}px"></div><span>${['월','화','수','목','금','토','일'][i]}</span></div>`;}).join('')}</div></section><section class="progress-panel"><h2>기초 레슨</h2><div class="progress-track"><span style="width:${state.completed.length/lessons.length*100}%"></span></div><div class="progress-fraction"><span>${Math.round(state.completed.length/lessons.length*100)}% 완료</span><span>${state.completed.length} / ${lessons.length} 레슨</span></div><button class="primary-button" data-action="lesson" data-id="${nextLesson().id}">${state.completed.length===lessons.length?'다시 복습하기':'다음 레슨 시작하기'}${icon('arrow')}</button></section></div><div class="section-heading"><h2>완료한 레슨</h2><button class="text-link" data-action="settings">학습 설정 ${icon('settings')}</button></div>${state.completed.length?`<div class="progress-panel">${lessons.filter(l=>state.completed.includes(l.id)).map(l=>`<div class="completed-row"><span>${icon('check')}${l.title}</span><button class="text-link" data-action="lesson" data-id="${l.id}">다시 학습 ${icon('chevron')}</button></div>`).join('')}</div>`:`<div class="empty-state">${icon('sun')}<h3>완료한 기초 레슨이 없어요.</h3><button class="primary-button" data-action="lesson" data-id="greetings">첫 레슨 시작하기 ${icon('arrow')}</button></div>`}`;
+  return `${heading('기록')}${records.render()} ${practice.renderStats()}<div class="summary-grid">${[['flame',streak(state)+'일','연속 학습'],['book',(expressionCount())+'개','익힌 표현'],['check',state.completed.length+'개','완료한 기초 레슨'],['sparkles',totalXP(state)+' XP','총 경험치']].map(([i,n,t])=>`<div class="summary-card">${icon(i)}<strong>${n}</strong><p>${t}</p></div>`).join('')}</div><div class="progress-layout"><section class="progress-panel"><h2>이번 주의 발자국</h2><div class="week-chart" aria-label="이번 주 일별 경험치">${dates.map((d,i)=>{const xp=state.activity[today(d)]?.xp||0;return `<div class="bar-column" aria-label="${['월','화','수','목','금','토','일'][i]}요일 ${xp} XP"><strong>${xp}</strong><div class="bar" style="height:${Math.max(4,xp/maxXP*105)}px"></div><span>${['월','화','수','목','금','토','일'][i]}</span></div>`;}).join('')}</div></section><section class="progress-panel"><h2>기초 레슨</h2><div class="progress-track"><span style="width:${state.completed.length/lessons.length*100}%"></span></div><div class="progress-fraction"><span>${Math.round(state.completed.length/lessons.length*100)}% 완료</span><span>${state.completed.length} / ${lessons.length} 레슨</span></div><button class="primary-button" data-action="lesson" data-id="${nextLesson().id}">${state.completed.length===lessons.length?'다시 복습하기':'다음 레슨 시작하기'}${icon('arrow')}</button></section></div><div class="section-heading"><h2>완료한 레슨</h2><button class="text-link" data-action="settings">학습 설정 ${icon('settings')}</button></div>${state.completed.length?`<div class="progress-panel">${lessons.filter(l=>state.completed.includes(l.id)).map(l=>`<div class="completed-row"><span>${icon('check')}${l.title}</span><button class="text-link" data-action="lesson" data-id="${l.id}">다시 학습 ${icon('chevron')}</button></div>`).join('')}</div>`:`<div class="empty-state">${icon('sun')}<h3>완료한 기초 레슨이 없어요.</h3><button class="primary-button" data-action="lesson" data-id="greetings">첫 레슨 시작하기 ${icon('arrow')}</button></div>`}`;
 }
 function renderPage() {
   const labels={home:'오늘의 학습',lessons:'전체 레슨',vocabulary:'나의 단어장',grammar:'문법',progress:'학습 기록'};
@@ -141,7 +146,7 @@ function renderSession() {
   } else if(s.phase==='result') {
     const r=s.result;
     const wrongPhrases=s.answers.filter(a=>!a.correct).map(a=>phraseById(a.id)).filter(Boolean);
-    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="lesson-companion">${companionMessage(r.passed?"complete":"wrong")}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div>${wrongPhrases.length?`<section class="mistake-summary"><strong>다시 볼 표현 ${wrongPhrases.length}개</strong><ul>${wrongPhrases.map(p=>`<li><b lang="fr">${escape(p.fr)}</b><span>${escape(p.ko)}</span></li>`).join('')}</ul><button class="secondary-button" data-action="review-mistakes">틀린 표현만 카드로 복습</button></section>`:''}</div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
+    content.innerHTML=`${dialogHeader('레슨 결과')}<div class="dialog-body center"><div class="lesson-companion">${companionMessage(r.passed?"complete":"wrong")}</div><h3 class="dialog-title">${r.passed?'레슨 완료':'다시 도전'}</h3>${r.passed?'':'<p class="explanation">5개 이상 맞히면 완료돼요.</p>'}<div class="result-stats"><div><strong>${r.correct} / ${r.total}</strong><span>맞힌 문제</span></div><div><strong>+${r.xp}</strong><span>획득한 XP</span></div></div><button class="text-link result-record-link" data-action="record-open">오늘 학습 인증 ${icon('sparkles')}</button>${wrongPhrases.length?`<section class="mistake-summary"><strong>다시 볼 표현 ${wrongPhrases.length}개</strong><ul>${wrongPhrases.map(p=>`<li><b lang="fr">${escape(p.fr)}</b><span>${escape(p.ko)}</span></li>`).join('')}</ul><button class="secondary-button" data-action="review-mistakes">틀린 표현만 카드로 복습</button></section>`:''}</div><div class="dialog-footer"><button class="secondary-button" data-action="${r.passed?'review-lesson':'retry'}">${r.passed?'배운 표현 복습':'한 번 더 도전'}</button><button class="primary-button" data-action="close">학습 마치기${icon('check')}</button></div>`;
   }
   focusDialog();
 }
@@ -247,9 +252,9 @@ document.addEventListener('click',event=>{
     case 'install-help':closeDialog();$('#install-app')?.click();break;
     case 'open-saved':vocabFilter='저장한 표현';break;
     case 'clear-search':query='';renderPage();$('#phrase-search')?.focus();break;
-    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">저장한 표현과 모든 학습 기록이 삭제돼요. 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
+    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">학습 기록·단어장·보유 소품·방 배치가 모두 삭제돼요. 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
     case 'reset-cancel':$('#reset-area').innerHTML='';break;
-    case 'reset':state=freshState();practice.reset();grammar.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
+    case 'reset':state=freshState();practice.reset();grammar.reset();records.reset();room.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
   }
 });
 document.addEventListener('input',event=>{
@@ -275,5 +280,5 @@ document.addEventListener('change',event=>{
 });
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
 window.addEventListener('hashchange',()=>{grammar.close(false);renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
-window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===null)&&!dialog.open&&!grammar.isOpen()){state=readState(storage);practice.reload();renderPage();}});
+window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===room.key||event.key===null)&&!dialog.open&&!grammar.isOpen()&&!records.isOpen()&&!room.isOpen()){state=readState(storage);practice.reload();room.reload();renderPage();}});
 renderPage();

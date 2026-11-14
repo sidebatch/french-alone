@@ -6,7 +6,7 @@
   <meta name="application-name" content="French Alone"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="French Alone">
   <link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <title>French Alone · 프랑스어를 내 말로</title>
-  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./pwa.css"><link rel="stylesheet" href="./product.css"><link rel="stylesheet" href="./ux.css"><link rel="stylesheet" href="./companion.css"><link rel="stylesheet" href="./polish.css"><link rel="stylesheet" href="./learning.css"><link rel="stylesheet" href="./play.css"><link rel="stylesheet" href="./grammar.css"><link rel="preload" href="./assets/lou-sprites-v2.webp" as="image">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./pwa.css"><link rel="stylesheet" href="./product.css"><link rel="stylesheet" href="./ux.css"><link rel="stylesheet" href="./companion.css"><link rel="stylesheet" href="./polish.css"><link rel="stylesheet" href="./learning.css"><link rel="stylesheet" href="./play.css"><link rel="stylesheet" href="./grammar.css"><link rel="stylesheet" href="./records.css"><link rel="stylesheet" href="./room.css"><link rel="preload" href="./assets/lou-sprites-v2.webp" as="image">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -49,6 +49,8 @@
   <div class="page-shell app-shell"><header class="topbar"><div class="topbar-leading"><a class="mobile-brand" href="#home" aria-label="French Alone 홈"><span class="mobile-brand-mark" aria-hidden="true">f.</span><span>French Alone</span></a><div class="breadcrumb"><b id="page-label">오늘의 학습</b></div></div><div class="topbar-right"><button id="install-app" class="pwa-install-button" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>앱 설치</button><button class="header-settings icon-button" type="button" data-action="settings" aria-label="설정"><svg aria-hidden="true"><use href="#i-settings"/></svg></button><span class="streak-badge" id="header-streak"></span></div></header><main id="main" tabindex="-1"><div class="app-loading" role="status"><span aria-hidden="true">f.</span><p>불러오는 중</p></div></main></div>
   <dialog id="study-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
   <dialog id="grammar-dialog" aria-labelledby="grammar-title"></dialog>
+  <dialog id="record-dialog" aria-labelledby="record-title"></dialog>
+  <dialog id="room-dialog" aria-labelledby="room-title"></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
   <dialog id="install-dialog" class="pwa-dialog" aria-labelledby="pwa-title">
     <div class="pwa-dialog-header"><h2 id="pwa-title">앱 설치</h2><button id="pwa-close" class="icon-button" type="button" aria-label="설치 안내 닫기"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>

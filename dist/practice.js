@@ -3,10 +3,11 @@ import { renderMiniLesson } from './practice-lessons.js';
 import { grammarsForQuestion } from './grammar-data.js';
 import { renderGrammarText } from './grammar-terms.js';
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, isCorrect, recordPractice, answerFeedback } from './practice-core.js';
+import { stampsForQuestions } from './room-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
 
-export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{}, openGrammar=()=>{} }) {
+export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{}, openGrammar=()=>{}, rewardNote=()=>'' }) {
   let state=readPractice(storage), drafts=readPracticeDrafts(storage), session=null, saveFailed=false;
   let libraryUnit='all', libraryStatus='all';
   const saveError=()=>{if(!saveFailed)onSaveError();saveFailed=true;};
@@ -168,10 +169,10 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   }
   function renderResult() {
     const s=session.summary,retry=session.results.filter(r=>r.needsReview||!r.correct).map(r=>questionById(r.id));
-    const progress=dailyProgress(state),nextGift=[{days:1,name:'작은 화분'},{days:3,name:'책 한 묶음'},{days:7,name:'포근한 러그'}].find(g=>g.days>progress.days);
+    const progress=dailyProgress(state);
     const growth=s.recovered?'막혔던 '+s.recovered+'개를 혼자 풀었어요.':s.newSentences?'새 문장 '+s.newSentences+'개를 혼자 썼어요.':s.newQuestions?'처음 푼 문제 '+s.newQuestions+'개 완료!':'기억을 한 번 더 단단하게.';
     const target=retry.length?'헷갈린 '+retry.length+'문제 다시 도전':'다음 5문제';
-    content.innerHTML=dialogHeader('한 판 완료')+'<div class="dialog-body practice-body practice-completion game-result center"><div class="result-mascot">'+mascot('complete')+'</div><p class="completion-eyebrow">'+s.total+'문제 완료</p><h3 class="dialog-title" tabindex="-1">한 판 해냈어요!</h3><p class="result-growth">'+escape(growth)+'</p><div class="result-stats"><div><strong>'+s.correct+' / '+s.total+'</strong><span>완성한 문제</span></div><div><strong class="completion-reward">'+(s.xp?'+'+s.xp:'0')+' XP</strong><span>이번에 쌓은 경험치</span></div></div><div class="result-stamp">'+icon('check')+(progress.questions>=3?'오늘의 스탬프 완료':'오늘 '+progress.questions+' / 3문제')+'</div>'+(nextGift?'<p class="next-gift">'+nextGift.name+'까지 스탬프 '+(nextGift.days-progress.days)+'개</p>':'<p class="next-gift">루의 방을 모두 채웠어요.</p>')+(retry.length?'<details class="practice-recap"><summary>다시 볼 표현 '+retry.length+'개</summary>'+retry.map(q=>'<article><b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.ko)+'</p></article>').join('')+'</details>':'')+(saveFailed?'<p class="inline-alert">지금은 이 기기에 기록을 저장하지 못하고 있어요.</p>':'')+'</div><div class="dialog-footer practice-footer game-result-footer"><button class="primary-button" data-action="'+(retry.length?'practice-retry':'practice-more')+'">'+target+icon('arrow')+'</button><button class="text-link" data-action="practice-close">오늘은 여기까지</button></div>';
+    content.innerHTML=dialogHeader('한 판 완료')+'<div class="dialog-body practice-body practice-completion game-result center"><div class="result-mascot">'+mascot('complete')+'</div><p class="completion-eyebrow">'+s.total+'문제 완료</p><h3 class="dialog-title" tabindex="-1">한 판 해냈어요!</h3><p class="result-growth">'+escape(growth)+'</p><div class="result-stats"><div><strong>'+s.correct+' / '+s.total+'</strong><span>완성한 문제</span></div><div><strong class="completion-reward">'+(s.xp?'+'+s.xp:'0')+' XP</strong><span>이번에 쌓은 경험치</span></div></div><div class="result-stamp">'+icon('check')+(progress.questions>=3?'오늘 스탬프 '+stampsForQuestions(progress.questions)+'개':'오늘 '+progress.questions+' / 3문제')+'</div>'+'<p class="next-gift">'+escape(rewardNote())+'</p>'+'<button class="text-link result-record-link" data-action="record-open" data-value="'+s.date+'">오늘 학습 인증 '+icon('sparkles')+'</button>'+(retry.length?'<details class="practice-recap"><summary>다시 볼 표현 '+retry.length+'개</summary>'+retry.map(q=>'<article><b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.ko)+'</p></article>').join('')+'</details>':'')+(saveFailed?'<p class="inline-alert">지금은 이 기기에 기록을 저장하지 못하고 있어요.</p>':'')+'</div><div class="dialog-footer practice-footer game-result-footer"><button class="primary-button" data-action="'+(retry.length?'practice-retry':'practice-more')+'">'+target+icon('arrow')+'</button><button class="text-link" data-action="practice-close">오늘은 여기까지</button></div>';
     focusDialog();content.querySelector('.dialog-title')?.focus({preventScroll:true});
   }
   function packCard(pack) {
@@ -280,9 +281,10 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     reload:()=>{state=readPractice(storage);drafts=readPracticeDrafts(storage);},
     questionCount:()=>practicePacks.reduce((n,p)=>n+p.questions.length,0),
     resumeInfo,dueCount:()=>levelDue().length,recommended:()=>nextPack(state),dailyProgress:()=>dailyProgress(state),
+    dayRecords:()=>structuredClone(state.days),
     level:()=>state.level,levelPackCount:()=>levelPacks().length,renderLevelPicker,
     independentCount:()=>independentSentences(state).length,independentExpressions:()=>independentSentences(state),
     renderLibrary,
-    renderStats:()=>'<section class="practice-progress"><h2>문장 만들기</h2><div class="practice-stat-row"><span><b>'+state.completed.length+' / '+practicePacks.length+'</b>완료한 코스</span><span><b>'+independentSentences(state).length+'</b>혼자 쓴 문장</span><span><b>'+dailyProgress(state).days+'</b>모은 스탬프</span></div><p class="practice-stat-note">하루 3문제 이상을 마치면 스탬프를 모아요.</p></section>'
+    renderStats:()=>'<section class="practice-progress"><h2>문장 만들기</h2><div class="practice-stat-row"><span><b>'+state.completed.length+' / '+practicePacks.length+'</b>완료한 코스</span><span><b>'+independentSentences(state).length+'</b>혼자 쓴 문장</span><span><b>'+dailyProgress(state).days+'일</b>학습한 날</span></div><p class="practice-stat-note">문장 연습을 하루 3문제 이상 마친 날이에요.</p></section>'
   };
 }

@@ -11,7 +11,11 @@ export function readState(storage) {
     for (const key of ['mastered','favorites','mistakes']) state[key] = [...new Set(Array.isArray(raw[key]) ? raw[key].filter(id=>ids.has(id)) : [])];
     state.completed = [...new Set(Array.isArray(raw.completed) ? raw.completed.filter(id=>lessons.some(l=>l.id===id)) : [])];
     if (raw.activity && typeof raw.activity === 'object') for (const [date,value] of Object.entries(raw.activity)) {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(value?.xp) && value.xp >= 0) state.activity[date] = {xp:value.xp, words:Number.isFinite(value.words) ? Math.max(0,value.words) : 0};
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(value?.xp) && value.xp >= 0) {
+        const entry = state.activity[date] = {xp:value.xp, words:Number.isFinite(value.words) ? Math.max(0,value.words) : 0};
+        for (const field of ['basicQuestions','basicRounds']) if (Number.isSafeInteger(value[field]) && value[field] >= 0) entry[field] = value[field];
+        if (value.basicCountPartial === true) entry.basicCountPartial = true;
+      }
     }
     state.slow = raw.slow === true;
     state.effects = raw.effects !== false;
@@ -57,8 +61,11 @@ export function finishLesson(state, lessonId, answers, date=today()) {
   state.mastered = [...new Set([...state.mastered,...correct])];
   state.mistakes = [...new Set([...state.mistakes.filter(id=>!correct.includes(id)),...wrong])];
   if (passed && first) state.completed.push(lessonId);
-  const activity = state.activity[date] ||= {xp:0,words:0};
+  const activity = state.activity[date] ||= {xp:0,words:0,basicQuestions:0,basicRounds:0};
   activity.xp += xp; activity.words += newlyLearned.length;
+  if (!Number.isSafeInteger(activity.basicQuestions)) activity.basicCountPartial = true;
+  activity.basicQuestions = (activity.basicQuestions || 0) + deck.length;
+  activity.basicRounds = (activity.basicRounds || 0) + 1;
   return {correct:correct.length,total:deck.length,passed,xp,first};
 }
 export function streak(state, date=new Date()) {
