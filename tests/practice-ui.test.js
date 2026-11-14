@@ -13,6 +13,31 @@ import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, freshPractice, recordPractice, addDay
 
 let fixtureNumber=0;
 
+test('daily choice keeps the sentence blank through a hint and resume until the learner reveals it',async()=>{
+  const f=await setup();
+  f.click('[data-action="practice-daily"]');
+  const q=f.current();
+  assert.equal(q.id,'want-1');
+  const cue=q.cue.replace('___','···');
+  assert.equal(f.$('.practice-cue').textContent,cue);
+  assert.ok(!f.$('#study-dialog').textContent.includes(q.full));
+  f.click('[data-action="practice-hint"]');
+  assert.equal(f.$('.feedback-message').textContent,q.hint);
+  assert.equal(f.$('.practice-cue').textContent,cue);
+  assert.equal(f.$('.footer-hint').textContent,'정답 보기');
+  f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  const resumed=await setup(undefined,drafts);
+  resumed.click('[data-action="practice-resume"]');
+  assert.ok(!resumed.$('#study-dialog').textContent.includes(q.full));
+  resumed.click('[data-action="practice-hint"]');
+  assert.equal(resumed.$('.practice-cue').textContent,q.full);
+  resumed.click('[data-action="practice-next"]');
+  const result=JSON.parse(resumed.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY)).sessions.daily.results[0];
+  assert.equal(result.correct,false);
+  assert.equal(result.needsReview,true);
+});
+
 test('Lou recognizes a natural order, preserves it on resume and gives credit only for the requested form',async()=>{
   const f=await setup();
   f.course('order-food');
@@ -198,7 +223,7 @@ test('missing words, grammar guidance and assisted recap survive a paused sessio
 test('a round handles wrong answers, hints, tile undo, independent transfer, continuation and reset',async()=>{
   const f=await setup();const {$,click,type,choose,pick,current,answer,saved}=f;
   assert.equal(document.querySelectorAll('.practice-pack').length,0);
-  f.course('want');assert.equal(current().id,'want-1');assert.match($('.practice-model').textContent,/Je veux dormir/);
+  f.course('want');assert.equal(current().id,'want-1');assert.doesNotMatch($('.question-copy').textContent,/Je veux dormir/);
   choose('peux');assert.equal($('[data-action="practice-next"]'),null);assert.ok($('.feedback-strip.retry'));assert.match($('.feedback-message').textContent,/v/);
   choose('veux');assert.ok($('.feedback-strip.success'));click('[data-action="practice-next"]');
   click('[data-action="practice-hint"]');type('veux');click('[data-action="practice-next"]');
@@ -222,25 +247,33 @@ test('all 210 questions open their targeted mini lesson without changing scores 
   const f=await setup();
   for(const pack of practicePacks){
     f.course(pack.id);
-    while(f.current())f.answer(q=>{
-      assert.equal(f.$('#practice-explanation').hidden,true);
-      assert.ok(goalForQuestion(q.id),q.id);
-      assert.ok(f.$('#practice-goal').textContent.includes(goalForQuestion(q.id)),q.id);
-      f.click('[data-action="practice-why"]');
-      assert.equal(f.$('.answer-detail').open,false,'lesson is optional: '+q.id);
-      f.click('.answer-detail summary');assert.equal(f.$('.answer-detail').open,true);
-      assert.equal(f.$('[data-mini-lesson]').dataset.miniLesson,questionLessonIds[q.id]);
-      assert.equal(f.$('.mini-lesson h4').textContent,renderGrammarText(lessonForQuestion(q.id).title,v=>v).replace(/<[^>]*>/g,''));
-      assert.equal(document.querySelectorAll('.lesson-forms tbody tr').length,lessonForQuestion(q.id).forms.length);
-      assert.equal(f.$('.mini-example [lang="fr"]').textContent,lessonForQuestion(q.id).example.fr);
-      assert.equal(f.$('.grammar-guide'),null,'no course-wide fallback');
-      const body=f.$('.practice-body'),before=f.dom.window.localStorage.getItem(PRACTICE_KEY),lookup=f.$('[data-action="practice-grammar"]');
-      assert.equal(lookup.dataset.grammarTarget,grammarForQuestion(q.id).id);
-      f.click(lookup);assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,grammarForQuestion(q.id).id);
-      assert.equal(f.$('#study-dialog').open,true);f.click('[data-action="grammar-close"]');
-      assert.equal(f.$('.practice-body'),body);assert.equal(f.$('.answer-detail').open,true);
-      assert.equal(f.dom.window.localStorage.getItem(PRACTICE_KEY),before,'reading gives no XP or progress');
-    });
+    while(f.current()){
+      const question=f.current();
+      if(question.cue){
+        assert.equal(f.$('.practice-cue').textContent,question.cue.replace('___','···'),question.id);
+        assert.ok(!f.$('.question-copy').textContent.includes(question.full),question.id);
+        assert.equal(f.$('#practice-explanation').textContent,'',question.id);
+      }
+      f.answer(q=>{
+        assert.equal(f.$('#practice-explanation').hidden,true);
+        assert.ok(goalForQuestion(q.id),q.id);
+        assert.ok(f.$('#practice-goal').textContent.includes(goalForQuestion(q.id)),q.id);
+        f.click('[data-action="practice-why"]');
+        assert.equal(f.$('.answer-detail').open,false,'lesson is optional: '+q.id);
+        f.click('.answer-detail summary');assert.equal(f.$('.answer-detail').open,true);
+        assert.equal(f.$('[data-mini-lesson]').dataset.miniLesson,questionLessonIds[q.id]);
+        assert.equal(f.$('.mini-lesson h4').textContent,renderGrammarText(lessonForQuestion(q.id).title,v=>v).replace(/<[^>]*>/g,''));
+        assert.equal(document.querySelectorAll('.lesson-forms tbody tr').length,lessonForQuestion(q.id).forms.length);
+        assert.equal(f.$('.mini-example [lang="fr"]').textContent,lessonForQuestion(q.id).example.fr);
+        assert.equal(f.$('.grammar-guide'),null,'no course-wide fallback');
+        const body=f.$('.practice-body'),before=f.dom.window.localStorage.getItem(PRACTICE_KEY),lookup=f.$('[data-action="practice-grammar"]');
+        assert.equal(lookup.dataset.grammarTarget,grammarForQuestion(q.id).id);
+        f.click(lookup);assert.equal(f.$('#grammar-dialog').dataset.grammarArticle,grammarForQuestion(q.id).id);
+        assert.equal(f.$('#study-dialog').open,true);f.click('[data-action="grammar-close"]');
+        assert.equal(f.$('.practice-body'),body);assert.equal(f.$('.answer-detail').open,true);
+        assert.equal(f.dom.window.localStorage.getItem(PRACTICE_KEY),before,'reading gives no XP or progress');
+      });
+    }
     assert.equal(f.saved().runs.at(-1).independent,6);assert.equal(f.saved().runs.at(-1).transfer,true);f.click('[data-action="practice-close"]');
   }
   assert.equal(f.saved().runs.length,21);

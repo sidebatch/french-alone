@@ -31,7 +31,7 @@ test('daily review makes room for new content and promotes credited cards to una
     assert.equal(q.kind,'input');assert.equal(q.model,undefined);
     assert.equal(q.choices,undefined);assert.equal(q.tiles,undefined);
   }
-  assert.equal(deck[2].kind,'choice');assert.ok(deck[2].model);
+  assert.equal(deck[2].kind,'choice');assert.ok(deck[2].choices.includes(deck[2].answer));
   assert.equal(dailyDeck(state,date,3).length,3);
 });
 

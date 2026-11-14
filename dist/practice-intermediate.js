@@ -5,7 +5,7 @@ export const intermediateUnits = [
   {id:'connected-sentences',level:'intermediate',title:'문장을 자연스럽게 이어요',description:'목적어 대명사 · y와 en · qui와 que',packs:['object-pronouns','place-quantity','relative-links']},
   {id:'opinions',level:'intermediate',title:'생각을 더 정확하게 전해요',description:'비교 · 이유와 대조 · 필요와 바람',packs:['comparisons','opinion-links','necessity']}
 ];
-const choose=(ko,cue,answer,full,choices,hint,note,extra={})=>({kind:'choice',ko,cue,answer,full,choices,hint,note,model:{fr:full,ko,tip:hint},...extra});
+const choose=(ko,cue,answer,full,choices,hint,note,extra={})=>({kind:'choice',ko,cue,answer,full,choices,hint,note,...extra});
 const blank=(ko,cue,answer,full,hint,note,extra={})=>({kind:'input',ko,cue,answer,full,hint,note,...extra});
 const write=(ko,full,hint,note,extra={})=>({kind:'input',ko,answer:full,full,hint,note,...extra});
 const arrange=(ko,full,tiles,hint,note,extra={})=>({kind:'order',ko,answer:full,full,tiles,hint,note,...extra});
@@ -85,7 +85,7 @@ export const intermediatePackSpecs = [
     '앞으로 가능한 조건은 si + 현재형으로, 그때 일어날 결과는 단순미래로 표현할 수 있어요.',
     '이 조건절에서는 si 뒤에 미래형을 쓰지 않아요. 조건과 결과의 순서는 바꿀 수 있어요.'),[
     choose('시간이 있으면 나는 갈 거야.','Si j’___ le temps, j’irai.','ai','Si j’ai le temps, j’irai.',['ai','aurai','aurais'],'si 뒤에는 현재형 ai를 써요.','조건은 j’ai, 미래 결과는 j’irai예요. 시제를 서로 다르게 써요.'),
-    blank('비가 오면 우리는 집에 있을 거야.','S’il ___, nous resterons à la maison.','pleut','S’il pleut, nous resterons à la maison.','pleuvoir의 현재형은 il pleut예요.','si는 il 앞에서 s’il로 줄어요. 조건절의 동사는 현재형이에요.',{glossary:'il pleut = 비가 온다 · rester = 머무르다'}),
+    blank('비가 오면 우리는 집에 있을 거야.','S’il ___, nous resterons à la maison.','pleut','S’il pleut, nous resterons à la maison.','pleuvoir의 현재형은 il pleut예요.','si는 il 앞에서 s’il로 줄어요. 조건절의 동사는 현재형이에요.',{glossary:'pleuvoir = 비가 오다 · rester = 머무르다'}),
     write('rester의 nous 단순미래 형태를 써요.','resterons','rester에 -ons를 붙여요.','nous resterons는 “우리는 머무를 것이다”예요. 조건의 결과에 쓸 수 있어요.',{mode:'word'}),
     arrange('시간이 있으면 나는 일할 거야.','Si j’ai le temps, je travaillerai.',['Si','j’ai','le','temps','je','travaillerai'],'시간이 있다는 조건은 현재형, 일하겠다는 결과는 단순미래예요.','si절의 현재형 ai와 결과의 미래형 travaillerai를 구분해요.',{accepted:['Je travaillerai si j’ai le temps.']}),
     choose('네가 오면 우리는 함께 먹을 거야.','Si tu viens, nous ___ ensemble.','mangerons','Si tu viens, nous mangerons ensemble.',['mangerons','mangerions','mangions'],'결과 부분은 단순미래로 써요.','조건은 현재형 viens예요. mangerons는 미래 결과를 나타내요.'),
@@ -113,8 +113,8 @@ export const intermediatePackSpecs = [
     '직접목적어를 le, la, les로 바꾸면 같은 명사를 반복하지 않아도 돼요. 이 대명사는 활용된 동사 앞에 놓아요.',
     '뒤에 동사원형이 있으면 그 대명사가 어느 동사의 목적어인지 확인해요. Je veux le lire에서는 lire 앞이에요.'),[
     choose('이 책을 읽고 있어. “그것을”로 바꿔요.','Je ___ lis.','le','Je le lis.',['le','lui','y'],'남성 단수 le livre를 le로 받아요.','le는 lire의 직접목적어예요. lis 앞에 놓아 “그것을 읽는다”가 돼요.'),
-    blank('그 편지를 읽고 있어. “그것을”로 바꿔요.','Je ___ lis.','la','Je la lis.','여성 단수 la lettre를 la로 받아요.','la lettre는 여성 명사예요. 대명사 la를 동사 앞에 써요.',{glossary:'la lettre = 편지'}),
-    write('les livres를 받는 직접목적어 대명사를 써요.','les','복수 명사는 les로 받아요.','직접목적어가 복수이면 성에 관계없이 les를 사용할 수 있어요.',{mode:'word'}),
+    blank('그 편지를 읽고 있어. “그것을”로 바꿔요.','Je ___ lis.','la','Je la lis.','여성 단수 la lettre를 la로 받아요.','la lettre는 여성 명사예요. 대명사 la를 동사 앞에 써요.',{glossary:'lettre = 편지 (여성 명사)'}),
+    write('여러 권의 책을 가리키는 직접목적어 대명사를 써요.','les','복수 명사는 les로 받아요.','직접목적어가 복수이면 성에 관계없이 les를 사용할 수 있어요.',{mode:'word'}),
     arrange('그 책들을 읽어. (대명사로)','Je les lis.',['Je','les','lis'],'주어 뒤, 동사 앞에 les를 놓아요.','les는 여러 책을 받아요. lis는 주어 je에 맞춘 동사예요.'),
     choose('이 책을 읽고 싶어. “그것을”로 바꿔요.','Je veux ___ lire.','le','Je veux le lire.',['le','lui','en'],'그 책은 lire의 목적어예요.','le를 lire 바로 앞에 놓아요. Je le veux lire라고 하지 않아요.'),
     blank('그 편지를 읽고 싶어. (대명사로)','Je veux ___ lire.','la','Je veux la lire.','편지 la lettre를 la로 받아요.','la는 lire의 목적어이므로 veux 뒤, lire 앞에 놓아요.'),

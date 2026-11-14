@@ -21,7 +21,7 @@ export function alternativeFeedback(q, value) {
   const attempt = normalizeAnswer(value);
   return entry.forms.some(form => normalizeAnswer(form) === attempt) ? entry.feedback : '';
 }
-export const asRecall = q => ({...q,kind:'input',phase:'기억 꺼내기',transfer:false,model:undefined,choices:undefined,tiles:undefined});
+export const asRecall = q => ({...q,kind:'input',phase:'기억 꺼내기',transfer:false,choices:undefined,tiles:undefined});
 export function supportTiles(q) {
   const answer=q.answer.replace(/[.!?]+$/g,'').trim();
   const words=answer.split(/\s+/);
@@ -162,7 +162,7 @@ export function readPracticeDrafts(storage) {
   } catch { /* An invalid paused session must never block the learning screen. */ }
   return drafts;
 }
-export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>!q.cue&&!q.model&&q.mode!=='word'&&state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
+export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>!q.cue&&q.mode!=='word'&&state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
 export function recordPractice(state, results, {packId, date=today(), continued=false,runId}={}) {
   const special=packId==='review'||QUICK_MODES.includes(packId);
   if(!validDate(date) || !results.length || results.length > 10 || (!special&&results.length!==practicePacks.find(p=>p.id===packId)?.questions.length) || (ROUND_SIZES[packId]&&(results.length!==ROUND_SIZES[packId]||results.some(r=>questionById(r.id)?.level!==roundLevel(packId))))||new Set(results.map(r=>r.id)).size !== results.length ||

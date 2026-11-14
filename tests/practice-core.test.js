@@ -4,6 +4,15 @@ import { practicePacks, practiceQuestions, practiceUnits } from '../dist/practic
 import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, readPracticeDrafts, freshPractice, readPractice, normalizeAnswer, isCorrect, addDays, dueQuestions, reviewDeck, nextPack, recordPractice, independentSentences, answerFeedback } from '../dist/practice-core.js';
 
 const resultsFor = pack => pack.questions.map(q=>({id:q.id,correct:true,independent:q.kind==='input'}));
+test('vocabulary notes beside a blank never spell out a valid answer',()=>{
+  const words=text=>normalizeAnswer(text).match(/\p{Script=Latin}+/gu)||[];
+  for(const q of practiceQuestions.filter(q=>q.cue&&q.glossary)){
+    const note=' '+words(q.glossary).join(' ')+' ';
+    for(const value of [q.answer,...(q.accepted||[])]){
+      assert.ok(!note.includes(' '+words(value).join(' ')+' '),q.id+' gives away '+value);
+    }
+  }
+});
 test('units cover each course once and all questions have a usable grammar explanation',()=>{
   assert.deepEqual(practiceUnits.flatMap(u=>u.packs),practicePacks.map(p=>p.id));
   for(const pack of practicePacks){assert.ok(pack.guide.rule&&pack.guide.caution);for(const q of pack.questions){assert.ok(q.note.length>15);for(const answer of q.accepted||[])assert.ok(isCorrect(q,answer));}}
@@ -37,11 +46,11 @@ test('course completion outlives the capped history and legacy progress migrates
   const loaded=readPractice({getItem:()=>JSON.stringify(state)});
   assert.equal(loaded.runs.length,200);assert.deepEqual(loaded.completed,['want','can']);assert.equal(nextPack(loaded).id,'like');
 });
-test('twenty-one authored rounds move from a model to unsupported recall and novel combinations',()=>{
+test('twenty-one authored rounds move from guided choices to recall and novel combinations',()=>{
   assert.equal(practicePacks.length,21);assert.equal(practiceQuestions.length,210);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,210);
   for(const pack of practicePacks){
-    assert.equal(pack.questions.length,10);assert.ok(pack.questions[0].model);assert.ok(pack.questions[4].model);
-    const last=pack.questions.at(-1);assert.equal(last.kind,'input');assert.equal(last.transfer,true);assert.ok(last.glossary);assert.equal(last.cue,undefined);assert.equal(last.model,undefined);
+    assert.equal(pack.questions.length,10);assert.equal(pack.questions[0].kind,'choice');assert.equal(pack.questions[4].kind,'choice');
+    const last=pack.questions.at(-1);assert.equal(last.kind,'input');assert.equal(last.transfer,true);assert.ok(last.glossary);assert.equal(last.cue,undefined);
     assert.equal(pack.questions.at(-2).cue,undefined);
     for(const q of pack.questions){assert.ok(q.ko&&q.full&&q.answer&&q.note&&q.hint);assert.ok(isCorrect(q,q.answer));if(q.kind==='choice'){assert.equal(q.choices.filter(c=>c===q.answer).length,1);}if(q.kind==='order')assert.ok(isCorrect(q,q.tiles.join(' ')));if(q.cue)assert.equal(normalizeAnswer(q.cue.replace('___',q.answer)),normalizeAnswer(q.full));}
   }

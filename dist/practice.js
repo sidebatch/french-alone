@@ -108,9 +108,8 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     const scroll=content.querySelector('.dialog-body')?.scrollTop||0;
     if(rebuild) {
       const goal='<div class="practice-goal">'+mascot('idle')+'<p id="practice-goal"><span class="visually-hidden">루의 연습 목표. </span>'+escape(goalForQuestion(q.id))+'</p></div>';
-      const model=q.model?'<div class="practice-model"><span>처음 보는 표현</span><b lang="fr">'+escape(q.model.fr)+'</b></div>':'';
       const interaction=tileMode()?tilesHTML():q.kind==='choice'?choicesHTML(q):inputHTML(q);
-      content.innerHTML=dialogHeader(session.title,1,(session.index+1)+' / '+session.deck.length,!saveFailed)+'<div class="dialog-body practice-body game-body" data-practice-question="'+q.id+'"><div class="exercise-heading"><span class="exercise-mode">'+modeLabel(q)+'</span><span class="exercise-stage">'+(q.transfer?'새 문장 도전':q.phase)+'</span></div><div class="practice-question"><div class="question-copy">'+model+'<h3 class="practice-prompt">'+escape(q.ko)+'</h3>'+goal+(q.glossary?'<p class="practice-glossary">'+escape(q.glossary).replace(/^새 단어: /,'')+'</p>':'')+(q.cue?'<p class="practice-cue" lang="fr"></p>':'')+'</div><div class="answer-zone" id="practice-answer">'+interaction+'</div><div id="word-feedback"></div></div><section id="practice-explanation" class="explanation-sheet" hidden></section></div><div class="dialog-footer practice-footer game-footer"></div>';
+      content.innerHTML=dialogHeader(session.title,1,(session.index+1)+' / '+session.deck.length,!saveFailed)+'<div class="dialog-body practice-body game-body" data-practice-question="'+q.id+'"><div class="exercise-heading"><span class="exercise-mode">'+modeLabel(q)+'</span><span class="exercise-stage">'+(q.transfer?'새 문장 도전':q.phase)+'</span></div><div class="practice-question"><div class="question-copy"><h3 class="practice-prompt">'+escape(q.ko)+'</h3>'+goal+(q.glossary?'<p class="practice-glossary">'+escape(q.glossary).replace(/^새 단어: /,'')+'</p>':'')+(q.cue?'<p class="practice-cue" lang="fr"></p>':'')+'</div><div class="answer-zone" id="practice-answer">'+interaction+'</div><div id="word-feedback"></div></div><section id="practice-explanation" class="explanation-sheet" hidden></section></div><div class="dialog-footer practice-footer game-footer"></div>';
       session.renderKey=key;focusDialog();
     } else if(tileMode()&&(tilesChanged||finished))content.querySelector('#practice-answer').innerHTML=tilesHTML();
     content.querySelector('.practice-footer').innerHTML=renderFooter();
@@ -168,7 +167,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   function advance() {
     if(!session||session.summary||!done())return;
     const q=active();
-    session.results.push({id:q.id,correct:session.status==='correct',independent:session.status==='correct'&&q.kind==='input'&&!q.model&&!session.hints&&!session.hadError&&!session.supported,needsReview:session.hadError||session.hints>0||session.status==='revealed'});
+    session.results.push({id:q.id,correct:session.status==='correct',independent:session.status==='correct'&&q.kind==='input'&&!session.hints&&!session.hadError&&!session.supported,needsReview:session.hadError||session.hints>0||session.status==='revealed'});
     if(session.index<session.deck.length-1){session.index++;prepare();render();}
     else {
       session.summary=recordPractice(state,session.results,{packId:session.packId,continued:session.continued,runId:session.runId});

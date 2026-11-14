@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.1 — 2026-11-14
+
+- Give learners a first attempt before showing the completed sentence on all 42 choice exercises. The goal, optional hint, and explicit answer reveal remain available.
+- Remove answer words from the vocabulary notes beside fill-in prompts.
+
 ## 1.13.0 — 2026-11-14
 
 - Show Lou’s short learning goal beside each of the 210 practice prompts, including daily rounds and review.

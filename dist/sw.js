@@ -1,6 +1,6 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-14-release-1.13.0';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-14-release-1.13.1';
 const APP_FILES = [
   './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
   './room-catalog.js', './room-core.js', './room-art.js', './room.js', './room.css',
