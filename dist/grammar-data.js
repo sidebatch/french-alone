@@ -39,10 +39,10 @@ const coreGrammarArticles=[
   A('infinitive','basics','동사원형','L’infinitif','행동의 이름과 주어에 맞춘 동사를 구분해요.',['원형','dormir','attendre','essayer','rester','lire','dessiner','continuer','recommencer'],['dormir','rester','continuer','attendre','essayer','recommencer','lire','dessiner'],[
     S('행동의 이름','사전에서 찾는 동사의 기본형을 동사원형이라고 해요. 문장에서 실제로 행동하는 주어에 맞춰 바뀐 형태와 달라요.',[['dormir → Je dors.','자다 → 나는 잔다.'],['lire → Je lis.','읽다 → 나는 읽는다.']]),T('원형과 현재형',['동사원형','je의 현재형'],[['dormir','je dors'],['attendre','j’attends'],['lire','je lis'],['rester','je reste'],['essayer','j’essaie / j’essaye'],['dessiner','je dessine']]),
     S('두 동사가 이어질 때','veux·peux·aime 뒤의 행동은 원형으로 남겨요. 앞 동사만 주어에 맞춰 활용해요.',[['Je veux rester ici.','나는 여기 머물고 싶어.'],['Tu peux recommencer.','너는 다시 시작할 수 있어.'],['J’aime dessiner.','나는 그림 그리는 걸 좋아해.']]),
-    S('전치사가 필요한 표현','모든 동사가 원형을 바로 받지는 않아요. avoir besoin de처럼 de가 표현에 포함된 경우에는 유지해요.',[['J’ai besoin de dormir.','나는 잘 필요가 있어.'],['Je veux dormir.','나는 자고 싶어.']])]),
+    S('전치사가 필요한 표현','모든 동사가 원형을 바로 받지는 않아요. avoir besoin de처럼 de가 표현에 포함된 경우에는 유지해요.',[['J’ai besoin de dormir.','나 좀 자야 해.'],['Je veux dormir.','나는 자고 싶어.']])]),
   A('negation','basics','부정문','ne … pas','~하지 않는다, ~이 아니다를 표현해요.',['부정','ne pas','n’aime','없다','않다','싫어'],['wantNegative','canNegative','likeNegative','etreNegative','allerNegative'],[
     S('활용된 동사 앞뒤','기본 부정문은 ne + 활용된 동사 + pas예요. 뒤에 동사원형이 있으면 그 원형은 pas 뒤에 놓아요.',[['Je ne veux pas partir.','나는 떠나고 싶지 않아.'],['Je ne suis pas ici.','나는 여기에 있지 않아.']]),T('긍정에서 부정으로',['긍정','부정'],[['Je peux venir.','Je ne peux pas venir.'],['J’aime lire.','Je n’aime pas lire.'],['Je le lis.','Je ne le lis pas.'],['J’ai vu ce film.','Je n’ai pas vu ce film.']]),
-    S('ne가 n’로 줄 때','동사가 모음이나 무음 h로 시작하면 ne가 n’가 돼요. 대명사가 끼면 그 다음 말에 맞춰 줄여요.',[['Je n’ai pas faim.','나는 배고프지 않아.'],['Je n’en ai pas.','나는 그것이 하나도 없어.']]),
+    S('ne가 n’로 줄 때','동사가 모음이나 무음 h로 시작하면 ne가 n’가 돼요. 대명사가 끼면 그 다음 말에 맞춰 줄여요.',[['Je n’ai pas faim.','나는 배고프지 않아.'],['Je n’en ai pas.','난 하나도 없어.']]),
     S('다른 부정 표현','pas 대신 plus는 “더 이상 ~않다”, jamais는 “한 번도·절대 ~않다”예요. pas encore는 “아직 ~않다”예요. 일상 구어에서는 ne를 빼기도 하지만 기본 구조는 함께 익혀요.',[['Je ne travaille plus ici.','나는 더 이상 여기서 일하지 않아.'],['Je n’ai pas encore mangé.','나는 아직 먹지 않았어.']]),
     S('아무것도·아무도','rien·personne가 같은 부정의 뜻을 맡으면 pas를 더하지 않아요. 복합과거에서 rien은 보통 과거분사 앞, 목적어 personne는 뒤에 놓아요.',[['Je n’ai rien vu.','나는 아무것도 보지 못했어.'],['Je n’ai vu personne.','나는 아무도 보지 못했어.'],['Personne n’est venu.','아무도 오지 않았어.']]),
     S('ne … que는 오직','부정이 아니라 범위를 제한하는 표현이에요. que는 제한할 말 바로 앞에 와요.',[['Je n’ai que deux livres.','나는 책이 두 권밖에 없어.'],['Je ne bois que de l’eau.','나는 물만 마셔.']])]),
@@ -63,9 +63,9 @@ const coreGrammarArticles=[
     S('메뉴와 수량 붙이기','하나면 명사의 성에 맞춰 un·une, 여러 개면 숫자와 복수 명사를 붙여요.',[['Je voudrais une salade.','샐러드 하나 주세요.'],['Je voudrais deux cafés.','커피 두 잔 주세요.']]),
     S('s’il vous plaît와 s’il te plaît','정중한 상대나 여러 사람에게는 vous, 친한 한 사람에게는 te를 써요.',[['Un café, s’il vous plaît.','커피 한 잔 주세요.'],['Aide-moi, s’il te plaît.','나를 도와줘, 부탁이야.']])]),
   A('need','verbs','필요한 것과 행동','avoir besoin de','필요, 바람, 불필요를 구분해요.',['besoin','aide','repos','필요','도움','휴식'],['besoin','aide','besoinNegative','besoinAction'],[
-    S('avoir + besoin + de','avoir를 주어에 맞춰 바꾸고 besoin de는 유지해요. 필요한 물건·상태나 행동을 그 뒤에 붙여요.',[['J’ai besoin de repos.','나는 휴식이 필요해.'],['Nous avons besoin de manger.','우리는 먹을 필요가 있어.']]),T('de 뒤에 오는 말',['연결','표현'],[['모음 앞 줄임','besoin d’aide'],['동사원형','besoin de dormir'],['셀 수 있는 하나','besoin d’un stylo'],['정해진 그 책','besoin du livre → de + le livre']]),
+    S('avoir + besoin + de','avoir를 주어에 맞춰 바꾸고 besoin de는 유지해요. 필요한 물건·상태나 행동을 그 뒤에 붙여요.',[['J’ai besoin de repos.','나는 휴식이 필요해.'],['Nous avons besoin de manger.','우리 뭐 좀 먹어야 해.']]),T('de 뒤에 오는 말',['연결','표현'],[['모음 앞 줄임','besoin d’aide'],['동사원형','besoin de dormir'],['셀 수 있는 하나','besoin d’un stylo'],['정해진 그 책','besoin du livre → de + le livre']]),
     S('필요하지 않다고 말하기','부정문은 Je n’ai pas besoin de예요. pas는 ai 뒤에 놓고 de는 지우지 않아요.',[['Je n’ai pas besoin d’aide.','나는 도움이 필요하지 않아.']]),
-    S('바람과 필요','Je veux는 하고 싶은 바람, J’ai besoin de는 필요를 표현해요. 둘 다 행동을 붙일 때는 동사원형을 써요.',[['Je veux dormir.','나는 자고 싶어.'],['J’ai besoin de dormir.','나는 잘 필요가 있어.']])]),
+    S('바람과 필요','Je veux는 내가 하고 싶은 일을, J’ai besoin de는 내게 필요한 것을 말할 때 써요. 둘 다 행동을 붙일 때는 동사원형을 써요.',[['Je veux dormir.','나는 자고 싶어.'],['J’ai besoin de dormir.','나 좀 자야 해.']])]),
   A('questions','basics','위치와 질문','Où est… ?','단수·복수 질문과 질문 어순을 살펴봐요.',['où','ou','어디','질문','toilettes','화장실','물음표'],['whereSingular','toilettes'],[
     S('어디인지 묻기','단수 장소는 Où est, 복수 장소는 Où sont로 물어요. toilettes는 화장실이라는 뜻에서 보통 복수로 써요.',[['Où est la gare ?','기차역은 어디에 있나요?'],['Où sont les toilettes ?','화장실은 어디에 있나요?']]),
     S('질문을 만드는 세 가지 방식','일상에서는 평서문 어순과 질문 억양을 쓰고, est-ce que를 앞에 붙이거나 주어·동사를 도치할 수도 있어요.',[['Vous avez un sac ?','봉투 있나요?'],['Est-ce que vous avez un sac ?','봉투가 있나요?'],['Avez-vous un sac ?','봉투가 있나요?']]),
@@ -120,8 +120,8 @@ const coreGrammarArticles=[
     S('사람과 출발지는 따로 확인해요','à + 사람을 언제나 y로 바꾸는 것은 아니에요. 출발지를 나타내는 de + 장소는 en으로 받을 수 있어요.',[['Je parle à Marie. → Je lui parle.','나는 마리에게 말해. → 나는 그녀에게 말해.'],['Je viens de Paris. → J’en viens.','나는 파리에서 와. → 나는 그곳에서 와.']])]),
   A('en','connections','수량·부분량을 받는 en','Le pronom en','명사를 다시 쓰지 않고 수량이나 일부를 말해요.',['en','j’en','n’en','몇개','수량','부분량'],['enQuantity','enNegative','enPartitive'],[
     S('수량은 남겨요','두 개·세 개처럼 개수가 있는 명사를 en으로 받으면 숫자는 남겨요. 하나일 때 un·une는 받는 명사의 성에 맞춰요.'),F('enQuantity'),
-    S('부분량과 de로 연결된 말','du thé·de l’eau 같은 부분량, avoir besoin de 같은 표현의 대상을 받을 수 있어요.',[['Je bois du thé. → J’en bois.','나는 차를 마셔. → 나는 그것을 마셔.'],['J’ai besoin de ce livre. → J’en ai besoin.','나는 이 책이 필요해. → 나는 그것이 필요해.']]),F('enNegative'),
-    S('원형 앞에서도 써요','en이 동사원형의 대상을 받으면 그 원형 앞에 놓아요. 이미 정해진 대상 전체를 받는 le·la·les와는 의미를 구분해요.',[['Je veux en boire.','나는 그것을 좀 마시고 싶어.'],['Je le bois.','나는 그것을 마셔. (특정한 음료를)']])]),
+    S('부분량과 de로 연결된 말','du thé·de l’eau 같은 부분량, avoir besoin de 같은 표현의 대상을 받을 수 있어요.',[['Je bois du thé. → J’en bois.','차를 마셔. → 마셔. (앞서 말한 차)'],['J’ai besoin de ce livre. → J’en ai besoin.','이 책이 필요해. → 그게 필요해.']]),F('enNegative'),
+    S('원형 앞에서도 써요','en이 동사원형의 대상을 받으면 그 원형 앞에 놓아요. le·la·les는 이미 특정한 대상을 가리켜요. 특정한 차를 가리키는 le와 마시는 양을 따로 정하지 않은 du thé를 받는 en을 비교해 보세요.',[['Je veux en boire.','그 차를 좀 마시고 싶어.'],['Je le bois.','난 그 차를 마셔. (앞에서 말한 특정한 차)']])]),
   A('relatives','connections','명사를 설명하는 관계절','qui · que · qu’','주어와 목적어 역할로 관계대명사를 골라요.',['관계절','관계대명사','qui','que','qu’','어떤사람'],['relativeQui','relativeQue','relativeElision','quiNoElision'],[
     S('두 문장을 한 명사에 연결해요','관계절은 앞의 명사가 어떤 것인지 설명해요. 관계절 안에서 주어 역할이면 qui, 직접목적어 역할이면 que예요.'),T('역할로 비교하기',['역할','예문'],[['주어: 친구가 일한다','un ami qui travaille'],['목적어: 내가 그 책을 읽는다','le livre que je lis'],['목적어 + 모음','le livre qu’elle lit'],['주어 + 모음','la clé qui ouvre la porte']]),
     S('사람·사물의 차이가 아니에요','qui는 사람에게만 쓰는 말이 아니에요. 열쇠가 문을 여는 주체이면 la clé qui ouvre예요. 카페도 aimer의 대상이면 le café que j’aime예요.'),
@@ -129,18 +129,18 @@ const coreGrammarArticles=[
     S('장소·de 관계는 다른 말로','장소·시간의 관계에는 où, de로 연결된 관계에는 dont도 써요. 명사가 장소라는 이유만으로 언제나 où를 고르지는 않아요.',[['la ville où j’habite','내가 사는 도시'],['le livre dont je parle','내가 이야기하는 책']])]),
   A('comparison','connections','비교와 meilleur·mieux','plus · moins · aussi … que','정도의 차이와 더 좋다·더 잘하다를 구분해요.',['비교','plus','moins','aussi','meilleur','meilleure','mieux','celle-là','더잘','더좋다'],['comparePlus','compareMoins','compareAussi','meilleur','mieux','celleLa'],[
     S('형용사를 비교하는 기본 틀','plus는 더, moins는 덜, aussi는 같은 정도예요. 형용사 뒤의 que 다음에 비교 대상을 놓아요.'),T('세 가지 비교',['뜻','표현'],[['더 크다','plus grand que'],['덜 비싸다','moins cher que'],['~만큼 크다','aussi grand que']]),F('meilleur'),
-    S('bon과 bien의 비교급','형용사 bon의 비교급 meilleur는 성·수에 맞춰요. 동작을 꾸미는 bien의 비교급 mieux는 성·수에 따라 바뀌지 않아요.',[['Cette soupe est meilleure.','이 수프가 더 좋아.'],['Elle parle mieux français que moi.','그녀는 나보다 프랑스어를 더 잘해.']]),
+    S('bon과 bien의 비교급','형용사 bon의 비교급 meilleur는 성·수에 맞춰요. 동작을 꾸미는 bien의 비교급 mieux는 성·수에 따라 바뀌지 않아요.',[['Cette soupe est meilleure.','이 수프가 더 맛있어.'],['Elle parle mieux français que moi.','그녀는 나보다 프랑스어를 더 잘해.']]),
     S('비교 대상을 짧게 받기','남성 명사를 받는 “저것”은 celui-là, 여성 명사를 받으면 celle-là예요. que는 모음 앞에서 qu’로 줄어요.',[['Cette chambre est plus calme que celle-là.','이 방은 저 방보다 더 조용해.'],['Je comprends mieux qu’avant.','나는 전보다 더 잘 이해해.']])]),
   A('connectors','connections','이유·결과·대조','parce que · donc · pourtant','두 문장이 어떤 관계인지 드러내요.',['parce que','parce qu’','donc','pourtant','이유','그래서','그런데도','왜냐하면'],['parceQue','donc','pourtant','apprendreReason'],[
     S('어떤 관계를 이어 주나요?','parce que는 이유, donc는 결과, pourtant는 예상과 다른 대조를 나타내요.'),T('같은 상황을 다르게 연결',['관계','예문'],[['이유','Je reste ici parce qu’il pleut.'],['결과','Il pleut, donc je reste ici.'],['대조','Il pleut, pourtant je sors.']]),
-    S('parce que의 줄임과 순서','parce que는 il 앞에서 parce qu’il로 줄어요. 이유절을 앞에 둘 수도 있어요.',[['Parce qu’il pleut, je reste à la maison.','비가 오기 때문에 나는 집에 있어.'],['Je pratique tous les jours parce que j’apprends le français.','나는 프랑스어를 배우기 때문에 매일 연습해.']]),
+    S('parce que의 줄임과 순서','parce que는 il 앞에서 parce qu’il로 줄어요. 이유절을 앞에 둘 수도 있어요.',[['Parce qu’il pleut, je reste à la maison.','비가 와서 집에 머물러.'],['Je m’entraîne tous les jours parce que j’apprends le français.','프랑스어를 배우고 있어서 매일 연습해.']]),
     S('연결어만 바꾸면 뜻도 바뀌어요','따라오는 내용이 자연스러운 결과인지, 예상과 반대인지 확인해요. “비싸다, 그래서 안 산다”와 “비싸다, 그런데도 산다”는 다른 관계예요.',[['C’est cher, donc je ne l’achète pas.','비싸. 그래서 사지 않아.'],['C’est cher, pourtant je veux l’acheter.','비싸. 그런데도 사고 싶어.']])]),
   A('opinion','connections','생각과 판단','Je pense que…','내 생각을 하나의 문장으로 이어 말해요.',['pense','penser','raison','생각','의견','옳다'],['penseQue','avoirRaison'],[
     S('생각하는 내용을 que 뒤에','Je pense que 뒤에 주어와 동사가 있는 문장을 붙여요. 긍정문에서 사실로 생각하는 내용은 보통 직설법을 써요.',[['Je pense que c’est important.','나는 이게 중요하다고 생각해.'],['Je pense qu’il a raison.','나는 그가 옳다고 생각해.']]),F('avoirRaison'),
     S('모음 앞의 que','que는 il·elle 같은 모음 앞에서 qu’가 돼요. 주어 c’나 je 앞에서는 que를 유지해요.',[['Je pense qu’elle vient.','나는 그녀가 온다고 생각해.']]),
     S('부정·의문에서는 문맥을 봐요','Je ne pense pas que처럼 확신을 부정하면 접속법이 흔히 쓰여요. 질문·부정의 뜻과 확신 정도에 따라 법이 달라지므로 “penser 뒤는 항상 직설법”으로 외우지 않아요.',[['Je ne pense pas qu’il soit ici.','나는 그가 여기에 있다고 생각하지 않아.']])]),
   A('subjunctive','connections','필요와 바람의 접속법','Le subjonctif présent','필요하거나 바라는 일을 que 뒤에 표현해요.',['접속법','subjonctif','subjuntif','il faut','je veux que','sois','soit','viennes','fasses','aies','partions','해야해'],['subjVenir','subjEtre','subjFaire','subjPartir','subjAvoir'],[
-    S('접속법을 쓰는 이유','접속법은 단순한 과거·미래 표시가 아니라 내용을 바라보는 방식이에요. Il faut que의 필요, Je veux que의 바람 뒤에서는 접속법 현재를 써요.',[['Il faut que tu viennes.','네가 와야 해.'],['Je veux qu’il vienne.','나는 그가 오기를 원해.']]),
+    S('접속법을 쓰는 이유','Il faut que는 필요한 일을, Je veux que는 바라는 일을 소개해요. 두 표현 다음에는 접속법을 써요. 아래 예문은 앞으로 해야 하거나 일어나기를 바라는 행동이라서 접속법 현재를 썼어요.',[['Il faut que tu viennes.','네가 와야 해.'],['Je veux qu’il vienne.','나는 그가 오기를 원해.']]),
     S('원형과 que절','내가 하고 싶은 일은 Je veux + 원형, 다른 사람이 하기를 바라는 일은 Je veux que + 주어 + 접속법으로 구분해요. Il faut + 원형은 필요한 행동을 일반적으로 말해요.',[['Je veux venir.','나는 오고 싶어.'],['Il faut partir.','떠나야 해.'],['Il faut que nous partions.','우리가 떠나야 해.']]),F('subjEtre'),F('subjAvoir'),F('subjFaire'),F('subjVenir'),F('subjPartir'),
     S('규칙적인 형태와 예외','많은 동사는 현재형 ils의 -ent를 뺀 어간에 -e·-es·-e·-ions·-iez·-ent를 붙여요. nous·vous에서 어간이 달라지는 동사와 être·avoir 같은 불규칙형은 표로 확인해요. que가 있다고 언제나 접속법은 아니에요.',[['Il faut que tu parles.','네가 말해야 해.'],['Je pense qu’il vient.','나는 그가 온다고 생각해. (직설법)']])])
 ];

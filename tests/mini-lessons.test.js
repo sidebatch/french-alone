@@ -50,6 +50,10 @@ test('irregular future, conditional and subjunctive tables keep all six persons 
     subjFaire:['fasse','fasses','fasse','fassions','fassiez','fassent'],subjPartir:['parte','partes','parte','partions','partiez','partent'],
     subjAvoir:['aie','aies','ait','ayons','ayez','aient']};
   for(const [id,forms] of Object.entries(expected))assert.deepEqual(miniLessons[id].forms.map(row=>row[1]),forms,id);
+  assert.deepEqual(miniLessons.futureAller.forms[0],['j’','irai']);
+  assert.deepEqual(miniLessons.futureEtre.forms[0],['je','serai']);
+  assert.deepEqual(miniLessons.condAller.forms[0],['j’','irais']);
+  assert.deepEqual(miniLessons.condEtre.forms[0],['je','serais']);
   assert.equal(miniLessons.subjAvoir.forms[0][0],'que j’','elide que je before aie');
   assert.deepEqual(miniLessons.pcIrregular.headers,['동사원형','과거분사']);
 });

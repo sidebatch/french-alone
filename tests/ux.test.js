@@ -82,7 +82,8 @@ test('detail dialog, sound setting and focused typing errors are usable',async()
   assert.match(f.$('#dialog-content').textContent,/용법/);
   f.click('#study-dialog [data-action="close"]');
   f.click('.header-settings');
-  assert.match(f.$('#dialog-content').textContent,/v1.12.0/);
+  const {version}=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));
+  assert.ok(f.$('#dialog-content').textContent.includes('v'+version));
   assert.match(f.$('#dialog-content').textContent,/sidebatch/);
   const sounds=f.$('#feedback-sounds');
   sounds.checked=false;

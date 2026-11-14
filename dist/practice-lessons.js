@@ -31,7 +31,7 @@ export const miniLessons = {
   likeNegative:lesson('J’aime → Je n’aime pas','ne가 모음 앞에서 n’로 줄어요. n’가 aime 바로 앞에 오므로 주어는 J’가 아니라 Je로 돌아와요.',
     [['긍정','J’aime lire.'],['부정','Je n’aime pas lire.'],['다른 활동으로','Je n’aime pas cuisiner.']],['Je n’aime pas attendre.','나는 기다리는 걸 좋아하지 않아.'],'J’n’aime나 Je ne aime라고 쓰지 않아요. Je + n’aime + pas로 나눠 봐요.'),
   dessiner:lesson('dessiner로 좋아하는 활동 바꾸기','dessiner는 “그림을 그리다”예요. J’aime 뒤에 원형을 넣어 좋아하는 일을 말해요.',
-    [['그림 그리다','dessiner'],['나는 그림을 그린다','Je dessine.'],['그림 그리기를 좋아한다','J’aime dessiner.']],['Tu aimes dessiner.','너는 그림 그리는 걸 좋아해.'],'주어가 바뀌면 aime는 aimes로 변하지만 뒤의 dessiner는 그대로예요.'),
+    [['그림 그리다','dessiner'],['나는 그림을 그린다','Je dessine.'],['그림 그리기를 좋아한다','J’aime dessiner.']],['Tu aimes dessiner.','너는 그림 그리는 걸 좋아해.'],'J’aime와 Tu aimes를 비교해 보세요. 주어가 je에서 tu로 바뀌면 aime에 -s가 붙고, 뒤에 오는 dessiner는 그대로예요.'),
   etrePresent:lesson('suis는 être의 현재형','être는 “~이다, ~에 있다”예요. 주어 je에는 suis를 쓰고, 뒤에 상태나 장소를 붙여요.',
     [['je','suis'],['tu','es'],['il / elle','est'],['nous','sommes'],['vous','êtes'],['ils / elles','sont']],['Tu es ici.','너는 여기에 있어.'],'Je est가 아니라 Je suis예요. ai는 “가지고 있다”라는 다른 동사의 형태예요.'),
   homeLocation:lesson('집에 있다: être à la maison','à la maison은 “집에, 집에서”예요. suis 뒤에 붙이면 집에 있는 상태를 표현해요.',
@@ -70,17 +70,17 @@ export const miniLessons = {
     [['커피 한 잔','un café'],['카페에','au café'],['커피 여러 잔','des cafés']],['Je voudrais un café.','커피 한 잔 주세요.'],'마지막 글자는 é예요. café는 커피와 카페 두 뜻을 문맥에 따라 가질 수 있어요.'),
   menuArticles:lesson('메뉴도 un·une와 함께','주문 한 개·한 잔을 말할 때 명사의 성에 따라 un 또는 une를 골라요.',
     [['남성','un café'],['남성','un thé'],['남성','un croissant'],['남성','un sandwich'],['여성','une salade']],['Je voudrais une salade.','샐러드 하나 주세요.'],'메뉴 이름의 끝 글자만 보고 성을 단정하지 말고 un croissant·une salade처럼 묶어서 익혀요.'),
-  the:lesson('thé: 차 한 잔을 말해요','thé는 음료인 “차”라는 남성 명사예요. 한 잔을 주문하면 un thé, 어떤 양의 차를 말하면 du thé를 쓸 수 있어요.',
+  the:lesson('thé: 차 한 잔을 말해요','thé는 음료인 “차”라는 남성 명사예요. 한 잔을 주문할 때는 un thé, 양을 정하지 않고 차를 마신다고 할 때는 du thé를 써요.',
     [['차 한 잔','un thé'],['차를 마시다','boire du thé'],['주문하기','Je voudrais un thé.']],['Je bois du thé.','나는 차를 마셔.'],'thé의 h와 é를 모두 써요. te는 “너를·너에게”라는 다른 단어예요.'),
   besoin:lesson('avoir besoin de는 필요한 것을 이어요','avoir besoin de 뒤에 필요한 것의 이름을 붙여요. avoir만 주어에 맞춰 바꾸고 besoin de는 유지해요.',
     [['도움이 필요하다','avoir besoin d’aide'],['휴식이 필요하다','avoir besoin de repos'],['너는 휴식이 필요하다','Tu as besoin de repos.']],['J’ai besoin de repos.','나는 휴식이 필요해.'],'besoin 뒤의 de도 표현의 일부예요. 모음 앞에서는 de가 d’로 줄어요.'),
   aide:lesson('aide와 d’aide의 차이','aide는 “도움”이라는 여성 명사예요. besoin de 뒤에 오면 de aide가 d’aide로 줄어요.',
     [['도움','aide'],['de + aide','d’aide'],['도움이 필요하다','J’ai besoin d’aide.']],['Tu as besoin d’aide.','너는 도움이 필요해.'],'d’는 aide에 원래 붙은 글자가 아니에요. 앞의 전치사 de가 줄어든 형태예요.'),
   besoinNegative:lesson('필요하지 않다: n’ai pas besoin de','avoir를 ne … pas로 감싸요. besoin de는 그대로 남기고 필요한 것을 그 뒤에 놓아요.',
-    [['긍정','J’ai besoin de repos.'],['부정','Je n’ai pas besoin de repos.'],['모음으로 시작하는 말','Je n’ai pas besoin d’aide.']],['Je n’ai pas besoin de dormir.','나는 잘 필요가 없어.'],'pas는 besoin 뒤가 아니라 ai 뒤에 와요. 부정문이라고 de를 지우지 않아요.'),
+    [['긍정','J’ai besoin de repos.'],['부정','Je n’ai pas besoin de repos.'],['모음으로 시작하는 말','Je n’ai pas besoin d’aide.']],['Je n’ai pas besoin de dormir.','난 굳이 자지 않아도 돼.'],'pas는 besoin 뒤가 아니라 ai 뒤에 와요. 부정문이라고 de를 지우지 않아요.'),
   besoinAction:lesson('필요한 행동에는 de + 동사원형','필요한 것이 행동이면 besoin de 뒤에 dormir·manger 같은 원형을 넣어요.',
-    [['잘 필요가 있다','J’ai besoin de dormir.'],['먹을 필요가 있다','J’ai besoin de manger.'],['먹고 싶다','Je veux manger.']],['Tu as besoin de dormir.','너는 잘 필요가 있어.'],'“원한다”는 veux, “필요하다”는 ai besoin de예요. besoin 뒤에서는 de를 유지해요.'),
-  whereSingular:lesson('한 장소를 물을 때 Où est','Où는 “어디”, est는 être의 단수형이에요. Où est 뒤에 찾는 장소를 넣어요.',
+    [['좀 자야 한다','J’ai besoin de dormir.'],['뭐 좀 먹어야 한다','J’ai besoin de manger.'],['먹고 싶다','Je veux manger.']],['Tu as besoin de dormir.','넌 좀 자야 해.'],'“원한다”는 veux, “필요하다”는 ai besoin de예요. besoin 뒤에서는 de를 유지해요.'),
+  whereSingular:lesson('한 장소를 물을 때 Où est','Où는 ‘어디’, est는 être의 3인칭 단수 현재형이에요. Où est 뒤에 찾는 장소를 넣어요.',
     [['여성 명사','Où est la gare ?'],['남성 명사','Où est le café ?'],['모음·무음 h 앞','Où est l’hôtel ?']],['Où est le musée ?','박물관은 어디에 있나요?'],'où는 위치를 묻는 말이고 ou는 “또는”이에요. ù의 악센트를 확인해요.'),
   gare:lesson('gare는 기차역이라는 여성 명사','gare는 보통 철도역을 가리켜요. la gare를 함께 익히면 장소를 묻거나 목적지를 말할 수 있어요.',
     [['기차역 하나','une gare'],['그 기차역','la gare'],['기차역에','à la gare']],['Où est la gare ?','기차역은 어디에 있나요?'],'la gare이므로 이동 표현도 au gare가 아니라 à la gare예요.'),
@@ -93,8 +93,8 @@ export const miniLessons = {
 };
 
 Object.assign(miniLessons, {
-  pcAvoir:lesson('복합과거: avoir 현재형 + 과거분사','완료한 일을 말하는 복합과거는 두 부분으로 만들어요. 주어에 맞춰 avoir를 바꾸고, 뒤에는 과거분사를 놓아요.',
-    [['je → j’','ai travaillé'],['tu','as fini'],['il / elle','a travaillé'],['nous','avons travaillé'],['vous','avez fini'],['ils / elles','ont travaillé']],['Tu as fini ton travail.','너는 네 일을 끝냈어.'],'J’ai travailler가 아니라 J’ai travaillé예요. ai·as·avons 뒤에는 원형을 쓰지 않아요.'),
+  pcAvoir:lesson('복합과거: avoir 현재형 + 과거분사','복합과거는 avoir나 être의 현재형에 과거분사를 붙여 만들어요. 여기서 연습하는 travailler와 finir에는 avoir를 써요.',
+    [['je → j’','ai travaillé'],['tu','as fini'],['il / elle','a travaillé'],['nous','avons travaillé'],['vous','avez fini'],['ils / elles','ont travaillé']],['Tu as fini ton travail.','너는 네 일을 끝냈어.'],'J’ai travailler가 아니라 J’ai travaillé예요. avoir가 복합과거의 조동사일 때는 뒤에 과거분사를 써요.'),
   pcEr:lesson('-er 동사는 -é로 바꿔요','regarder의 과거분사는 -er를 떼고 -é를 붙인 regardé예요. 이 규칙은 아래의 -er 동사들에 적용돼요.',
     [['regarder · 보다','regardé'],['travailler · 일하다','travaillé'],['manger · 먹다','mangé'],['parler · 말하다','parlé']],['Hier, j’ai regardé un film.','나는 어제 영화를 봤어.'],'regarde는 현재형, regarder는 원형, regardé는 과거분사예요. 마지막 é를 구분해요.'),
   pcIrregular:lesson('voir → vu: 불규칙 과거분사','voir의 과거분사는 vu예요. -er → -é 규칙으로 만들 수 없으므로 원형과 과거분사를 짝지어 익혀요.',
@@ -158,13 +158,13 @@ Object.assign(miniLessons, {
   yInfinitive:lesson('가고 싶은 곳: y aller','y가 aller의 목적지를 나타내면 동사원형 aller 바로 앞에 놓아요. veux가 아니라 aller와 연결된 말이에요.',
     [['파리에 가고 싶다','Je veux aller à Paris.'],['그곳에 가고 싶다','Je veux y aller.'],['그곳에 갈 수 있다','Je peux y aller.']],['Tu veux y aller.','너는 그곳에 가고 싶어.'],'이 뜻에서는 J’y veux aller가 아니에요. veux → y → aller 순서예요.'),
   enQuantity:lesson('en으로 명사를 받고 숫자는 남겨요','사과 몇 개처럼 수량을 말한 명사를 en으로 받을 수 있어요. “몇 개”인지는 en 뒤의 문장에 남겨요.',
-    [['사과 두 개가 있다','J’ai deux pommes.'],['그것이 두 개 있다','J’en ai deux.'],['그것이 세 개 있다','J’en ai trois.'],['그것이 하나 있다','J’en ai une.']],['J’ai trois pommes. → J’en ai trois.','나는 사과가 세 개 있어. → 나는 그것이 세 개 있어.'],'en을 써도 deux·trois는 지우지 않아요. 하나일 때의 un·une는 대신한 명사의 성에 맞춰요.'),
+    [['사과 두 개가 있다','J’ai deux pommes.'],['(사과가) 두 개 있다','J’en ai deux.'],['(사과가) 세 개 있다','J’en ai trois.'],['(사과가) 한 개 있다','J’en ai une.']],['J’ai trois pommes. → J’en ai trois.','사과 세 개가 있어. → 세 개 있어. (앞서 말한 사과)'],'en을 써도 deux·trois는 지우지 않아요. 하나일 때의 un·une는 대신한 명사의 성에 맞춰요.'),
   enNegative:lesson('하나도 없다: Je n’en ai pas','en 앞에서 ne가 n’로 줄어요. 숫자 없이 “하나도 없다”라고 할 때 Je n’en ai pas를 써요.',
-    [['두 개 있다','J’en ai deux.'],['하나도 없다','Je n’en ai pas.'],['순서','Je → n’en → ai → pas']],['Tu n’en as pas.','너는 그것이 하나도 없어.'],'en은 ai 앞에 놓아요. J’en n’ai pas가 아니라 Je n’en ai pas예요.'),
-  enPartitive:lesson('du thé도 en으로 받을 수 있어요','du thé는 특정 개수 없이 차의 어떤 양을 말해요. 이 부분량을 en으로 바꾸면 “그것을 좀 마신다”가 돼요.',
-    [['차를 마신다','Je bois du thé.'],['앞서 말한 차를 받기','J’en bois.'],['커피를 받기','Je bois du café. → J’en bois.']],['Tu en bois.','너는 그것을 마셔.'],'특정한 그 차 전체를 받는 le와, du thé 같은 부분량을 받는 en은 뜻이 달라요.'),
+    [['두 개 있다','J’en ai deux.'],['하나도 없다','Je n’en ai pas.'],['순서','Je → n’en → ai → pas']],['Tu n’en as pas.','넌 하나도 없어. (앞서 말한 사과)'],'en은 ai 앞에 놓아요. J’en n’ai pas가 아니라 Je n’en ai pas예요.'),
+  enPartitive:lesson('du thé도 en으로 받을 수 있어요','차를 얼마나 마시는지 밝히지 않을 때는 Je bois du thé라고 해요. 이미 차 이야기를 하고 있다면 du thé를 en으로 받아 J’en bois라고 할 수 있어요.',
+    [['차를 마신다','Je bois du thé.'],['앞서 말한 차를 받기','J’en bois.'],['커피를 받기','Je bois du café. → J’en bois.']],['Tu bois du thé ? — Oui, j’en bois.','차 마셔? — 응, 마셔.'],'le thé처럼 특정한 차를 다시 가리킬 때는 le예요. du thé처럼 양을 정하지 않은 차를 가리킬 때는 en을 써요.'),
   relativeQui:lesson('관계절의 주어 역할은 qui','앞의 명사를 설명하는 절에서 행동하는 주체가 비어 있으면 qui를 써요. 사람과 사물 모두에 쓸 수 있어요.',
-    [['친구가 일한다','un ami qui travaille'],['친구가 프랑스어를 한다','un ami qui parle français'],['친구가 리옹에 산다','un ami qui habite à Lyon']],['J’ai un ami qui travaille ici.','나는 여기서 일하는 친구 한 명이 있어.'],'qui 뒤에 il 같은 주어를 다시 넣지 않아요. un ami qui il travaille라고 하지 않아요.'),
+    [['일하는 친구','un ami qui travaille'],['프랑스어를 하는 친구','un ami qui parle français'],['리옹에 사는 친구','un ami qui habite à Lyon']],['J’ai un ami qui travaille ici.','나는 여기서 일하는 친구 한 명이 있어.'],'qui 뒤에 il 같은 주어를 다시 넣지 않아요. un ami qui il travaille라고 하지 않아요.'),
   relativeQue:lesson('관계절의 목적어 역할은 que','설명하는 절에 주어가 이미 있고 “무엇을?”이 비어 있으면 que를 써요. 앞의 명사가 그 목적어를 채워요.',
     [['내가 그 책을 읽는다','Je lis le livre.'],['내가 읽는 책','le livre que je lis'],['내가 좋아하는 카페','le café que j’aime']],['C’est le livre que je lis.','이건 내가 읽고 있는 책이야.'],'사람인지 사물인지로 qui·que를 고르지 않아요. 여기서는 읽는 주어 je가 이미 있으므로 que예요.'),
   relativeElision:lesson('que + elle → qu’elle','관계대명사 que는 모음 앞에서 qu’로 줄어요. elle는 읽는 사람, 앞의 livre는 읽는 대상이에요.',
@@ -172,13 +172,13 @@ Object.assign(miniLessons, {
   quiNoElision:lesson('qui는 모음 앞에서도 그대로','qui가 관계절의 주어이면 다음 동사가 모음으로 시작해도 i를 줄이지 않아요.',
     [['문을 여는 열쇠','la clé qui ouvre la porte'],['여기 사는 친구','un ami qui habite ici'],['비교 · 목적어 que','le livre qu’elle lit']],['C’est la clé qui ouvre la porte.','이건 문을 여는 열쇠야.'],'열쇠가 문을 여는 주체이므로 qui예요. qu’ouvre가 아니라 qui ouvre로 써요.'),
   meilleur:lesson('bon의 비교급: meilleur','좋은 물건의 맛·질 등을 비교할 때 bon 대신 meilleur를 써요. 설명하는 명사의 성·수에 맞춰 끝을 바꿔요.',
-    [['남성 단수','meilleur'],['여성 단수','meilleure'],['남성 복수','meilleurs'],['여성 복수','meilleures']],['Cette soupe est meilleure.','이 수프가 더 좋아.'],'보통 “더 좋은”은 plus bon이 아니라 meilleur예요. 여성 soupe에는 meilleure, 복수 livres에는 meilleurs예요.'),
+    [['남성 단수','meilleur'],['여성 단수','meilleure'],['남성 복수','meilleurs'],['여성 복수','meilleures']],['Cette soupe est meilleure.','이 수프가 더 맛있어.'],'보통 “더 좋은”은 plus bon이 아니라 meilleur예요. 여성 soupe에는 meilleure, 복수 livres에는 meilleurs예요.'),
   mieux:lesson('행동을 더 잘한다면 mieux','bien은 “잘”, 그 비교급 mieux는 “더 잘”이에요. 말하기·이해하기 같은 동작을 꾸미며 성·수에 따라 바뀌지 않아요.',
     [['프랑스어를 잘한다','Elle parle bien français.'],['프랑스어를 더 잘한다','Elle parle mieux français.'],['전보다 더 잘 이해한다','Je comprends mieux qu’avant.']],['Elle parle mieux français que moi.','그녀는 나보다 프랑스어를 더 잘해.'],'여성 주어라고 meilleure로 바꾸지 않아요. 물건의 질은 meilleur, 행동을 더 잘하는 것은 mieux예요.'),
   celleLa:lesson('celle-là는 여성 명사를 받아요','방 chambre는 여성 명사예요. “저 방”을 반복하지 않고 celle-là로 받으며 plus … que로 비교해요.',
     [['남성 명사 · 저 가방','celui-là'],['여성 명사 · 저 방','celle-là'],['더 조용하다','plus calme que celle-là']],['Cette chambre est plus calme que celle-là.','이 방은 저 방보다 더 조용해.'],'calme는 남성·여성 단수형이 같아요. celle-là는 비교 대상인 chambre의 성에 맞춘 말이에요.'),
   parceQue:lesson('이유를 붙이는 parce que','parce que는 “~이기 때문에”예요. 먼저 한 행동을 말하고 뒤에 이유를 붙일 수 있어요.',
-    [['비가 오기 때문에','parce qu’il pleut'],['시간이 없기 때문에','parce que je n’ai pas le temps'],['이유를 먼저 써도 돼요','Parce qu’il pleut, je reste à la maison.']],['Je reste à la maison parce qu’il pleut.','비가 오기 때문에 나는 집에 있어.'],'il 앞에서는 parce qu’il, je 앞에서는 parce que je예요. 모음 앞에서만 여기의 que를 줄여요.'),
+    [['비가 오기 때문에','parce qu’il pleut'],['시간이 없기 때문에','parce que je n’ai pas le temps'],['이유를 먼저 써도 돼요','Parce qu’il pleut, je reste à la maison.']],['Je reste à la maison parce qu’il pleut.','비가 와서 집에 머물러.'],'il 앞에서는 parce qu’il, je 앞에서는 parce que je예요. 발음해 보면 il 앞에서는 que의 마지막 모음이 들리지 않아요.'),
   donc:lesson('원인 다음의 결과를 donc로','donc는 “그래서”예요. 앞에 이유나 상황을 말하고 뒤에 그 결과를 이어줘요.',
     [['원인','Il pleut.'],['결과','Je reste à la maison.'],['하나로 연결','Il pleut, donc je reste à la maison.']],['Je n’ai pas le temps, donc je ne peux pas venir.','나는 시간이 없어. 그래서 갈 수 없어.'],'parce que는 이유를, donc는 결과를 이어요. 두 연결어를 바꾸려면 문장 관계도 다시 봐야 해요.'),
   pourtant:lesson('예상과 다른 결과는 pourtant','pourtant는 “그런데도”예요. 비가 오는데 외출하거나 비싼데도 사고 싶은 것처럼 예상과 다른 내용을 이어줘요.',
@@ -187,8 +187,8 @@ Object.assign(miniLessons, {
     [['중요하다고 생각한다','Je pense que c’est important.'],['그가 옳다고 생각한다','Je pense qu’il a raison.'],['그녀가 온다고 생각한다','Je pense qu’elle vient.']],['Je pense que c’est important.','나는 이게 중요하다고 생각해.'],'que는 il·elle 앞에서 qu’로 줄어요. 부정·의문형 penser의 법 선택은 문맥에 따라 달라질 수 있어요.'),
   avoirRaison:lesson('옳다: avoir raison','“말이 맞다, 옳다”는 avoir raison으로 표현해요. avoir를 주어에 맞춰 ai·as·a로 바꿔요.',
     [['내가 옳다','J’ai raison.'],['네가 옳다','Tu as raison.'],['그가 옳다','Il a raison.']],['Je pense qu’il a raison.','나는 그가 옳다고 생각해.'],'Il est raison이 아니에요. 긍정형 Je pense que 뒤에서는 여기의 직설법 a를 써요.'),
-  apprendreReason:lesson('배우는 이유와 연습을 연결해요','apprendre는 “배우다”예요. je에는 apprends를 쓰고, parce que 뒤에 배우는 사실을 이유로 붙여요.',
-    [['나는 배운다','j’apprends'],['너는 배운다','tu apprends'],['그녀는 배운다','elle apprend'],['프랑스어를 배우다','apprendre le français']],['Je pratique tous les jours parce que j’apprends le français.','나는 프랑스어를 배우기 때문에 매일 연습해.'],'apprends의 마지막 s를 확인해요. 배우는 언어에는 여기서 le français, 매일은 tous les jours예요.'),
+  apprendreReason:lesson('parce que로 연습하는 이유를 말해요','‘나는 연습해’는 je m’entraîne, ‘나는 프랑스어를 배워’는 j’apprends le français예요. parce que로 이으면 왜 연습하는지 설명할 수 있어요.',
+    [['나는 배운다','j’apprends'],['너는 배운다','tu apprends'],['그녀는 배운다','elle apprend'],['프랑스어를 배우다','apprendre le français']],['Je m’entraîne tous les jours parce que j’apprends le français.','프랑스어를 배우고 있어서 매일 연습해.'],'apprends의 마지막 s를 확인해요. 배우는 언어에는 여기서 le français, 매일은 tous les jours예요.'),
   subjVenir:lesson('venir의 접속법: vienne·viennes','필요를 말하는 Il faut que나 바람을 말하는 Je veux que 뒤에서는 venir를 접속법으로 써요.',
     [['que je','vienne'],['que tu','viennes'],['qu’il / qu’elle','vienne'],['que nous','venions'],['que vous','veniez'],['qu’ils / qu’elles','viennent']],['Il faut que tu viennes.','네가 와야 해.'],'현재 직설법 tu viens와 접속법 que tu viennes는 달라요. tu형은 viennes, il형은 vienne예요.'),
   subjEtre:lesson('être의 접속법: sois·soit','Il faut que 뒤에서 필요한 상태를 표현하면 être의 접속법을 써요. 형태가 불규칙하므로 주어와 함께 익혀요.',
@@ -202,30 +202,34 @@ Object.assign(miniLessons, {
 });
 
 // Each stem is authored; the tables show all persons without unrelated tenses.
-const persons=['je / j’','tu','il / elle','nous','vous','ils / elles'];
+function formsForStem(stem,endings) {
+  const firstPerson = /^[aeiouéèê]/.test(stem) ? 'j’' : 'je';
+  const subjects = [firstPerson,'tu','il / elle','nous','vous','ils / elles'];
+  return endings.map((ending,index)=>[subjects[index],stem+ending]);
+}
 const future=(verb,stem,example,caution)=>lesson(verb+'의 단순미래: '+stem+'-',
   '단순미래는 '+verb+'의 미래 어간 '+stem+'-에 주어별 어미 -ai, -as, -a, -ons, -ez, -ont를 붙여요.',
-  ['ai','as','a','ons','ez','ont'].map((end,i)=>[persons[i],stem+end]),example,caution);
+  formsForStem(stem,['ai','as','a','ons','ez','ont']),example,caution);
 Object.assign(miniLessons,{
   futureTravailler:future('travailler','travailler',['Demain, je travaillerai.','나는 내일 일할 거야.'],'je의 미래형은 travaillerai예요. 끝에 s가 붙은 travaillerais는 조건법 현재예요.'),
   futureManger:future('manger','manger',['Demain, nous mangerons.','우리는 내일 먹을 거야.'],'현재형 nous mangeons와 미래형 nous mangerons를 비교해요. 미래에는 원형의 r이 남아요.'),
   futureAvoir:future('avoir','aur',['Tu auras du temps demain.','너는 내일 시간이 있을 거야.'],'avoir는 불규칙 미래 어간 aur-를 써요. avoirai가 아니라 aurai예요.'),
   futureAller:future('aller','ir',['J’irai à Paris demain.','나는 내일 파리에 갈 거야.'],'aller의 미래 어간은 ir-예요. j’irai의 끝은 -ai이고, j’irais는 조건법이에요.'),
   futureEtre:future('être','ser',['Elle sera ici demain.','그녀는 내일 여기에 있을 거야.'],'être의 미래 어간은 ser-예요. elle에는 sera, je에는 serai를 써요.'),
-  futureVenir:future('venir','viendr',['Vous viendrez demain.','당신은 내일 올 거예요.'],'현재형 vous venez와 미래형 vous viendrez는 어간이 달라요. 미래의 d와 r을 확인해요.'),
+  futureVenir:future('venir','viendr',['Vous viendrez demain.','내일 오실 거예요.'],'현재형 vous venez와 미래형 vous viendrez는 어간이 달라요. 미래의 d와 r을 확인해요.'),
   futureFaire:future('faire','fer',['Nous ferons ce travail demain.','우리는 내일 이 일을 할 거야.'],'faire의 미래 어간은 fer-예요. nous의 미래는 ferons이고 현재는 faisons예요.'),
   futureRester:future('rester','rester',['S’il pleut, nous resterons à la maison.','비가 오면 우리는 집에 있을 거야.'],'조건의 pleut는 현재형, 결과의 resterons는 미래형이에요. rester + -ons로 만들어요.'),
   futureParler:future('parler','parler',['Si tu as le temps, nous parlerons.','네가 시간이 있으면 우리는 이야기할 거야.'],'조건절 Si tu as는 현재형이에요. 결과절의 nous에는 미래 어미 -ons를 써요.')
 });
 const conditional=(verb,stem,example,caution)=>lesson(verb+'의 조건법: '+stem+'- + 반과거 어미',
   '가정의 결과를 표현하는 조건법 현재는 미래 어간 '+stem+'-에 -ais, -ais, -ait, -ions, -iez, -aient를 붙여요.',
-  ['ais','ais','ait','ions','iez','aient'].map((end,i)=>[persons[i],stem+end]),example,caution);
+  formsForStem(stem,['ais','ais','ait','ions','iez','aient']),example,caution);
 Object.assign(miniLessons,{
   condLire:conditional('lire','lir',['Si j’avais le temps, je lirais plus.','시간이 있다면 나는 더 읽을 텐데.'],'lire는 마지막 e를 뺀 lir-를 써요. je lirai는 미래, je lirais는 조건법이에요.'),
   condEtre:conditional('être','ser',['Si j’avais le temps, je serais ici.','시간이 있다면 나는 여기에 있을 텐데.'],'불규칙 어간 ser-를 써요. serais와 반과거 étais를 혼동하지 않아요.'),
   condAller:conditional('aller','ir',['Si nous avions le temps, nous irions.','시간이 있다면 우리는 갈 텐데.'],'현재 allons, 미래 irons, 조건법 irions를 구분해요. 조건법 nous에는 -ions의 i가 들어가요.'),
   condFaire:conditional('faire','fer',['Si j’avais le temps, je le ferais.','시간이 있다면 나는 그것을 할 텐데.'],'faire의 어간은 fer-예요. 목적어 le는 활용된 ferais 앞에 놓아요.'),
-  condPrendre:conditional('prendre','prendr',['Si j’étais toi, je prendrais une pause.','내가 너라면 휴식을 취할 텐데.'],'prendre의 마지막 e를 뺀 prendr-에 -ais를 붙여요. Si j’étais toi는 “내가 너라면”이에요.')
+  condPrendre:conditional('prendre','prendr',['Si j’étais toi, je prendrais un peu de repos.','내가 너라면 좀 쉴 텐데.'],'prendre의 마지막 e를 뺀 prendr-에 -ais를 붙여요. Si j’étais toi는 “내가 너라면”이에요.')
 });
 Object.assign(miniLessons,{
   comparePlus:lesson('더 ~하다: plus + 형용사 + que','plus 뒤에는 비교할 성질, que 뒤에는 비교 대상을 놓아요. grand는 크다, cher는 비싸다는 뜻이에요.',

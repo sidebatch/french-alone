@@ -12,7 +12,7 @@ import { createRecords } from './records.js';
 import { createRoom } from './room.js';
 import { stampsForQuestions } from './room-core.js';
 
-const APP_VERSION = '1.12.0';
+const APP_VERSION = '1.12.1';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

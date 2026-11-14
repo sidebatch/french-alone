@@ -1,18 +1,18 @@
 export const lessons = [
   { id: 'greetings', title: '반가워요, Bonjour!', subtitle: '인사하고 안부 묻기', icon: 'sun', color: 'peach', category: '첫걸음', tip: 'Bonjour는 낮에, Bonsoir는 저녁에 쓰는 인사예요. 처음 만난 사람에게는 정중한 vous를 써 보세요.', phrases: [
-    ['Bonjour !', '안녕하세요!', '봉주르', '낮에 만났을 때 쓰는 인사예요. 처음 만난 사람이나 가게 직원에게도 사용할 수 있어요.'],
+    ['Bonjour !', '안녕하세요! (낮 인사)', '봉주르', '낮에 만났을 때 쓰는 인사예요. 처음 만난 사람이나 가게 직원에게도 사용할 수 있어요.'],
     ['Bonsoir !', '안녕하세요! (저녁 인사)', '봉수아르', '저녁에 만났을 때 쓰는 인사예요. 잠자리에 들며 하는 인사 Bonne nuit와 구분해요.'],
     ['Salut !', '안녕!', '살뤼', '친구나 가까운 사람에게 만날 때도, 헤어질 때도 써요. 정중한 상황에서는 Bonjour나 Au revoir가 좋아요.'],
     ['Comment allez-vous ?', '어떻게 지내세요?', '코망 탈레 부', 'allez는 aller의 vous 형태예요. vous는 한 사람에게 정중하게 말하거나 여러 사람을 가리킬 때 써요.'],
     ['Très bien, merci.', '아주 잘 지내요, 고마워요.', '트레 비앵, 메르시', 'Très bien은 “아주 잘”, merci는 “고마워요”예요. 안부를 묻는 질문에 답하는 짧은 표현이에요.'],
-    ['Au revoir !', '안녕히 가세요!', '오 르부아르', '상대가 떠나거나 내가 떠날 때 모두 쓸 수 있어요. 한국어의 “안녕히 가세요 / 계세요”를 모두 표현해요.']
+    ['Au revoir !', '안녕히 가세요! / 안녕히 계세요!', '오 르부아르', '상대가 떠나거나 내가 떠날 때 모두 쓸 수 있어요. 한국어의 “안녕히 가세요 / 계세요”를 모두 표현해요.']
   ] },
   { id: 'introductions', title: '내 이름은…', subtitle: '나를 소개하는 첫 문장', icon: 'smile', color: 'lavender', category: '첫걸음', tip: 'Je m’appelle 다음에 자신의 이름을 넣어 보세요. Corée는 한국, français는 프랑스어를 뜻해요.', phrases: [
-    ["Je m’appelle Minji.", '제 이름은 민지예요.', '쥬 마펠 민지', 'Je m’appelle는 “내 이름은 ~이다”예요. m’는 me가 모음 앞에서 줄어든 형태이고, 뒤에는 이름을 넣어요.'],
-    ['Comment vous appelez-vous ?', '성함이 어떻게 되세요?', '코망 부 자플레 부', 'vous appelez를 질문 어순 appelez-vous로 바꾼 표현이에요. vous를 써서 이름을 정중하게 물어요.'],
+    ["Je m’appelle Minji.", '제 이름은 민지예요.', '쥬 마펠 민지', 'Je m’appelle 뒤에 이름을 넣으면 ‘제 이름은 ~예요’라는 뜻이에요. m’는 재귀대명사 me가 appelle 앞에서 줄어든 형태예요.'],
+    ['Comment vous appelez-vous ?', '성함이 어떻게 되세요?', '코망 부 자플레 부', '‘이름이 ~이다’는 s’appeler예요. Vous vous appelez…를 질문으로 바꾸면 주어 vous만 동사 뒤로 가요. Comment vous appelez-vous ?에서 첫 vous는 재귀대명사, 끝의 vous는 주어예요.'],
     ['Je viens de Corée.', '저는 한국에서 왔어요.', '쥬 비앵 드 코레', 'Je viens de는 “나는 ~에서 왔다”예요. Corée 앞의 de는 출신을 나타내며 이 표현에서는 관사를 넣지 않아요.'],
     ['Je parle un peu français.', '저는 프랑스어를 조금 해요.', '쥬 파를 앙 푀 프랑세', 'un peu는 “조금”이에요. 언어를 말할 때 parler 뒤에는 보통 관사 없이 français를 써요.'],
-    ['Et vous ?', '당신은요?', '에 부', 'Et는 “그리고”, vous는 정중한 “당신”이에요. 내 답 뒤에 붙이면 같은 질문을 상대에게 돌릴 수 있어요.'],
+    ['Et vous ?', '그럼 선생님은요?', '에 부', '안부나 이름을 말한 뒤 상대에게 같은 질문을 돌릴 때 써요. 한국어로는 상황에 맞는 호칭을 넣어 ‘그럼 선생님은요?’처럼 말할 수 있어요. 친한 사람 한 명에게는 Et toi ?라고 해요.'],
     ['Ravi de vous rencontrer.', '만나서 반갑습니다. (남성 화자)', '라비 드 부 랑콩트레', 'ravi는 말하는 사람이 남성일 때, ravie는 여성일 때 써요. 철자에서 e만 다르고 발음은 같아요.']
   ] },
   { id: 'politeness', title: '작은 말, 큰 친절', subtitle: '고마움과 부탁 표현하기', icon: 'heart', color: 'mint', category: '첫걸음', tip: 'S’il vous plaît는 정중한 부탁에 붙이는 표현이에요. 친한 사람 한 명에게는 S’il te plaît라고 해요.', phrases: [
@@ -37,7 +37,7 @@ export const lessons = [
     ['Sept, huit, neuf, dix.', '일곱, 여덟, 아홉, 열.', '세트, 위트, 너프, 디스', '7은 sept, 8은 huit, 9는 neuf, 10은 dix예요. 뒤에 명사를 붙여 huit livres(책 여덟 권), dix euros(10유로)처럼 수량을 말해요.'],
     ['Combien ça coûte ?', '이거 얼마예요?', '콩비앵 사 쿠트', 'combien은 “얼마나”, ça coûte는 “그것은 값이 ~이다”예요. 일상에서 가격을 묻는 질문으로 써요.'],
     ['Ça coûte cinq euros.', '5유로예요.', '사 쿠트 생크 외로', 'Ça coûte 뒤에 금액을 붙여요. 5유로는 복수이므로 euros에 s를 써요.'],
-    ['Je peux payer par carte ?', '카드로 결제할 수 있나요?', '쥬 푀 페예 파르 카르트', 'Je peux + 동사원형 payer에 결제 수단 par carte를 붙였어요. 물음표를 붙여 가능 여부를 물어요.']
+    ['Je peux payer par carte ?', '카드로 결제할 수 있나요?', '쥬 푀 페예 파르 카르트', 'Je peux payer는 ‘결제할 수 있어요’, par carte는 ‘카드로’예요. 가게에서 문장 끝을 올려 말하면 카드 결제가 가능한지 묻는 질문이 돼요.']
   ] },
   { id: 'travel', title: '길 위의 프랑스어', subtitle: '길을 묻고 지하철 타기', icon: 'compass', color: 'mint', category: '여행 회화', tip: '길을 물을 때 Excusez-moi로 시작하면 더 자연스러워요. à droite는 오른쪽, à gauche는 왼쪽이에요.', phrases: [
     ['Où est la gare ?', '기차역이 어디에 있나요?', '우 에 라 가르', 'Où est 뒤에 찾는 장소를 붙여요. gare는 여성 명사라 la gare라고 써요. 위치의 où에는 악센트가 있어요.'],
@@ -66,25 +66,25 @@ export const lessons = [
   { id: 'daily-life', title: '내 하루의 작은 이야기', subtitle: '사는 곳과 일상 이야기하기', icon: 'smile', color: 'mint', category: '일상 회화', tip: 'Je는 “나”예요. 동사마다 Je와 함께 쓰는 형태를 문장으로 익혀요. habiter처럼 무음 h로 시작하면 J’habite로 줄여요.', phrases: [
     ['J’habite à Séoul.', '저는 서울에 살아요.', '자비트 아 세울', 'habiter는 살다예요. 도시 앞에는 보통 à를 써서 à Séoul이라고 해요.'],
     ['Je travaille ici.', '저는 여기서 일해요.', '쥬 트라바이 이시', 'travailler의 Je 형태는 travaille예요. ici는 “여기”라는 장소 부사예요.'],
-    ['J’étudie le français.', '저는 프랑스어를 공부해요.', '제튀디 르 프랑세', 'étudier 앞에서 Je는 J’가 돼요. 공부하는 언어 이름 앞에는 le를 써요.'],
+    ['J’étudie le français.', '저는 프랑스어를 공부해요.', '제튀디 르 프랑세', 'étudier 앞에서 Je는 J’가 돼요. 여기서 언어 이름 français는 남성 명사라서 le français라고 해요.'],
     ['Je rentre à la maison.', '저는 집으로 돌아가요.', '쥬 랑트르 아 라 메종', 'rentrer는 돌아가다예요. à la maison은 “집에”라는 장소 표현이에요.'],
     ['Je suis à la maison.', '저는 집에 있어요.', '쥬 쉬 아 라 메종', 'suis는 être의 Je 형태예요. 이동이 아니라 현재 있는 장소를 알려줘요.'],
-    ['À demain !', '내일 봐요!', '아 드맹', 'demain은 내일이에요. À demain은 내일 다시 만날 때 쓰는 인사예요.']
+    ['À demain !', '내일 봐요!', '아 드맹', '내일 다시 만날 사람과 오늘 헤어질 때 À demain !이라고 해요.']
   ] },
   { id: 'weather', title: '날씨로 시작하는 대화', subtitle: '날씨와 몸 상태 표현하기', icon: 'sun', color: 'butter', category: '일상 회화', tip: '날씨에는 Il fait, 내가 느끼는 더위·추위에는 J’ai를 써요. Il fait froid와 J’ai froid의 주어와 동사를 함께 비교해요.', phrases: [
     ['Il fait beau.', '날씨가 좋아요.', '일 페 보', '날씨를 말하는 il은 특정 사람을 가리키지 않아요. Il fait beau를 통째로 익혀요.'],
     ['Il fait chaud.', '날씨가 더워요.', '일 페 쇼', 'chaud는 덥다는 뜻이에요. 바깥 날씨는 Il fait chaud로 표현해요.'],
     ['Il fait froid.', '날씨가 추워요.', '일 페 프루아', 'Il fait chaud의 chaud를 froid로 바꾸면 추운 날씨를 말할 수 있어요.'],
-    ['Il pleut.', '비가 와요.', '일 플뢰', '비가 오다는 pleuvoir를 써서 Il pleut라고 해요. fait를 끼워 넣지 않아요.'],
+    ['Il pleut.', '비가 와요.', '일 플뢰', 'pleuvoir는 ‘비가 오다’예요. 지금 비가 내리면 Il pleut라고 해요.'],
     ['J’ai froid.', '저는 추워요.', '제 프루아', '내가 추위를 느낄 때는 avoir froid를 써요. 날씨를 말하는 Il fait froid와 구분해요.'],
     ['J’ai chaud.', '저는 더워요.', '제 쇼', '내가 더위를 느낄 때는 J’ai chaud예요. 상태를 직역해서 Je suis chaud라고 하지 않아요.']
   ] },
   { id: 'time', title: '몇 시에 만날까요', subtitle: '시간을 묻고 약속하기', icon: 'clock', color: 'lavender', category: '일상 회화', tip: '현재 시각은 Il est, 어떤 일이 일어나는 시간은 à를 써요. 한 시는 une heure, 두 시부터는 heures로 복수형을 써요.', phrases: [
     ['Quelle heure est-il ?', '몇 시인가요?', '켈 외르 에 틸', 'heure는 여성 명사라 quelle을 써요. est-il처럼 동사와 주어 사이에 하이픈이 있어요.'],
     ['Il est une heure.', '한 시예요.', '일 에 튄 외르', '한 시는 une heure예요. heure가 여성 명사이므로 un이 아니라 une를 써요.'],
-    ['Il est deux heures.', '두 시예요.', '일 에 되 죄르', '두 시부터는 heures에 s를 붙여요. 숫자가 여러 개여도 문장의 시작은 Il est예요.'],
-    ['À quelle heure ?', '몇 시에요?', '아 켈 외르', '행사나 약속이 몇 시에 있는지 물을 때는 앞에 À를 붙여요.'],
-    ['À trois heures.', '세 시에요.', '아 트루아 죄르', '시간을 약속할 때 à trois heures라고 해요. 지금 세 시라는 뜻은 Il est trois heures예요.'],
+    ['Il est deux heures.', '두 시예요.', '일 에 되 죄르', '두 시부터는 heures에 s를 붙여요. 몇 시인지 말할 때는 시각이 달라져도 Il est로 시작해요.'],
+    ['À quelle heure ?', '몇 시에 만날까요?', '아 켈 외르', '약속 시간을 정하는 대화예요. À quelle heure ?는 ‘몇 시에?’, Quelle heure est-il ?는 ‘지금 몇 시예요?’라는 뜻이에요.'],
+    ['À trois heures.', '세 시에 만나요.', '아 트루아 죄르', '시간을 약속할 때 à trois heures라고 해요. 지금 세 시라는 뜻은 Il est trois heures예요.'],
     ['À bientôt !', '곧 또 봐요!', '아 비앵토', '정확한 날짜를 정하지 않고 다시 만나기를 바라며 하는 인사예요. bientôt의 ô를 확인해요.']
   ] },
   { id: 'hotel', title: '편안하게 체크인', subtitle: '숙소에서 필요한 것 요청하기', icon: 'bag', color: 'peach', category: '여행 회화', tip: '숙소에서는 정중한 vous를 사용해요. J’ai une réservation은 예약이 있다는 뜻이고, Je voudrais는 원하는 것을 부탁하는 표현이에요.', phrases: [

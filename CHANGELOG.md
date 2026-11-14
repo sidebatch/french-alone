@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.1 — 2026-11-13
+
+- Correct French grammar examples and Korean explanations in the reference library, exercise feedback and phrase cards. Clarify pronoun roles, agreement, verb forms and time expressions.
+- Align the first-person forms in future and conditional tables with each verb. Accept both clause orders and previous model answers for the revised writing exercises.
+
 ## 1.12.0 — 2026-11-13 (published on GitHub Pages)
 
 - Add 27 room decorations, stamp purchases, reusable copies, a saved wish list and a room editor with drag/touch/keyboard movement, scaling, rotation, flipping, ordering, wall colors and floor styles.

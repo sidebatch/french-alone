@@ -9,12 +9,12 @@ export const patternGuides = {
   want: { rule: 'Je veux 뒤에는 원하는 행동의 동사원형을 써요. 부정할 때는 veux 앞에 ne, 뒤에 pas를 놓아요.', caution: 'Je veux는 의지를 직접 표현해요. 가게에서 정중하게 주문할 때는 Je voudrais가 더 잘 어울려요.' },
   can: { rule: 'Je peux 뒤에 동사원형을 붙여 가능하거나 할 수 있는 행동을 표현해요. Je ne peux pas는 그 반대예요.', caution: 'Je에 맞는 형태는 peux예요. 뒤의 동사는 parler, attendre처럼 원형으로 둬요.' },
   like: { rule: '좋아하는 활동은 J’aime + 동사원형으로 써요. beaucoup는 aime 뒤에 놓아 좋아하는 정도를 더해요.', caution: 'Je aime는 J’aime로 줄여요. 부정문에서는 Je n’aime pas가 되며, Je를 따로 써요.' },
-  be: { rule: 'Je suis는 “나는 ~이다 / ~에 있다”예요. 뒤에 상태를 나타내는 형용사나 장소 표현을 붙여요.', caution: '형용사는 사람에 따라 형태가 달라져요. prêt / prête, fatigué / fatiguée를 모두 정답으로 인정하는 문제는 성별을 지정하지 않아요.' },
+  be: { rule: 'Je suis는 “나는 ~이다 / ~에 있다”예요. 뒤에 상태를 나타내는 형용사나 장소 표현을 붙여요.', caution: '‘나는 준비됐어’는 말하는 사람에 따라 Je suis prêt 또는 Je suis prête라고 해요. ‘나는 피곤해’도 같은 방식으로 fatigué 또는 fatiguée를 써요.' },
   have: { rule: 'J’ai는 “나는 가지고 있다”예요. un은 남성 단수 명사, une는 여성 단수 명사 앞에 써요.', caution: '가진 것이 없다고 할 때 un / une는 보통 de로 바뀌어요: Je n’ai pas de sac. faim, soif는 관사 없이 avoir와 함께 써요.' },
   go: { rule: 'Je vais 뒤에 장소를 붙이면 “나는 ~에 간다”예요. à + le는 au가 되고, à la는 그대로 써요.', caution: '“집에 간다”는 Je vais à la maison이에요. Je vais + 동사원형은 앞으로 할 행동을 나타내는 다른 구조예요.' },
   'order-food': { rule: 'Je voudrais 뒤에 원하는 음식이나 음료를 붙이면 정중한 주문이 돼요. un / une는 명사의 성에 맞춰 골라요.', caution: 'Je voudrais에서 s를 빼지 않아요. s’il vous plaît를 덧붙일 수도 있지만, 없어도 정중한 문장이에요.' },
   need: { rule: 'J’ai besoin de 뒤에 필요한 것이나 해야 할 행동을 붙여요. 모음 앞에서는 de가 d’로 줄어들어요.', caution: '부정할 때는 Je n’ai pas besoin de예요. pas는 ai 뒤, besoin 앞에 놓고 de도 유지해요.' },
-  where: { rule: 'Où est 뒤에 한 장소를 넣으면 “~은 어디에 있나요?”예요. 여러 개를 물을 때는 Où sont를 써요.', caution: '위치를 묻는 où에는 악센트가 있어요. ou는 “또는”이라는 다른 단어예요. toilettes는 프랑스어에서 복수로 써요.' }
+  where: { rule: '위치를 물을 때는 장소를 가리키는 명사의 수에 맞춰요. 단수인 la gare에는 Où est, 복수인 les toilettes에는 Où sont를 써요.', caution: '위치를 묻는 où에는 악센트가 있어요. ou는 “또는”이라는 다른 단어예요. toilettes는 프랑스어에서 복수로 써요.' }
 };
 
 const blank = (ko, cue, answer, full, hint, note, extra = {}) => ({ kind: 'input', ko, cue, answer, full, hint, note, ...extra });
@@ -79,9 +79,9 @@ export const extraPackSpecs = [
     choose('나는 도움이 필요하지 않아.', 'Je n’ai ___ besoin d’aide.', 'pas', 'Je n’ai pas besoin d’aide.', ['pas', 'de', 'ne'], '부정문에서는 ne … pas가 ai를 감싸요. ne는 ai 앞에서 n’가 돼요.', 'pas는 ai와 besoin 사이에 써요. besoin d’aide의 형태는 그대로예요.'),
     blank('나는 휴식이 필요하지 않아.', 'Je n’ai pas besoin ___ repos.', 'de', 'Je n’ai pas besoin de repos.', 'besoin과 필요한 것을 잇는 말은 de예요.', '부정문에서도 avoir besoin de의 de는 사라지지 않아요.'),
     arrange('나는 도움이 필요하지 않아.', 'Je n’ai pas besoin d’aide.', ['Je', 'n’ai', 'pas', 'besoin', 'd’aide'], 'Je → n’ai → pas → besoin → d’aide 순서예요.', '긍정문의 J’ai가 Je n’ai pas로 바뀌어요.'),
-    blank('나는 잘 필요가 있어.', 'J’ai besoin de ___.', 'dormir', 'J’ai besoin de dormir.', '“자다”의 동사원형은 dormir예요.', '필요한 행동은 de 뒤에 동사원형을 붙여 표현해요.', { glossary: 'dormir = 자다' }),
+    blank('나 좀 자야 해.', 'J’ai besoin de ___.', 'dormir', 'J’ai besoin de dormir.', '“자다”의 동사원형은 dormir예요.', 'J’ai besoin de 뒤에 dormir를 붙이면 지금 잠이 필요하다는 뜻이에요.', { glossary: 'dormir = 자다' }),
     write('나는 휴식이 필요해.', 'J’ai besoin de repos.', 'J’ai besoin de 뒤에 repos를 붙여요.', 'J’ai besoin de는 한 덩어리로 기억하고, 뒤의 필요한 것만 바꿔요.'),
-    write('나는 먹을 필요가 있어.', 'J’ai besoin de manger.', 'J’ai besoin de 뒤에 manger를 붙여요.', 'manger는 “먹다”예요. Je veux manger는 바람, J’ai besoin de manger는 필요를 표현해요.', { transfer: true, glossary: '이번에 넣을 행동: manger = 먹다' })
+    write('나 뭐 좀 먹어야 해.', 'J’ai besoin de manger.', 'J’ai besoin de 뒤에 manger를 붙여요.', 'manger는 “먹다”예요. Je veux manger는 바람, J’ai besoin de manger는 필요를 표현해요.', { transfer: true, glossary: '이번에 넣을 행동: manger = 먹다' })
   ]],
   [{ id: 'where', title: '어디에 있는지 물어요', subtitle: 'Où est와 Où sont로 위치 묻기', pattern: 'Où est / Où sont + 장소', icon: 'compass', color: 'mint', promise: '기차역·호텔·화장실의 위치를 물어요.' }, [
     choose('기차역은 어디에 있나요?', 'Où ___ la gare ?', 'est', 'Où est la gare ?', ['est', 'sont', 'suis'], '한 장소의 위치를 물을 때 Où est를 써요. gare는 기차역이에요.', 'Où + est + la gare. où의 ù는 위치를 묻는 말임을 구분해 줘요.'),

@@ -12,11 +12,11 @@ export const extraGrammarArticles=[
     S('성은 명사의 특징이에요','명사는 보통 남성 또는 여성이에요. un livre·une table처럼 관사와 묶어 익혀요. 사물의 성은 현실의 남녀와 관계없고 어미만으로 항상 예측할 수도 없어요.'),
     T('복수형의 대표 패턴',['단수','복수'],[['un livre','des livres'],['un bateau','des bateaux'],['un animal','des animaux'],['un choix','des choix'],['un nez','des nez'],['un œil','des yeux']]),
     S('패턴마다 예외가 있어요','-al은 -aux가 흔하지만 un bal → des bals처럼 예외가 있어요. -ou는 보통 s를 붙이고 bijou·chou·genou 같은 일부 명사는 x를 붙여요. -s·-x·-z로 끝나는 명사는 복수에서 철자가 같아요.',[['un trou → des trous','구멍 하나 → 여러 구멍'],['un bijou → des bijoux','장신구 하나 → 여러 장신구']]),
-    S('명사와 주변 말을 함께 바꿔요','관사와 형용사도 명사의 성·수에 맞춰요. 복수 s는 보통 발음하지 않지만 연결되는 말에 따라 소리의 차이가 생길 수 있어요.',[['un petit livre → des petits livres','작은 책 한 권 → 작은 책들']])]),
+    S('명사와 주변 말을 함께 바꿔요','관사와 형용사도 명사의 성·수에 맞춰요. 복수의 -s는 보통 발음하지 않아요. 형용사가 복수 명사 앞에 오면 격식을 갖춘 글에서는 보통 des 대신 de를 써요.',[['un petit livre → de petits livres','작은 책 한 권 → 작은 책들']])]),
   A('possessive-adjectives','basics','소유형용사','adjectifs possessifs','누구의 것인지 말하면서, 뒤에 오는 명사의 성·수에 맞춰요.',['mon','ma','mes','ton','ta','tes','son','sa','ses','notre','votre','leurs','déterminants possessifs','소유'],[
     S('주인과 물건을 나눠 봐요','주인이 누구인지에 따라 mon·ton·son 등의 묶음을 고르고, 소유하는 명사의 성·수에 따라 형태를 골라요. son livre는 주인이 남성이든 여성이든 livre가 남성이므로 son이에요. 현대 문법에서는 소유한정사(déterminant possessif)라고도 해요.'),
     T('주인별 형태',['주인','남성 단수 / 여성 단수 / 복수'],[['나','mon / ma / mes'],['너','ton / ta / tes'],['그·그녀','son / sa / ses'],['우리','notre / notre / nos'],['당신·여러분','votre / votre / vos'],['그들·그녀들','leur / leur / leurs']]),
-    S('여성 명사인데 mon을 쓰는 경우','모음·무음 h로 시작하는 여성 단수 명사 바로 앞에는 ma·ta·sa 대신 mon·ton·son을 써요. 명사가 남성으로 바뀐 것은 아니에요.',[['mon amie','나의 여자 친구'],['ma petite amie','나의 여자 친구·여자친구 (petite가 사이에 있음)'],['son histoire','그의·그녀의 이야기']]),
+    S('여성 명사인데 mon을 쓰는 경우','모음·무음 h로 시작하는 여성 단수 명사 바로 앞에는 ma·ta·sa 대신 mon·ton·son을 써요. 명사가 남성으로 바뀐 것은 아니에요.',[['mon amie','내 친구 (여성)'],['ma petite amie','내 여자친구 (연인). 바로 뒤의 petite가 자음으로 시작해서 ma를 써요.'],['son histoire','그의·그녀의 이야기']]),
     S('관사를 겹쳐 쓰지 않아요','mon livre처럼 소유형용사 자체가 명사를 한정하므로 le mon livre라고 쓰지 않아요. leur livre는 그들의 책 한 권, leurs livres는 그들의 여러 책이에요. 주인이 여럿이라는 이유만으로 항상 leurs를 쓰지는 않아요.',[['Elle cherche son sac.','그녀는 자기 가방을 찾고 있어.']])]),
   A('demonstrative-adjectives','basics','지시형용사','adjectifs démonstratifs','이것·저것에 해당하는 명사를 가리켜요.',['ce','cet','cette','ces','déterminants démonstratifs'],[
     S('명사 앞에서 가리켜요','뒤에 오는 명사의 성·수에 맞춰 형태를 골라요. 현대 문법에서는 지시한정사(déterminant démonstratif)라고도 해요.'),
@@ -47,7 +47,7 @@ export const extraGrammarArticles=[
     T('묻는 내용',['의문사','예문'],[['누구 · qui','Qui vient ?'],['무엇 · que / quoi','Que fais-tu ? / Tu fais quoi ?'],['언제 · quand','Quand pars-tu ?'],['어디 · où','Où habites-tu ?'],['어떻게 · comment','Comment allez-vous ?'],['왜 · pourquoi','Pourquoi pars-tu ?'],['얼마나 · combien','Combien ça coûte ?']]),
     S('주어를 묻는지 목적어를 묻는지','Qui vient ?의 qui는 오는 사람이므로 주어예요. Qui est-ce que tu vois ?의 qui는 보는 대상이에요. 사물이 주어이면 Qu’est-ce qui… ?, 사물이 목적어이면 Qu’est-ce que… ?로 구별해요.',[['Qu’est-ce qui se passe ?','무슨 일이 일어나고 있나요?'],['Qu’est-ce que tu lis ?','너는 무엇을 읽고 있어?']]),
     T('quel은 명사에 맞춰요',['성·수','형태'],[['남성 단수','quel livre'],['여성 단수','quelle heure'],['남성 복수','quels livres'],['여성 복수','quelles questions']]),
-    S('전치사 뒤의 무엇','전치사 뒤에서는 보통 quoi를 써요. pourquoi는 parce que로 이유를 답하고, combien de 뒤에는 묻는 수량의 명사가 와요.',[['À quoi penses-tu ?','너는 무엇을 생각하고 있어?'],['Combien de livres as-tu ?','너는 책이 몇 권 있어?']])]),
+    S('전치사 뒤의 무엇','전치사 뒤에서 사물을 물으면 quoi, 사람을 물으면 qui를 써요. pourquoi는 parce que로 이유를 답하고, combien de 뒤에는 묻는 수량의 명사가 와요.',[['À quoi penses-tu ?','무엇을 생각하고 있어?'],['À qui penses-tu ?','누구를 생각하고 있어?'],['Combien de livres as-tu ?','너는 책이 몇 권 있어?']])]),
   A('countries-prepositions','basics','나라·도시의 전치사','prépositions devant les lieux','어디에 가는지와 어디에서 오는지를 구분해요.',['en France','au Japon','aux États-Unis','à Paris','de France','pays','나라'],[
     T('위치·목적지',['장소','전치사와 예'],[['도시','à Paris'],['여성 국가','en France'],['남성 국가 · 자음 시작','au Japon'],['모음으로 시작하는 국가','en Iran'],['복수 국가','aux États-Unis']]),
     S('국가의 성도 확인해요','-e로 끝나는 국가는 여성인 경우가 많지만 le Mexique처럼 예외도 있어요. 국가명과 관사를 함께 익히는 편이 정확해요. 섬·특수 지명에는 별도 관용이 있어요.'),

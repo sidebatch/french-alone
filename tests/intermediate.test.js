@@ -21,6 +21,15 @@ test('intermediate content adds four coherent units and 120 questions without re
   }
 });
 
+test('revised writing examples accept previous answers, both clause orders and spelling variants',()=>{
+  const rest=questionById('imagined-conditions-10');
+  for(const text of ['Je prendrais un peu de repos si j’étais toi.','Si j’étais toi, je prendrais une pause.','Je ferais une pause si j’étais toi.'])assert.ok(isCorrect(rest,text));
+  assert.equal(isCorrect(rest,'Si j’étais toi, je prendrai un peu de repos.'),false);
+  const practice=questionById('opinion-links-10');
+  for(const text of ['Je pratique tous les jours parce que j’apprends le français.','Parce que j’apprends le français, je m’entraîne tous les jours.','Je m’entraine tous les jours parce que j’apprends le français.'])assert.ok(isCorrect(practice,text));
+  assert.equal(isCorrect(practice,'Je s’entraîne tous les jours parce que j’apprends le français.'),false);
+});
+
 test('gender, clause order and apostrophe variants pass while wrong agreement and tense fail',()=>{
   for(const a of ['Je suis allé à Paris hier.','Hier, je suis allée à Paris.'])assert.ok(isCorrect(questionById('past-movement-9'),a));
   for(const a of ['Je suis allés à Paris hier.','J’ai allé à Paris hier.'])assert.equal(isCorrect(questionById('past-movement-9'),a),false);
