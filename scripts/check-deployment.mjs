@@ -1,4 +1,5 @@
 /* Run after GitHub Pages publication; verify the public files used for installation. */
+import { WEARABLES } from '../dist/wardrobe.js';
 const base = new URL(process.env.APP_URL || process.argv[2] || 'https://sidebatch.github.io/french-alone/');
 const ensure = (condition,message) => { if (!condition) throw new Error(message); };
 async function get(path) {
@@ -23,6 +24,9 @@ async function check() {
     ensure(u32(bytes,16)===size && u32(bytes,20)===size,'Public install icon has the wrong dimensions');
   }
   const paths=['./wardrobe.js','./room-art.js','./room-core.js','./room.js','./room-catalog.js','./room.css','./app.js','./core.js','./data.js','./practice.js','./practice-core.js','./practice-data.js','./practice-content.js','./practice-intermediate.js','./practice-lessons.js','./practice-goals.js','./grammar-data.js','./grammar-extra-data.js','./grammar-reference-basics.js','./grammar-reference-verbs.js','./grammar-reference-syntax.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css','./learning.css','./play.css','./style.css','./pwa.css','./product.css','./ux.css','./feedback.js','./companion.js','./companion.css','./polish.css','./assets/lou-sprites-v2.webp','./study-viewport.js','./pwa.js','./sw.js','./icons/apple-touch-icon.png'];
+  for(const piece of WEARABLES.filter(item=>item.slot==='body')){
+    paths.push(`./assets/lou-outfits/${piece.id}.webp`,`./assets/lou-outfits/${piece.id}-thumb.webp`);
+  }
   await Promise.all(paths.map(async path=>(await get(path)).arrayBuffer()));
   console.log('Public PWA verified: '+base.href+' · manifest, icons and all lesson/offline files are reachable');
 }

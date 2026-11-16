@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.15.0 — 2026-11-16
+
+- Keep the lesson start and room shortcuts within reach on the home screen. Give Lou’s room one scrolling surface on small screens, with six decorations per page and expandable placement controls.
+- Show all five outfits fitted to Lou in each of the four poses. The wardrobe, home, practice and certificate use the same dressed artwork, including offline.
+
 ## 1.14.0 — 2026-11-16
 
 - Add Lou’s wardrobe with three coat patterns, four selectable poses, five outfits, four glasses and five headpieces. Three starter pieces are free. Preview combinations, buy individual pieces with study stamps and save the look for home, practice and dated certificate images.

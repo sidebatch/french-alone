@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { WEARABLES } from '../dist/wardrobe.js';
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import vm from 'node:vm';
@@ -67,6 +68,10 @@ test('offline precache contains every module, stylesheet, manifest and icon and 
   const h=workerHarness();await h.lifecycle('install');
   const names=(await Promise.all(h.requests.map(url=>new URL(url).pathname))).map(path=>path.slice('/french-alone/'.length));
   for(const name of ['app.js','core.js','data.js','records-core.js','records.js','record-card.js','records.css','room-catalog.js','room-core.js','wardrobe.js','room-art.js','room.js','room.css','practice.js','practice-core.js','practice-data.js','practice-content.js','practice-intermediate.js','practice-lessons.js','grammar-data.js','grammar-extra-data.js','grammar-reference-basics.js','grammar-reference-verbs.js','grammar-reference-syntax.js','grammar-terms.js','grammar-core.js','grammar.js','grammar.css','learning.css','play.css','companion.js','companion.css','polish.css','assets/lou-sprites-v2.webp','pwa.js','pwa.css','product.css','manifest.webmanifest','icons/icon-512.png'])assert.ok(names.includes(name),name);
+  for(const piece of WEARABLES.filter(item=>item.slot==='body')){
+    assert.ok(names.includes(`assets/lou-outfits/${piece.id}.webp`),piece.id);
+    assert.ok(names.includes(`assets/lou-outfits/${piece.id}-thumb.webp`),piece.id+' thumbnail');
+  }
   for(const name of names)await access(new URL('../dist/'+(name||'index.html'),import.meta.url));
   assert.equal(h.stats().skipped,0,'install must not interrupt an existing lesson');
   h.setRevision('two');

@@ -1,5 +1,5 @@
 import { ROOM_ITEMS, WALLS, FLOORS, roomItem } from './room-catalog.js';
-import { renderAvatar, lookLayers, poseFor } from './wardrobe.js';
+import { renderAvatar, lookLayers, poseFor, avatarSprite } from './wardrobe.js';
 
 const art = {
   'lavender-pot':'<path d="M94 143Q88 89 56 39m40 97L91 19m9 112q17-67 51-94m-50 105 18-118" stroke="#708667" stroke-width="4"/>'+[[55,40,-30],[90,29,-7],[147,47,32],[118,33,15]].map(([x,y,a])=>`<g transform="translate(${x} ${y}) rotate(${a})"><ellipse cy="1" rx="5" ry="8" fill="#947f9f"/><path d="M0 14q-12-1-9-12 10 0 9 12m1 8q10-1 10-11-10 1-10 11m-1 7q-12-1-11-12 10 0 11 12" fill="#aa91b3"/></g>`).join('')+'<path d="M68 128h65l-8 54q-26 9-49-1Z" fill="#ddc8ad" stroke="#b29c7f" stroke-width="2"/><rect x="62" y="122" width="76" height="14" rx="5" fill="#eddbc1"/><path d="m81 156 10 5 10-5 10 5 10-5" stroke="#ac8e93" stroke-width="3"/>',
@@ -61,7 +61,7 @@ export function renderRoomScene(layout, {editor=false,selected=null,mood='wave'}
 export async function drawRoom(ctx, layout, x, y, width, height) {
   const load = src => new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src;});
   const pose=poseFor(layout.look,'complete');
-  const [background,items,sprite,outfit]=await Promise.all([load(backgroundURL(layout)),Promise.all(layout.items.map(p=>load(itemImage(p.itemId)))),load(new URL('./assets/lou-sprites-v2.webp',import.meta.url).href),Promise.all(lookLayers(layout.look,pose).map(layer=>load(layer.src)))]);
+  const [background,items,sprite,outfit]=await Promise.all([load(backgroundURL(layout)),Promise.all(layout.items.map(p=>load(itemImage(p.itemId)))),load(avatarSprite(layout.look)),Promise.all(lookLayers(layout.look,pose).map(layer=>load(layer.src)))]);
   ctx.save();ctx.translate(x,y);ctx.scale(width/800,height/500);ctx.drawImage(background,0,0,800,500);
   const paint=(p,item,image,sprite=false)=>{
     ctx.save();ctx.translate(p.x*8,p.y*5);ctx.rotate(p.rotation*Math.PI/180);ctx.scale(p.scale*(p.flipped?-1:1),p.scale);
