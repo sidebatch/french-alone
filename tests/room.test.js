@@ -5,6 +5,17 @@ import { addDays } from '../dist/practice-core.js';
 import { ROOM_ITEMS } from '../dist/room-catalog.js';
 import { stampsForQuestions, stampEarnings, freshRoom, readRoom, wallet, ownedItems, buyRoomItem, grantRoomGifts, newPlacement, constrainPlacement, sanitizeLayout, saveLayout, roomAtDate, MAX_ROOM_ITEMS } from '../dist/room-core.js';
 const date=today();
+test('old rooms keep their layout and earlier cards cannot wear later purchases or invalid slots',()=>{
+  const days=makeDays(4),state=freshRoom(days),yesterday=addDays(date,-1);
+  delete state.layout.look;
+  assert.deepEqual(reload(state,days).layout.look,{coat:'cream',pose:'auto',head:null,body:null,eyes:null});
+  buyRoomItem(state,days,'baker-apron',date);
+  assert.equal(buyRoomItem(state,days,'baker-apron',date).reason,'owned');
+  state.history[yesterday]={...state.layout,look:{pose:'think',head:'round-glasses',eyes:'round-glasses',body:'baker-apron'}};
+  const old=roomAtDate(reload(state,days),days,yesterday);
+  assert.deepEqual(old.look,{coat:'cream',pose:'think',head:null,eyes:'round-glasses',body:null});
+  assert.ok(!ownedItems(state,days).has('baker-apron'));
+});
 const makeDays=(n,questions=3)=>Object.fromEntries(Array.from({length:n},(_,i)=>[addDays(date,-i),{questions,rounds:1}]));
 const reload=(state,days)=>readRoom({getItem:()=>JSON.stringify(state)},days);
 
@@ -73,5 +84,5 @@ test('layout loading bounds positions and filters duplicates, oversized collecti
   assert.equal(layout.items.length,MAX_ROOM_ITEMS);assert.equal(layout.wall,'sage');
   const state=freshRoom(makeDays(7));state.purchases={tulips:{date,cost:-1},sofa:{date:'bad',cost:7},missing:{date,cost:0}};
   assert.deepEqual(reload(state,makeDays(7)).purchases,{});
-  assert.equal(new Set(ROOM_ITEMS.map(i=>i.id)).size,27);
+  assert.equal(new Set(ROOM_ITEMS.map(i=>i.id)).size,ROOM_ITEMS.length);
 });

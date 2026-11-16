@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.14.0 — 2026-11-16
+
+- Add Lou’s wardrobe with three coat patterns, four selectable poses, five outfits, four glasses and five headpieces. Three starter pieces are free. Preview combinations, buy individual pieces with study stamps and save the look for home, practice and dated certificate images.
+- Add six room decorations inspired by a bakery, a trip to Provence and an evening of stargazing.
+
 ## 1.13.1 — 2026-11-14
 
 - Give learners a first attempt before showing the completed sentence on all 42 choice exercises. The goal, optional hint, and explicit answer reveal remain available.

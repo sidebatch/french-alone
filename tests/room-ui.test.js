@@ -6,6 +6,22 @@ import { today } from '../dist/core.js';
 import { addDays } from '../dist/practice-core.js';
 import { ROOM_KEY } from '../dist/room-core.js';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+test('wardrobe previews, buys, layers and restores an outfit without consuming room slots',async()=>{
+  const f=setup(),click=(action,value)=>f.click(`[data-action="room-${action}"]${value?'[data-value="'+value+'"]':''}`);
+  click('open');click('tab','wardrobe');click('try','star-cape');
+  assert.ok(f.$('.fitting-mirror [data-worn="star-cape"]'));assert.equal(f.$('[data-action="room-buy"]').disabled,true);
+  click('goal');assert.equal(f.saved().goal,'star-cape');
+  click('try','denim');click('buy');await tick();assert.equal(f.ui.balance(),0);
+  click('slot','eyes');click('try','round-glasses');
+  click('slot','head');click('try','daisy-pin');click('pose','think');click('coat','calico');
+  click('save');assert.equal(f.saved().layout.items.length,2);
+  assert.deepEqual(f.ui.snapshot(today()).look,{coat:'calico',pose:'think',body:'denim',eyes:'round-glasses',head:'daisy-pin'});
+  f.ui.reload();assert.match(f.ui.renderScene('complete'),/data-pose="think"/);assert.match(f.ui.avatar('correct'),/data-worn="denim"/);
+  click('open');click('tab','wardrobe');click('unequip');click('close');click('discard');
+  assert.equal(f.ui.snapshot(today()).look.body,'denim');
+  click('open');click('tab','wardrobe');click('unequip');click('save');assert.equal(f.ui.snapshot(today()).look.body,null);
+  assert.equal(f.ui.balance(),0);f.dom.window.close();
+});
 function setup({count=3,broken=false}={}) {
   const dom=new JSDOM('<button data-action="room-open">꾸미기</button><dialog id="room-dialog"></dialog>',{url:'https://room.test/',pretendToBeVisual:true});
   const w=dom.window;Object.assign(globalThis,{window:w,document:w.document});

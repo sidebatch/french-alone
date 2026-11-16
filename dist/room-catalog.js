@@ -1,4 +1,10 @@
 export const ROOM_ITEMS = [
+  {id:'lavender-pot',name:'프로방스 라벤더',category:'식물',price:1,w:90,h:140,x:72,y:73,description:'연보라 꽃대를 꽂은 크림빛 화분이에요.'},
+  {id:'cafe-menu',name:'비스트로 칠판',category:'소품',price:2,w:104,h:145,x:28,y:75,description:'분필로 오늘의 카페 메뉴를 적어 두었어요.'},
+  {id:'postcards',name:'여행 엽서 줄',category:'벽 장식',price:2,w:225,h:90,x:30,y:27,description:'바다와 산에서 보내 온 엽서를 나란히 걸어요.'},
+  {id:'moon-lamp',name:'초승달 무드등',category:'조명',price:3,w:105,h:154,x:73,y:70,description:'작은 별이 초승달 끝에서 흔들려요.'},
+  {id:'bakery-case',name:'골목 빵집 진열장',category:'가구',price:5,w:205,h:160,x:26,y:72,description:'유리창 안에 크루아상과 바게트가 기다려요.'},
+  {id:'telescope',name:'루의 천체 망원경',category:'소품',price:4,w:150,h:185,x:75,y:68,description:'창가에 놓고 오늘의 별자리를 찾아봐요.'},
   {id:'plant',name:'작은 화분',category:'식물',price:0,gift:1,w:102,h:156,x:18,y:69,description:'루와 함께 처음 키우는 초록 친구.'},
   {id:'books',name:'책 한 묶음',category:'소품',price:0,gift:3,w:112,h:105,x:82,y:78,description:'한 권씩 쌓이는 프랑스어 이야기.'},
   {id:'rug',name:'포근한 러그',category:'러그',price:0,gift:7,w:410,h:95,x:50,y:86,description:'일주일의 발자국으로 더 포근해진 방.'},

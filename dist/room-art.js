@@ -1,7 +1,13 @@
 import { ROOM_ITEMS, WALLS, FLOORS, roomItem } from './room-catalog.js';
-import { mascot } from './companion.js';
+import { renderAvatar, lookLayers, poseFor } from './wardrobe.js';
 
 const art = {
+  'lavender-pot':'<path d="M94 143Q88 89 56 39m40 97L91 19m9 112q17-67 51-94m-50 105 18-118" stroke="#708667" stroke-width="4"/>'+[[55,40,-30],[90,29,-7],[147,47,32],[118,33,15]].map(([x,y,a])=>`<g transform="translate(${x} ${y}) rotate(${a})"><ellipse cy="1" rx="5" ry="8" fill="#947f9f"/><path d="M0 14q-12-1-9-12 10 0 9 12m1 8q10-1 10-11-10 1-10 11m-1 7q-12-1-11-12 10 0 11 12" fill="#aa91b3"/></g>`).join('')+'<path d="M68 128h65l-8 54q-26 9-49-1Z" fill="#ddc8ad" stroke="#b29c7f" stroke-width="2"/><rect x="62" y="122" width="76" height="14" rx="5" fill="#eddbc1"/><path d="m81 156 10 5 10-5 10 5 10-5" stroke="#ac8e93" stroke-width="3"/>',
+  'cafe-menu':'<path d="M46 176 35 193m105-20 18 20m-20-152 28 145" stroke="#9a7758" stroke-width="9"/><rect x="31" y="18" width="123" height="158" rx="5" fill="#c7a47c"/><rect x="41" y="28" width="103" height="136" rx="2" fill="#48645a"/><text x="93" y="63" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="24" fill="#fff5d7">Café</text><path d="M60 72h66m-59 28h36v11q-16 16-34-1Zm37 3q16-5 11 5l-10 5m-42 12h60m-46 12h31" fill="none" stroke="#e4debf" stroke-width="3"/><circle cx="48" cy="26" r="2" fill="#99785a"/>',
+  postcards:'<path d="M7 27q85 46 185-3" stroke="#9a805e" stroke-width="4"/>'+[[23,45,-8,'#dac7ac','#98b6aa'],[79,57,4,'#e9d2bf','#c38e86'],[135,40,-4,'#d5d2df','#8883a1']].map(([x,y,a,b,c])=>`<g transform="translate(${x} ${y}) rotate(${a})"><rect width="47" height="79" rx="2" fill="#fff7dd" stroke="#bdac93"/><rect x="4" y="5" width="39" height="55" fill="${b}"/><circle cx="30" cy="18" r="6" fill="#fff0b4"/><path d="m4 50 15-25 8 12 6-8 10 19v12H4Z" fill="${c}"/><path d="M8 67h27" stroke="#baa48a" stroke-width="2"/><rect x="18" y="-11" width="7" height="19" rx="2" fill="#ba936c"/></g>`).join(''),
+  'moon-lamp':'<ellipse cx="98" cy="182" rx="47" ry="8" fill="#cab28a"/><path d="M98 172V118" stroke="#af8d62" stroke-width="7"/><path d="M115 19c-64 6-78 80-23 106 30 15 64 0 76-22-30 14-63 1-72-26-6-22 2-43 19-58Z" fill="#f0d28b" stroke="#d6b577" stroke-width="3"/><path d="M116 25v39" stroke="#c6a56e" stroke-width="2"/><path d="m116 52 4 9 11 1-8 7 3 10-10-5-9 5 2-10-7-7 10-1Z" fill="#e7b962"/><path d="M87 172h22l14 8H72Z" fill="#b69a78"/>',
+  'bakery-case':'<path d="M21 51h156l14 64H9Z" fill="#d9e3d9" stroke="#ad9171" stroke-width="5"/><path d="m38 55-17 52m40-49-10 30" stroke="#f5f5dd" stroke-width="5"/><path d="M20 113h161v60H20Z" fill="#c09b79"/><path d="M13 115h174v12H13Z" fill="#e0ba89"/><path d="M30 168v15m139-15v15" stroke="#98775a" stroke-width="8"/><path d="M31 42h138v12H31Z" fill="#ceae87"/><path d="M35 101q-6-11 6-22 10-8 21-2l8 11-7 12-8-4-13 8Z" fill="#d7a25e" stroke="#b2814b" stroke-width="2"/><path d="m46 80 6 14m3-16 6 11" stroke="#f4c985" stroke-width="3"/><rect x="79" y="85" width="42" height="17" rx="8" fill="#dcb27b"/><path d="m89 88 6 7m6-8 6 7" stroke="#f7d69a" stroke-width="3"/><ellipse cx="149" cy="94" rx="17" ry="10" fill="#cb925f"/><path d="M37 139h128v19H37Z" stroke="#aa8564" stroke-width="2"/>',
+  telescope:'<path d="m102 94-46 91m46-91 50 91m-49-91 3 84" stroke="#ab8c69" stroke-width="7"/><g transform="rotate(-25 99 69)"><rect x="34" y="58" width="116" height="24" rx="5" fill="#728d93"/><rect x="100" y="50" width="49" height="39" rx="4" fill="#809da1"/><rect x="142" y="47" width="12" height="44" rx="4" fill="#c7a573"/><path d="M21 64h14v12H21Z" fill="#665f61"/><path d="M48 61h42" stroke="#afbec0" stroke-width="3"/></g><circle cx="102" cy="94" r="10" fill="#d5b779"/><circle cx="102" cy="94" r="4" fill="#917a60"/>',
   plant:'<path d="M103 155V52" stroke="#76985c" stroke-width="8"/><path d="M100 101C40 105 35 54 48 45c40-3 55 31 52 56M104 78c-2-47 38-60 55-52 5 35-17 53-55 52" fill="#92ae78"/><path d="M64 132h78l-8 56H74Z" fill="#d5a27c"/><rect x="57" y="124" width="92" height="16" rx="5" fill="#c3906c"/>',
   books:'<rect x="24" y="35" width="43" height="145" rx="6" fill="#b6a4c2"/><path d="M33 49v117" stroke="#95829f" stroke-width="5"/><rect x="72" y="65" width="44" height="115" rx="6" fill="#d6bd80"/><path d="M80 76v91" stroke="#b6a166" stroke-width="5"/><g transform="rotate(-11 153 180)"><rect x="126" y="25" width="44" height="155" rx="6" fill="#8eaea0"/><path d="M135 38v125" stroke="#6e9284" stroke-width="5"/></g>',
   rug:'<ellipse cx="100" cy="100" rx="97" ry="87" fill="#c9b68f"/><ellipse cx="100" cy="97" rx="89" ry="78" fill="#e7d9ba"/><ellipse cx="100" cy="97" rx="74" ry="62" fill="none" stroke="#cbb890" stroke-width="4"/><path d="M42 97h116M57 70h86M57 125h86" stroke="#d4c3a1" stroke-width="5"/>',
@@ -50,18 +56,24 @@ export function renderRoomScene(layout, {editor=false,selected=null,mood='wave'}
     const item=roomItem(placement.itemId),tag=editor?'button':'span';
     return `<${tag} class="room-object ${selected===placement.uid?'is-selected':''}" style="${placementStyle(item,placement)}" ${editor?`type="button" data-room-object="${placement.uid}" aria-label="${item.name} 이동" aria-pressed="${selected===placement.uid}"`:'aria-hidden="true"'}><img src="${itemImage(item.id)}" alt="" draggable="false"></${tag}>`;
   }).join('');
-  return `<div class="lou-room room-scene ${editor?'room-edit-scene':''} ${placed.has('plant')?'has-plant':''} ${placed.has('books')?'has-books':''} ${placed.has('rug')?'has-rug':''}" ${editor?'role="group" aria-label="방 배치. 소품을 끌거나 선택 후 화살표 키로 이동해요."':'aria-label="내가 꾸민 루의 방"'}><img class="room-background" src="${backgroundURL(layout)}" alt="" draggable="false">${itemNodes}<button type="button" class="room-object room-lou-node ${selected==='lou'?'is-selected':''}" style="${placementStyle({w:230,h:230},layout.lou)}" ${editor?'data-room-object="lou" aria-label="루 이동"':'data-action="mascot-hello" aria-label="루에게 인사하기"'}>${editor?'':'<span class="companion-bubble" lang="fr">Bonjour !</span>'}${mascot(mood)}</button></div>`;
+  return `<div class="lou-room room-scene ${editor?'room-edit-scene':''} ${placed.has('plant')?'has-plant':''} ${placed.has('books')?'has-books':''} ${placed.has('rug')?'has-rug':''}" ${editor?'role="group" aria-label="방 배치. 소품을 끌거나 선택 후 화살표 키로 이동해요."':'aria-label="내가 꾸민 루의 방"'}><img class="room-background" src="${backgroundURL(layout)}" alt="" draggable="false">${itemNodes}<button type="button" class="room-object room-lou-node ${selected==='lou'?'is-selected':''}" style="${placementStyle({w:230,h:230},layout.lou)}" ${editor?'data-room-object="lou" aria-label="루 이동"':'data-action="mascot-hello" aria-label="루에게 인사하기"'}>${editor?'':'<span class="companion-bubble" lang="fr">Bonjour !</span>'}${renderAvatar(layout.look,mood)}</button></div>`;
 }
 export async function drawRoom(ctx, layout, x, y, width, height) {
   const load = src => new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src;});
-  const images=await Promise.all([load(backgroundURL(layout)),...layout.items.map(p=>load(itemImage(p.itemId))),load(new URL('./assets/lou-sprites-v2.webp',import.meta.url).href)]);
-  ctx.save();ctx.translate(x,y);ctx.scale(width/800,height/500);ctx.drawImage(images[0],0,0,800,500);
+  const pose=poseFor(layout.look,'complete');
+  const [background,items,sprite,outfit]=await Promise.all([load(backgroundURL(layout)),Promise.all(layout.items.map(p=>load(itemImage(p.itemId)))),load(new URL('./assets/lou-sprites-v2.webp',import.meta.url).href),Promise.all(lookLayers(layout.look,pose).map(layer=>load(layer.src)))]);
+  ctx.save();ctx.translate(x,y);ctx.scale(width/800,height/500);ctx.drawImage(background,0,0,800,500);
   const paint=(p,item,image,sprite=false)=>{
     ctx.save();ctx.translate(p.x*8,p.y*5);ctx.rotate(p.rotation*Math.PI/180);ctx.scale(p.scale*(p.flipped?-1:1),p.scale);
-    if(sprite)ctx.drawImage(image,image.naturalWidth/2,image.naturalHeight/2,image.naturalWidth/2,image.naturalHeight/2,-item.w/2,-item.h/2,item.w,item.h);
+    if(sprite){
+      const w=image.naturalWidth/2,h=image.naturalHeight/2;
+      ctx.drawImage(image,['happy','celebrate'].includes(pose)?w:0,['think','celebrate'].includes(pose)?h:0,w,h,-item.w/2,-item.h/2,item.w,item.h);
+    }
     else ctx.drawImage(image,-item.w/2,-item.h/2,item.w,item.h);
     ctx.restore();
   };
-  layout.items.forEach((p,i)=>paint(p,roomItem(p.itemId),images[i+1]));
-  paint(layout.lou,{w:230,h:230},images.at(-1),true);ctx.restore();
+  layout.items.forEach((p,i)=>paint(p,roomItem(p.itemId),items[i]));
+  const louSize={w:230,h:230};
+  paint(layout.lou,louSize,sprite,true);
+  outfit.forEach(image=>paint(layout.lou,louSize,image));ctx.restore();
 }

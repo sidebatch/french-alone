@@ -4,7 +4,7 @@ import { createPractice } from './practice.js';
 import { normalizeAnswer } from './practice-core.js';
 import { playFeedback } from './feedback.js';
 import { bindStudyViewport } from './study-viewport.js';
-import { mascot, companionMessage } from './companion.js';
+import { companionMessage } from './companion.js';
 import { createGrammar } from './grammar.js';
 import { renderGrammarText } from './grammar-terms.js';
 import { learningRecords } from './records-core.js';
@@ -12,7 +12,7 @@ import { createRecords } from './records.js';
 import { createRoom } from './room.js';
 import { stampsForQuestions } from './room-core.js';
 
-const APP_VERSION = '1.13.1';
+const APP_VERSION = '1.14.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -32,7 +32,7 @@ const practice = createPractice({
   openGrammar:(id,options)=>grammar.open(id,options),
   onSaveError:()=>{storageWarning=true;toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');},
   onLevelChange:()=>renderPage(),
-  rewardNote:()=>room.rewardNote(),
+  rewardNote:()=>room.rewardNote(), renderMascot:mood=>room.avatar(mood),
   onFinish:summary=>{if(summary.duplicate)return;const activity=state.activity[summary.date||today()] ||= {xp:0,words:0,basicQuestions:0,basicRounds:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();room.onProgress();}
 });
 const room = createRoom({storage,getDays:()=>practice.dayRecords(),icon,escape,onChange:()=>renderPage(),onSaveError:()=>{storageWarning=true;}});
@@ -191,7 +191,7 @@ document.addEventListener('click',event=>{
     case 'mascot-hello': {
       const bubble=button.querySelector('.companion-bubble');
       bubble.textContent='함께 한 판 해볼까요?';bubble.removeAttribute('lang');bubble.classList.add('is-greeting');
-      button.querySelector('.mascot').outerHTML=mascot('wave');
+      button.querySelector('.mascot').outerHTML=room.avatar('wave');
       playFeedback('correct',state.effects,state.effectsVolume);break;
     }
     case 'preview-feedback':
