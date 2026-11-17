@@ -32,6 +32,14 @@ test('calendar selects dates, navigates months by keyboard, and blocks future da
   f.click('[data-action="record-month"][data-value="-1"]');
   assert.ok(!f.$('[data-action="record-month"][data-value="1"]').disabled);
   assert.match(f.$('.record-empty').textContent, /쉬어 간 하루/);
+  const month=f.$('[data-action="record-date"]').dataset.value.slice(0,7);
+  f.click(`[data-action="record-date"][data-value="${month}-15"]`);
+  const middle=new Date(`${month}-15T12:00:00`);
+  f.w.document.activeElement.dispatchEvent(new f.w.KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+  assert.equal(f.w.document.activeElement.dataset.value,`${month}-${String(15-middle.getDay()).padStart(2,'0')}`);
+  f.w.document.activeElement.dispatchEvent(new f.w.KeyboardEvent('keydown',{key:'End',bubbles:true}));
+  assert.equal(f.w.document.activeElement.dataset.value,`${month}-${String(21-middle.getDay()).padStart(2,'0')}`);
+  assert.equal(f.$('.calendar-weekdays').textContent,'일월화수목금토');
   const selected = f.$('[data-action="record-date"][aria-pressed="true"]');
   selected.dispatchEvent(new f.w.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
   assert.equal(f.w.document.activeElement.getAttribute('aria-pressed'), 'true');

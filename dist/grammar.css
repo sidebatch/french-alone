@@ -3,3 +3,31 @@
 @media(max-width:760px){.sidebar.app-navigation nav{grid-template-columns:repeat(5,minmax(0,1fr))}.sidebar.app-navigation nav a{font-size:10px;padding-left:1px;padding-right:1px;white-space:nowrap}.grammar-list{grid-template-columns:1fr}.grammar-entry{padding:18px;min-height:88px}.grammar-entry-copy strong{font-size:15px}.grammar-filters{gap:6px}.grammar-filters .filter-button{font-size:12px;padding:9px 11px}.grammar-search input{min-width:0;font-size:14px}#grammar-dialog{inset:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border:0;border-radius:0}.grammar-header{padding:calc(18px + env(safe-area-inset-top)) 21px 17px;gap:10px}.grammar-header h2{font-size:21px}.grammar-reader{padding:22px 21px calc(32px + env(safe-area-inset-bottom));font-size:15px;scrollbar-gutter:auto}.grammar-table th,.grammar-table td{padding:10px}.grammar-examples{padding:13px}.grammar-examples p[lang="fr"]{font-size:19px}}
 .grammar-term{font-size:.9em;font-weight:400;color:#667a5d;overflow-wrap:anywhere}.grammar-entry-copy strong>.grammar-term{display:block;font-size:13px;line-height:1.55;margin-top:5px;letter-spacing:0}.grammar-header h2>.grammar-term{display:block;font-size:15px;line-height:1.5;margin-top:7px;letter-spacing:0}.grammar-section h3>.grammar-term,.mini-lesson h4>.grammar-term{font-size:.85em}.lesson-forms th .grammar-term{font-size:12px}.grammar-table td .grammar-term,.grammar-table th .grammar-term{font-size:12px}
 .grammar-affix{white-space:nowrap}
+
+.reference-group { min-width:0; border:1px solid var(--line); border-radius:14px; background:#fffefa; }
+.reference-group>summary { display:flex; align-items:center; gap:10px; min-height:48px; padding:10px 16px; color:#405b40; font-size:14px; font-weight:650; cursor:pointer; list-style:none; }
+.reference-group>summary::-webkit-details-marker { display:none; }
+.reference-group>summary small { margin-left:auto; font-size:12px; font-weight:500; color:#64745b; white-space:nowrap; }
+.reference-group>summary::after { content:""; flex:none; width:8px; height:8px; border:solid #718368; border-width:0 1.5px 1.5px 0; margin-left:auto; transform:rotate(45deg); }
+.reference-group>summary small+* { margin-left:0; }
+.reference-group>summary:has(small)::after { margin-left:2px; }
+.reference-group[open]>summary::after { transform:rotate(225deg); }
+.reference-group>summary:focus-visible { outline:3px solid #6c9870; outline-offset:1px; border-radius:13px; }
+.phrase-list:has(.vocab-group),#grammar-results:has([data-grammar-topic]) { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+.grammar-group.reference-group { margin:0; }
+.grammar-filters[hidden],#grammar-result-count[hidden] { display:none; }
+.reference-group .grammar-list,.phrase-group-items { padding:0 10px 10px; }
+.phrase-group-items { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.phrase-group-items .expression { padding:14px; }
+.phrase-group-items .fr { margin:0 40px 6px 0; overflow-wrap:anywhere; }
+.phrase-group-items .ko { margin:8px 0 12px; }
+.phrase-group-items .expression>.icon-button { top:6px; right:6px; }
+.expression .phrase-actions .sound-button,.phrase-usage summary { min-height:44px; }
+.grammar-entry { min-height:65px; padding:10px 14px; }
+.grammar-entry-copy strong>.grammar-term,.grammar-entry-copy>span { margin-top:2px; }
+@media(max-width:760px) {
+  .phrase-group-items { grid-template-columns:minmax(0,1fr); }
+  .reference-group .grammar-list { gap:6px; }
+  .grammar-search { margin-bottom:12px; }
+  .grammar-entry { min-height:58px; }
+}

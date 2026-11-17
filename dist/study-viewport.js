@@ -1,4 +1,22 @@
-// Keep the question inside the area above the on-screen keyboard.
+// Keep the submitted answer and its correction together inside the scrolling body.
+export function showPracticeAnswer(body) {
+  const question=body?.querySelector('.practice-question');
+  if(!question)return;
+  const prompt=body.querySelector('.practice-prompt')||question;
+  const feedback=body.querySelector('#practice-feedback:not([hidden])');
+  const answer=body.querySelector('#practice-input,.choice.incorrect,.choice.correct,.tile-answer')||body.querySelector('#practice-answer');
+  if(!answer)return;
+  const frame=body.getBoundingClientRect(),padding=12;
+  const available=frame.height-2*padding;
+  if(available<=0)return;
+  const promptTop=prompt.getBoundingClientRect().top,field=answer.getBoundingClientRect();
+  const last=(feedback||answer).getBoundingClientRect().bottom;
+  const first=last-promptTop<=available?promptTop:field.top;
+  const bottom=Math.min(last,first+available);
+  if(first<frame.top+padding)body.scrollTop+=first-frame.top-padding;
+  else if(bottom>frame.bottom-padding)body.scrollTop+=bottom-frame.bottom+padding;
+}
+
 export function bindStudyViewport(dialog) {
   const win = dialog.ownerDocument.defaultView;
   const viewport = win.visualViewport;
@@ -6,20 +24,15 @@ export function bindStudyViewport(dialog) {
 
   function sync() {
     if (viewport && viewport.scale !== 1) return;
-    dialog.style.setProperty('--study-height', `${Math.round(viewport?.height || win.innerHeight)}px`);
+    const height=Math.round(viewport?.height || win.innerHeight);
+    dialog.style.setProperty('--study-height', `${height}px`);
     dialog.style.setProperty('--study-top', `${Math.round(viewport?.offsetTop || 0)}px`);
-    if (!dialog.open || win.innerWidth > 760 || !dialog.classList.contains('typing-focused')) return;
+    dialog.classList.toggle('compact-study',height<=520);
+    dialog.classList.toggle('visual-keyboard',height<win.innerHeight-48);
+    if (!dialog.open || !dialog.classList.contains('typing-focused')) return;
     const body = dialog.querySelector('.practice-body');
-    const question = dialog.querySelector('.practice-question');
     const input = dialog.querySelector('#practice-input');
-    if (!body || !question || input !== dialog.ownerDocument.activeElement) return;
-    const area = body.getBoundingClientRect(), block = question.getBoundingClientRect();
-    const padding = 12;
-    if (block.top < area.top + padding || block.bottom > area.bottom - padding) {
-      // Include the prompt when it fits; on very short screens keep the input reachable.
-      const target = block.height <= area.height - padding * 2 ? block.top : input.getBoundingClientRect().bottom - area.height + padding * 2;
-      body.scrollTop += target - area.top - padding;
-    }
+    if (input && input === dialog.ownerDocument.activeElement)showPracticeAnswer(body);
   }
   function schedule() {
     win.cancelAnimationFrame(frame);

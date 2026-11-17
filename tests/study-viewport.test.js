@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { bindStudyViewport } from '../dist/study-viewport.js';
+import { bindStudyViewport, showPracticeAnswer } from '../dist/study-viewport.js';
 
 function setup(withViewport=true) {
   const dom=new JSDOM('<dialog open><div class="practice-body" tabindex="-1"><div class="practice-question"><h3>말할 수 있어.</h3><input id="practice-input" value="peux"></div></div></dialog>',{pretendToBeVisual:true});
@@ -53,5 +53,20 @@ test('browsers without VisualViewport follow content resize and recover after th
   assert.equal(f.dialog.style.getPropertyValue('--study-height'),'390px');
   f.win.innerHeight=820;f.win.dispatchEvent(new f.win.Event('resize'));f.flush();
   assert.equal(f.dialog.style.getPropertyValue('--study-height'),'820px');
+  f.dom.window.close();
+});
+
+test('a correction stays beside its input when a long prompt cannot fit above both',()=>{
+  const f=setup();
+  f.body.innerHTML='<div class="practice-question"><h3 class="practice-prompt">A long prompt</h3><input id="practice-input"><div id="practice-feedback">Check the marked word</div></div>';
+  const position=(top,bottom)=>()=>({top:top-f.body.scrollTop,bottom:bottom-f.body.scrollTop,height:bottom-top});
+  f.body.getBoundingClientRect=()=>({top:44,bottom:260,height:216});
+  f.body.querySelector('.practice-prompt').getBoundingClientRect=position(56,240);
+  f.body.querySelector('input').getBoundingClientRect=position(260,304);
+  f.body.querySelector('#practice-feedback').getBoundingClientRect=position(310,370);
+  showPracticeAnswer(f.body);
+  assert.equal(f.body.scrollTop,122);
+  showPracticeAnswer(f.body);
+  assert.equal(f.body.scrollTop,122,'a second resize does not move an already visible correction');
   f.dom.window.close();
 });

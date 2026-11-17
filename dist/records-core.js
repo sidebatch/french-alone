@@ -1,5 +1,11 @@
 import { today } from './core.js';
 
+export const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+export function weekDates(anchor = new Date()) {
+  const sunday = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() - anchor.getDay(), 12);
+  return WEEKDAYS.map((_, i) => new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i, 12));
+}
+
 export function isRecordDate(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split('-').map(Number);
@@ -13,7 +19,7 @@ export function shiftMonth(month, offset) {
 export function monthDates(month) {
   const [year, number] = month.split('-').map(Number);
   const first = new Date(year, number - 1, 1, 12);
-  const offset = (first.getDay() + 6) % 7;
+  const offset = first.getDay();
   const length = new Date(year, number, 0, 12).getDate();
   return Array.from({ length: Math.ceil((offset + length) / 7) * 7 }, (_, i) =>
     i < offset || i >= offset + length ? null : `${month}-${String(i - offset + 1).padStart(2, '0')}`);

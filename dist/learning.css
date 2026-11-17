@@ -59,3 +59,30 @@
   #study-dialog.typing-focused .practice-glossary{margin:8px 0;padding:6px 9px}#study-dialog.typing-focused .practice-cue{font-size:26px;margin:12px 0}
 }
 @media(max-width:360px){.typing-tools>span{font-size:9px}.accent-toggle{font-size:11px;padding:7px 9px}.unit-heading h3{font-size:15px}.unit-heading p{font-size:9px}.practice-library[data-compact="false"] .pack-copy h3{font-size:13px}.practice-feedback .correct-sentence{font-size:23px}}
+
+.course-filter-tools { margin:0 0 14px; }
+.course-filter-tools .curriculum-filters { flex-wrap:wrap; margin:0 12px 6px; }
+.course-filter-tools .course-status-filters { margin:0 12px 10px; }
+.course-filter-tools .curriculum-filters button,.course-filter-tools .course-status-filters button { min-height:44px; }
+.practice-library .section-heading { gap:10px; }
+.practice-library .section-count { white-space:nowrap; }
+@media(max-width:760px) {
+  .learning-tabs { margin-bottom:16px; }
+  .learning-tabs+.basics-heading,.learning-tabs+.practice-library .section-heading { margin:16px 0 10px; }
+  .course-filter-tools+.curriculum-unit { margin-top:15px; }
+  .lesson-status-key { margin:8px 0 12px; }
+  .basic-quiz .quiz-choices { margin:14px 0 10px; gap:7px; }
+  .basic-quiz .quiz-choices.short-choices { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .basic-quiz .quiz-choices .choice { min-height:46px; padding:8px 10px; font-size:13px; overflow-wrap:anywhere; }
+  .basic-quiz .big-french { margin:8px 0; }
+  .basic-quiz .answer-reveal { padding:8px 12px; margin-top:10px; }
+  .flashcard { min-height:clamp(140px,32dvh,240px); }
+}
+.quiz-verdict { display:flex; align-items:center; gap:10px; }
+.quiz-verdict>.mascot { flex:none; width:42px; height:auto; }
+.quiz-verdict p { margin:0; }
+.answer-reveal details { padding-top:0; margin-top:4px; }
+.answer-reveal summary { min-height:44px; align-content:center; }
+.settings-body .settings-brand { margin-bottom:10px; padding-bottom:12px; }
+.settings-sound-tools .settings-sound-panel { margin:0 0 8px; }
+html:has(dialog[open]) { overflow:hidden; overscroll-behavior:none; }

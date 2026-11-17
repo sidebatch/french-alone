@@ -6,6 +6,14 @@ export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
   const doc=document,win=window,dialog=doc.querySelector('#grammar-dialog');
   const store=createGrammarStore(storage,onSaveError);
   let query='',category='all',returnPoint=null;
+  const openedTopics=new Set();
+  const browsingTopics=()=>!query.trim()&&category==='all';
+  function rememberTopics(){
+    doc.querySelectorAll('[data-grammar-topic]').forEach(group=>{
+      if(group.open)openedTopics.add(group.dataset.grammarTopic);
+      else openedTopics.delete(group.dataset.grammarTopic);
+    });
+  }
   const eye=(id)=>'<span class="grammar-views" data-grammar-count="'+id+'" aria-label="내가 본 횟수 '+store.count(id)+'회">'+icon('eye')+'<span>'+store.count(id)+'</span></span>';
   const articleTitle=article=>escape(article.title)+(article.term?'<span class="grammar-term" lang="fr"> ('+escape(article.term)+')</span>':'');
   const filters=()=>[{id:'all',title:'전체'},...grammarCategories].map(item=>'<button type="button" class="filter-button '+(category===item.id?'active':'')+'" data-action="grammar-filter" data-value="'+item.id+'" aria-pressed="'+(category===item.id)+'">'+item.title+'</button>').join('');
@@ -13,15 +21,24 @@ export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
     const articles=searchGrammar(query,category);
     if(!articles.length)return '<div class="empty-state"><h2>검색 결과가 없어요</h2><button class="secondary-button" data-action="grammar-clear">검색 초기화</button></div>';
     const list=items=>'<div class="grammar-list">'+items.map(article=>'<button type="button" class="grammar-entry" data-action="grammar-open" data-id="'+article.id+'"><span class="grammar-entry-copy"><strong>'+articleTitle(article)+'</strong>'+(!article.term?'<span lang="fr">'+escape(article.fr)+'</span>':'')+'</span>'+eye(article.id)+icon('chevron')+'</button>').join('')+'</div>';
-    return query.trim()?list(articles):grammarCategories.filter(group=>articles.some(article=>article.category===group.id)).map(group=>'<section class="grammar-group"><h2>'+group.title+'</h2>'+list(articles.filter(article=>article.category===group.id))+'</section>').join('');
+    if(query.trim())return list(articles);
+    return grammarCategories.map(group=>{
+      const items=articles.filter(article=>article.category===group.id);
+      if(!items.length)return '';
+      if(!browsingTopics())return '<section class="grammar-group"><h2>'+group.title+'</h2>'+list(items)+'</section>';
+      return `<details class="reference-group grammar-group" data-grammar-topic="${group.id}" ${openedTopics.has(group.id)?'open':''}><summary>${group.title}<small>${items.length}개 항목</small></summary>${list(items)}</details>`;
+    }).join('');
   }
   function renderLibrary(){
-    store.reload();
-    return '<div class="page-heading"><h1>문법</h1><span class="section-count">'+grammarArticles.length+'개 항목</span></div><div class="search-box grammar-search">'+icon('search')+'<label class="visually-hidden" for="grammar-search">문법 검색</label><input id="grammar-search" type="search" placeholder="문법, 단어, 활용형 검색" value="'+escape(query)+'" autocomplete="off"><button type="button" class="search-clear" data-action="grammar-clear" aria-label="검색어 지우기" '+(query?'':'hidden')+'>'+icon('close')+'</button></div><div class="grammar-filters filter-row" role="group" aria-label="문법 분류">'+filters()+'</div><div class="search-result-count" id="grammar-result-count" role="status">'+searchGrammar(query,category).length+'개 항목</div><div id="grammar-results">'+results()+'</div>';
+    store.reload();rememberTopics();
+    return '<div class="page-heading"><h1>문법</h1><span class="section-count">'+grammarArticles.length+'개 항목</span></div><div class="search-box grammar-search">'+icon('search')+'<label class="visually-hidden" for="grammar-search">문법 검색</label><input id="grammar-search" type="search" placeholder="문법, 단어, 활용형 검색" value="'+escape(query)+'" autocomplete="off"><button type="button" class="search-clear" data-action="grammar-clear" aria-label="검색어 지우기" '+(query?'':'hidden')+'>'+icon('close')+'</button></div><div class="grammar-filters filter-row" role="group" aria-label="문법 분류" '+(browsingTopics()?'hidden':'')+'>'+filters()+'</div><div class="search-result-count" id="grammar-result-count" role="status" '+(browsingTopics()?'hidden':'')+'>'+searchGrammar(query,category).length+'개 항목</div><div id="grammar-results">'+results()+'</div>';
   }
   function refreshResults(){
     const target=doc.querySelector('#grammar-results');if(!target)return;
-    target.innerHTML=results();doc.querySelector('#grammar-result-count').textContent=searchGrammar(query,category).length+'개 항목';
+    rememberTopics();target.innerHTML=results();
+    const count=doc.querySelector('#grammar-result-count');
+    count.textContent=searchGrammar(query,category).length+'개 항목';count.hidden=browsingTopics();
+    doc.querySelector('.grammar-filters').hidden=browsingTopics();
     doc.querySelector('.grammar-search .search-clear').hidden=!query;
     doc.querySelectorAll('[data-action="grammar-filter"]').forEach(button=>{button.classList.toggle('active',category===button.dataset.value);button.setAttribute('aria-pressed',String(category===button.dataset.value));});
   }
@@ -55,11 +72,15 @@ export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
     switch(button.dataset.action){
       case 'grammar-open':open(button.dataset.id,{opener:button});break;
       case 'grammar-close':close();break;
-      case 'grammar-filter':category=button.dataset.value;refreshResults();break;
+      case 'grammar-filter':category=button.dataset.value;refreshResults();if(browsingTopics())doc.querySelector('#grammar-search').focus({preventScroll:true});break;
       case 'grammar-clear':query='';category='all';doc.querySelector('#grammar-search').value='';refreshResults();doc.querySelector('#grammar-search').focus();break;
     }
   });
   doc.addEventListener('input',event=>{if(event.target.id==='grammar-search'){query=event.target.value;refreshResults();}});
+  doc.addEventListener('toggle',event=>{
+    const id=event.target.dataset?.grammarTopic;if(!id)return;
+    if(event.target.open)openedTopics.add(id);else openedTopics.delete(id);
+  },true);
   dialog.addEventListener('cancel',event=>{event.preventDefault();event.stopPropagation();close();});
   dialog.addEventListener('keydown',event=>{
     if(event.key!=='Tab')return;

@@ -7,3 +7,35 @@
 #record-dialog{padding:0;width:min(520px,calc(100% - 24px));max-width:520px;max-height:calc(100dvh - 32px);border:1px solid #e0e6d6;border-radius:24px;background:#fffdf6;color:#35533e;overflow:auto;overscroll-behavior:contain}#record-dialog::backdrop{background:#23342680;backdrop-filter:blur(4px)}.record-dialog-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 15px;gap:16px;position:sticky;top:0;background:#fffdf6;z-index:1}.record-dialog-header p{font-size:11px;color:#798970;margin:0 0 4px}.record-dialog-header h2{font-size:20px;margin:0}.record-dialog-header .icon-button{width:44px;height:44px;flex-shrink:0}.record-preview{margin:0 auto;width:calc(100% - 48px);max-width:365px;min-height:150px;background:#f8f5eb;border-radius:12px;overflow:hidden;text-align:center}.record-preview img{display:block;width:100%;height:auto}.record-preview>p{padding:30px 15px;font-size:13px}.record-preview>button{margin:0 0 25px}.record-export-actions{display:flex;gap:10px;justify-content:center;padding:20px 24px 0}.record-export-actions button{flex:1;min-height:48px;justify-content:center;font-size:13px}.record-export-actions button[hidden]{display:none}.record-export-status{font-size:11px;line-height:1.8;color:#738166;text-align:center;margin:13px 24px 22px}.calendar-date:focus-visible{outline:3px solid #466738;outline-offset:2px}
 @media(max-width:1100px){.records-layout{grid-template-columns:1fr}.record-detail{border-top:1px solid #e0e6d6}.record-detail>.primary-button{width:auto;align-self:flex-start;padding-inline:25px}.record-day-stats{max-width:380px}.record-date-label{margin-bottom:17px}}
 @media(max-width:650px){.learning-records{border-radius:20px}.records-heading{padding:22px 19px 15px;align-items:flex-start;flex-direction:column;gap:13px}.records-heading h2{font-size:21px}.records-heading .secondary-button{padding:9px 13px;font-size:11px}.record-calendar{padding:3px 14px 22px}.calendar-heading{padding:0 4px}.calendar-heading h3{font-size:16px}.calendar-controls{gap:0}.calendar-controls .text-link{margin-right:2px}.calendar-weekdays,.calendar-dates{gap:2px}.calendar-date{min-height:47px;font-size:13px;border-radius:10px}.month-totals{padding:0 4px;gap:13px;font-size:10px;margin-bottom:19px}.month-totals b{font-size:16px}.calendar-legend{font-size:9px;gap:8px;padding:0 4px}.record-detail{padding:24px 22px}.record-detail h3{font-size:20px}.record-day-stats dd{font-size:26px}.record-detail>.primary-button{width:100%;align-self:auto}.record-dialog-header{padding:15px 18px 12px}.record-preview{width:calc(100% - 30px);max-width:330px}.record-export-actions{padding:17px 16px 0}.record-export-status{margin:12px 18px 19px;font-size:10px}}
+
+.records-heading h2 { margin:0; }
+.record-day-badge { margin-bottom:12px; }
+.progress-more { margin:12px 0; }
+.progress-more-body { padding:0 clamp(10px,2vw,24px) 16px; }
+.record-preview { max-width:min(365px,calc(80dvh - 155px)); }
+@media(max-width:650px) {
+  .learning-records { margin-bottom:12px; }
+  .records-heading { flex-direction:row; flex-wrap:wrap; align-items:center; padding:12px 14px 5px; gap:4px 8px; }
+  .records-heading h2 { font-size:18px; }
+  .records-heading .secondary-button { padding:7px 10px; }
+  .record-calendar { padding:0 10px 12px; }
+  .calendar-date { min-height:44px; }
+  .calendar-legend { margin-top:9px; }
+  .month-totals { margin:4px 0 10px; gap:3px 10px; }
+  .month-totals b { font-size:14px; }
+  .record-detail { padding:14px 16px; }
+  .record-date-label { margin-bottom:9px; }
+  .record-streak { margin-bottom:12px; }
+  .record-empty>svg { display:none; }
+  .record-empty h3 { margin:0 0 3px; font-size:17px; }
+  .record-empty p { margin-bottom:10px; }
+  .record-preview { max-width:min(330px,calc(80dvh - 180px)); }
+}
+@media(orientation:landscape) and (max-height:480px) and (min-width:540px) {
+  #record-dialog[open] { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:center; }
+  .record-dialog-header { grid-column:1/-1; padding:5px 16px; }
+  .record-preview { grid-column:1; grid-row:2 / 4; min-height:0; max-width:min(210px,calc(80dvh - 72px)); margin-bottom:8px; }
+  .record-export-actions,.record-export-status { grid-column:2; }
+  .record-export-actions { flex-direction:column; align-self:end; padding-top:5px; }
+  .record-export-status { align-self:start; }
+}

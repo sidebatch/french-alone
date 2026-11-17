@@ -1,5 +1,5 @@
 import { today } from './core.js';
-import { isRecordDate, monthDates, shiftMonth, monthSummary, recordSummary } from './records-core.js';
+import { WEEKDAYS, isRecordDate, monthDates, shiftMonth, monthSummary, recordSummary } from './records-core.js';
 import { makeRecordCard } from './record-card.js';
 
 const dateLabel = date => new Date(`${date}T12:00:00`).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
@@ -16,7 +16,7 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
     const [year, number] = month.split('-').map(Number);
     const title = `${year}년 ${number}월`;
     return `<section id="learning-records" class="learning-records" aria-labelledby="records-heading">
-      <div class="records-heading"><div><p class="section-kicker">하루하루, 쌓이는 프랑스어</p><h2 id="records-heading">나의 학습 달력</h2></div>
+      <div class="records-heading"><h2 id="records-heading">학습 달력</h2>
         <button class="secondary-button" data-action="record-open" ${records[now] ? '' : 'disabled'}>오늘 학습 인증 ${icon('sparkles')}</button></div>
       <div class="records-layout"><div class="record-calendar">
         <div class="calendar-heading"><h3 id="calendar-month" aria-live="polite">${title}</h3><div class="calendar-controls">
@@ -24,7 +24,7 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
           <button class="icon-button calendar-prev" data-action="record-month" data-value="-1" aria-label="이전 달" ${month <= '1900-01' ? 'disabled' : ''}>${icon('chevron')}</button>
           <button class="icon-button" data-action="record-month" data-value="1" aria-label="다음 달" ${month >= currentMonth() ? 'disabled' : ''}>${icon('chevron')}</button></div></div>
         <div class="month-totals"><span><b>${summary.days}</b>일 학습</span><span><b>${summary.stamps}</b>일 목표 달성</span><span><b>${amount(summary.questions)}</b>문제 기록</span><span><b>${amount(summary.xp)}</b> XP</span></div>
-        <div class="calendar-weekdays" aria-hidden="true">${['월', '화', '수', '목', '금', '토', '일'].map(day => `<span>${day}</span>`).join('')}</div>
+        <div class="calendar-weekdays" aria-hidden="true">${WEEKDAYS.map(day => `<span>${day}</span>`).join('')}</div>
         <div class="calendar-dates" role="group" aria-labelledby="calendar-month">${monthDates(month).map(date => {
           if (!date) return '<span class="calendar-blank" aria-hidden="true"></span>';
           const day = records[date], label = `${dateLabel(date)}, ${day ? '학습 기록 있음' + (day.stamp ? ', 하루 목표 달성' : '') : '학습 기록 없음'}`;
@@ -34,7 +34,6 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
       </div><div class="record-detail" aria-live="polite" aria-atomic="true">
         <p class="record-date-label">${dateLabel(selected)}</p>
         ${record ? `<div class="record-day-badge">${icon(record.stamp ? 'check' : 'sun')}${record.stamp ? '하루 목표를 마친 날' : '프랑스어를 만난 날'}</div>
-          <h3>조금씩, 내 말이 되어 가요.</h3>
           <dl class="record-day-stats"><div><dt>${record.partial ? '기록된 문제' : '완료한 문제'}</dt><dd>${record.partial && !record.questions ? '기록 있음' : amount(record.questions) + '<small>문제</small>'}</dd></div><div><dt>경험치</dt><dd>+${amount(record.xp)}<small>XP</small></dd></div></dl>
           <p class="record-breakdown">문장 연습 ${amount(record.practiceQuestions)}문제${record.basicQuestions ? ` · 기초 퀴즈 ${amount(record.basicQuestions)}문제` : ''}</p>
           <p class="record-streak">${record.streak}일 연속 학습 · 하루 목표 ${record.stamps}일 달성</p>
@@ -126,10 +125,12 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
     const button = event.target.closest('[data-action="record-date"]');
     if (!button || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
-    const date = new Date(`${button.dataset.value}T12:00:00`), weekday = (date.getDay() + 6) % 7;
+    const date = new Date(`${button.dataset.value}T12:00:00`), weekday = date.getDay();
     const offset = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -weekday, End: 6 - weekday }[event.key];
     date.setDate(date.getDate() + offset);
-    const target = today(date);
+    let target = today(date);
+    if (event.key === 'End' && target > today()) target = today();
+    if (event.key === 'Home' && target < '1900-01-01') target = '1900-01-01';
     if (target > today() || target < '1900-01-01') return;
     selected = target; month = target.slice(0, 7); refresh(`[data-value="${target}"]`);
   });

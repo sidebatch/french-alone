@@ -34,6 +34,14 @@ test('learner can finish a quiz, save progress, search, review mistakes, and res
   assert.equal(Object.values(saved().activity)[0].basicRounds,1);
   click('#study-dialog [data-action="close"]');assert.equal($('#study-dialog').open,false);
   navigate('vocabulary');assert.equal(document.querySelectorAll('.expression').length,phrases.length);
+  assert.equal(document.querySelectorAll('[data-vocab-topic]').length,12);
+  $('[data-vocab-topic="greetings"]').open=true;
+  click('[data-action="favorite"][data-id="greetings-1"]');
+  assert.ok($('[data-vocab-topic="greetings"]').open,'saving an expression preserves its open topic');
+  const detail=$('[data-action="phrase-detail"][data-id="greetings-1"]');detail.focus();detail.click();
+  click('#study-dialog [data-action="close"]');
+  assert.ok($('[data-vocab-topic="greetings"]').open);
+  assert.equal(document.activeElement,$('[data-action="phrase-detail"][data-id="greetings-1"]'),'closing a phrase restores its replacement button');
   const search=$('#phrase-search');search.value='cafe';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(document.querySelectorAll('.expression').length,1);assert.match($('#phrase-list').textContent,/Un café/);
   search.value='<script>';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.match($('#phrase-list').textContent,/검색 결과가 없어요/);
   search.value='';search.dispatchEvent(new dom.window.Event('input',{bubbles:true}));click('[data-action="vocab-filter"][data-value="틀린 표현"]');assert.equal(document.querySelectorAll('.expression').length,1);

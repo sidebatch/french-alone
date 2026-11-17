@@ -103,7 +103,17 @@ async function setup(initialPractice,initialDrafts,initialGrammar) {
 test('short rounds retain the input, resume assisted tiles and retry only the difficult question',async()=>{
   const f=await setup();f.click('[data-action="practice-daily"]');f.answer();
   const input=f.$('#practice-input');f.type('veu');assert.equal(f.$('#practice-input'),input);
+  assert.equal(f.$('.game-body #practice-feedback').hidden,false);
+  assert.equal(f.$('.game-footer #word-feedback'),null);
   assert.equal(f.$('#practice-explanation').hidden,true);
+  f.click('[data-action="practice-why"]');
+  assert.equal(document.activeElement,f.$('#practice-explanation'),'opening the explanation keeps focus out of the keyboard');
+  assert.equal(f.$('#practice-explanation').hidden,false);
+  f.click('[data-action="practice-why"]');
+  assert.equal(document.activeElement,f.$('[data-action="practice-why"]'),'closing the explanation does not reopen the keyboard');
+  input.value='vex';input.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
+  assert.equal(input.getAttribute('aria-invalid'),'false');
+  assert.equal(f.$('#word-feedback').textContent,'');
   f.type('vex');assert.equal(f.$('#practice-input'),null);f.pick('v');
   f.click('#study-dialog [data-action="close"]');
   const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
@@ -332,6 +342,9 @@ test('explicit grammar destinations open separate cards and preserve the answere
 
 test('grammar tab keeps search and focus, shares personal counts and resets with learning records',async()=>{
   const f=await setup();f.nav('grammar');assert.equal(f.dom.window.document.querySelectorAll('.grammar-entry').length,grammarArticles.length);
+  assert.equal(f.dom.window.document.querySelectorAll('[data-grammar-topic]').length,4);
+  assert.ok(f.$('.grammar-filters').hidden);
+  f.$('[data-grammar-topic="verbs"]').open=true;
   const search=f.$('#grammar-search');search.value='vu';search.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
   assert.equal(f.$('#grammar-search'),search);const entry=f.$('.grammar-entry');assert.equal(entry.dataset.id,'participles');
   f.click(entry);assert.match(f.$('#grammar-title').textContent,/과거분사/);
@@ -345,7 +358,9 @@ test('grammar tab keeps search and focus, shares personal counts and resets with
   assert.equal(entry.querySelector('[data-grammar-count] span').textContent,'1');
   f.click(entry);f.click('[data-action="grammar-close"]');assert.equal(entry.querySelector('[data-grammar-count] span').textContent,'2');
   f.nav('home');f.nav('grammar');assert.equal(f.$('#grammar-search').value,'vu');
-  f.click('[data-action="grammar-clear"]');f.click('[data-action="grammar-filter"][data-value="tenses"]');
+  f.click('[data-action="grammar-clear"]');
+  assert.ok(f.$('[data-grammar-topic="verbs"]').open,'opened topics survive a search');
+  f.click('[data-action="grammar-filter"][data-value="tenses"]');
   assert.ok(f.dom.window.document.querySelectorAll('.grammar-group').length===1);
   f.click('.header-settings');f.click('[data-action="reset-confirm"]');f.click('[data-action="reset"]');
   assert.deepEqual(JSON.parse(f.dom.window.localStorage.getItem(GRAMMAR_KEY)).counts,{});

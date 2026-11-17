@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { freshState, finishLesson, readState } from '../dist/core.js';
 import { phrases } from '../dist/data.js';
 import { freshPractice, recordPractice, readPractice, dailyDeck } from '../dist/practice-core.js';
-import { learningRecords, recordSummary, monthDates, monthSummary, shiftMonth } from '../dist/records-core.js';
+import { learningRecords, recordSummary, monthDates, monthSummary, shiftMonth, weekDates } from '../dist/records-core.js';
 
 test('legacy activity remains visible without inventing question counts or doubling practice XP', () => {
   const records = learningRecords({
@@ -63,11 +63,15 @@ test('historical cards only include stamps and consecutive days earned by their 
   assert.equal(monthSummary(records, '2026-11', '2026-11-02').days, 2);
 });
 
-test('month navigation handles leap years, Monday alignment, and December boundaries', () => {
+test('months and weeks start on Sunday across leap days and year boundaries', () => {
   assert.equal(monthDates('2024-02').filter(Boolean).length, 29);
   assert.equal(monthDates('2025-02').filter(Boolean).length, 28);
-  assert.deepEqual(monthDates('2026-11').slice(0, 7), [null, null, null, null, null, null, '2026-11-01']);
-  assert.equal(monthDates('2026-11').length, 42);
+  assert.deepEqual(monthDates('2026-11').slice(0, 7), Array.from({length:7},(_,i)=>'2026-11-0'+(i+1)));
+  assert.equal(monthDates('2026-11').length, 35);
+  assert.equal(monthDates('2025-03').indexOf('2025-03-01'),6);
+  assert.equal(monthDates('2025-03').length,42);
+  assert.deepEqual(weekDates(new Date(2026,0,1)).map(d=>d.getDay()),[0,1,2,3,4,5,6]);
+  assert.deepEqual(weekDates(new Date(2026,0,1)).map(d=>d.getDate()),[28,29,30,31,1,2,3]);
   assert.equal(shiftMonth('2026-12', 1), '2027-01');
   assert.equal(shiftMonth('2026-01', -1), '2025-12');
 });

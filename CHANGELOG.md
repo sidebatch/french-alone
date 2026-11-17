@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.17.0 — 2026-11-17
+
+- Start monthly calendars and weekly learning records on Sunday, including keyboard navigation.
+- Keep typed answers, corrections and action buttons accessible when the mobile keyboard opens. Opening an explanation keeps focus on the explanation.
+- Group vocabulary and grammar references by topic. Keep opened topics and focus when saving expressions, searching and returning from details.
+- Bring course cards higher on the page with expandable filters. Compact calendar details, quiz feedback and certificate previews, with secondary statistics and sound controls available on demand.
+
 ## 1.16.0 — 2026-11-16
 
 - Add seven outfits in all four poses, four eyewear designs and five beret accessories to Lou’s wardrobe. Mint cloud pajamas are free. The other pieces cost one to six study stamps.
