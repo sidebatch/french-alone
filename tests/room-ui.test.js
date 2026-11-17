@@ -6,10 +6,11 @@ import { today } from '../dist/core.js';
 import { addDays } from '../dist/practice-core.js';
 import { ROOM_KEY } from '../dist/room-core.js';
 import { ROOM_ITEMS } from '../dist/room-catalog.js';
+import { WEARABLES } from '../dist/wardrobe.js';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 test('wardrobe previews, buys, layers and restores an outfit without consuming room slots',async()=>{
   const f=setup(),click=(action,value)=>f.click(`[data-action="room-${action}"]${value?'[data-value="'+value+'"]':''}`);
-  click('open');click('tab','wardrobe');click('try','star-cape');
+  click('open');click('tab','wardrobe');click('page','next');click('try','star-cape');
   const dressed=f.$('.fitting-mirror .lou-avatar[data-worn="star-cape"]');
   assert.match(dressed.style.backgroundImage,/lou-outfits\/star-cape\.webp/);assert.equal(dressed.querySelector('img[data-worn]'),null);assert.equal(f.$('[data-action="room-buy"]').disabled,true);
   click('goal');assert.equal(f.saved().goal,'star-cape');
@@ -60,6 +61,35 @@ test('the catalog pages through every decoration and filtering returns to the fi
   assert.deepEqual([...f.w.document.querySelectorAll('[data-action="room-preview"]')].map(card=>card.dataset.value),plants.slice(0,6).map(item=>item.id));
   f.preview('tulips');assert.ok(f.$('[data-room-object="preview"]'));
   f.click('[data-action="room-untry"]');assert.equal(f.$('[data-room-object="preview"]'),null);
+  f.dom.window.close();
+});
+test('wardrobe pages keep the fitting-room preview, and free and paid pieces can be mixed and removed separately',async()=>{
+  const f=setup({count:4});
+  const click=(action,value)=>f.click(`[data-action="room-${action}"]${value?'[data-value="'+value+'"]':''}`);
+  click('open');click('tab','wardrobe');
+  for(const slot of ['body','eyes','head']){
+    click('slot',slot);
+    const seen=[];
+    for(;;){
+      const cards=[...f.w.document.querySelectorAll('.wardrobe-grid [data-action="room-try"]')];
+      assert.ok(cards.length>0&&cards.length<=6);
+      seen.push(...cards.map(card=>card.dataset.value));
+      if(f.$('[data-action="room-page"][data-value="next"]').disabled)break;
+      click('page','next');
+    }
+    assert.deepEqual(seen,WEARABLES.filter(item=>item.slot===slot).map(item=>item.id));
+  }
+  click('slot','body');click('try','cloud-pajamas');
+  assert.equal(f.ui.balance(),4);assert.equal(f.$('.fitting-mirror .lou-avatar').dataset.worn,'cloud-pajamas');
+  click('try','lunar-suit');click('page','next');
+  assert.equal(f.$('.fitting-mirror .lou-avatar').dataset.worn,'lunar-suit');
+  click('untry');assert.equal(f.$('.fitting-mirror .lou-avatar').dataset.worn,'cloud-pajamas');
+  click('slot','eyes');click('try','opera-monocle');click('buy');await tick();
+  click('slot','head');click('try','lavender-pin');click('buy');await tick();click('save');
+  assert.equal(f.ui.balance(),0);
+  assert.deepEqual(f.saved().layout.look,{coat:'cream',pose:'auto',body:'cloud-pajamas',eyes:'opera-monocle',head:'lavender-pin'});
+  click('open');click('tab','wardrobe');click('slot','eyes');click('unequip');click('save');
+  assert.deepEqual(f.saved().layout.look,{coat:'cream',pose:'auto',body:'cloud-pajamas',eyes:null,head:'lavender-pin'});
   f.dom.window.close();
 });
 test('buying and reusing an item charges once, and cancel keeps ownership while discarding layout edits',async()=>{

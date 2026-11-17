@@ -96,6 +96,10 @@ html:has(#room-dialog[open]) { overflow:hidden; overscroll-behavior:none; }
 .room-preview-actions .secondary-button[aria-pressed=true] { background:#dde8d0; }
 .catalog-heading,.room-categories { display:flex; align-items:center; flex-wrap:wrap; gap:5px; margin:0 0 8px; }
 .catalog-heading { justify-content:space-between; }
+.wardrobe-heading .room-categories { margin:0; gap:3px; }
+.wardrobe-heading .room-categories button { min-width:36px; padding-inline:6px; }
+.wardrobe-heading .room-pager { gap:3px; }
+.wardrobe-heading .room-pager button { width:36px; }
 .catalog-heading label { display:flex; align-items:center; gap:6px; font-size:12px; color:#627751; }
 .catalog-heading select { padding-right:4px; }
 .room-pager { display:flex; align-items:center; gap:6px; }
@@ -107,13 +111,13 @@ html:has(#room-dialog[open]) { overflow:hidden; overscroll-behavior:none; }
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-width:0;
   border:1px solid #dfe5d4; border-radius:13px; background:#faf9f1; padding:8px 4px; color:#3e5a43;
 }
-.room-shop-item img,.wardrobe-none { width:100%; height:clamp(48px,7vw,72px); object-fit:contain; }
+.room-shop-item img { width:100%; height:clamp(48px,7vw,72px); object-fit:contain; }
 .room-shop-item b { font-size:12px; line-height:1.35; font-weight:600; word-break:keep-all; }
 .room-shop-item>span:last-child { color:#647958; font-size:11px; line-height:1.35; }
 .room-shop-item[aria-pressed=true],.room-swatches button[aria-pressed=true] { border-color:#698456; background:#edf2e4; box-shadow:inset 0 0 0 1px #698456; }
-.wardrobe-grid .room-shop-item img,.wardrobe-grid .wardrobe-none,.wardrobe-grid .lou-avatar { height:clamp(59px,17vw,78px); }
+.wardrobe-grid .room-shop-item img,.wardrobe-grid .lou-avatar { height:clamp(59px,17vw,78px); }
 .wardrobe-grid .lou-avatar { width:auto; aspect-ratio:1; }
-.wardrobe-none { display:grid; place-items:center; color:#999d90; font-size:29px; }
+
 .room-inventory-empty { grid-column:1/-1; margin:0; padding:20px 10px; color:#657958; font-size:13px; text-align:center; }
 .fitting-room { display:grid; justify-items:center; align-content:center; gap:12px; padding:15px; background:repeating-linear-gradient(90deg,#f6ede0 0 21px,#f3e7dc 21px 24px); border:1px solid #dfcdba; border-radius:18px; }
 .fitting-mirror { width:min(68%,204px); aspect-ratio:1; display:grid; place-items:center; border:4px solid #c6a581; border-radius:48% 48% 38% 38%; background:linear-gradient(122deg,#f7f9f1 12%,#deebe3 36%,#ecf2e9 37%,#eff3ea 42%,#d8e6de 43%,#f4f4e9 83%); box-shadow:inset 0 0 0 2px #ece0c8,0 3px 0 #ae9174; }
@@ -143,7 +147,7 @@ html:has(#room-dialog[open]) { overflow:hidden; overscroll-behavior:none; }
   .room-editor-layout { grid-template-columns:minmax(0,1fr); padding-top:9px; gap:9px; }
   .room-stage .room-scene { max-width:min(100%,40svh,310px); }
   .room-shop-item { padding:5px 4px; }
-  .room-shop-item img,.wardrobe-none { height:clamp(46px,14vw,59px); }
+  .room-shop-item img { height:clamp(46px,14vw,59px); }
   .fitting-room { grid-template-columns:minmax(100px,.95fr) minmax(0,1.05fr); justify-items:stretch; align-items:center; padding:8px; gap:9px; }
   .fitting-mirror { justify-self:center; width:min(100%,150px,24svh); }
   .fitting-caption { text-align:left; }
@@ -160,15 +164,22 @@ html:has(#room-dialog[open]) { overflow:hidden; overscroll-behavior:none; }
   .fitting-mirror { width:min(100%,35svh); }
   .fitting-caption { text-align:center; }
   .fitting-caption .room-preview-actions { justify-content:center; }
-  .room-shop-item img,.wardrobe-none,.wardrobe-grid .room-shop-item img,.wardrobe-grid .wardrobe-none,.wardrobe-grid .lou-avatar { height:42px; }
+  .room-shop-item img,.wardrobe-grid .room-shop-item img,.wardrobe-grid .lou-avatar { height:42px; }
   .room-shop-item { padding-block:4px; }
+}
+@media(max-width:340px), (min-width:560px) and (max-height:480px) {
+  .wardrobe-heading { gap:3px; }
+  .wardrobe-heading .room-pager button { width:32px; }
+  .wardrobe-heading .room-pager span { min-width:26px; }
+  .wardrobe-heading .room-categories { gap:2px; }
+  .wardrobe-heading .room-categories button { min-width:34px; padding-inline:4px; }
 }
 @media(max-width:360px) and (max-height:600px) {
   #room-dialog { --room-edge:10px; }
   .room-stage .room-scene { max-width:min(100%,32svh); }
   .room-shop-item { padding-block:4px; }
-  .room-shop-item img,.wardrobe-none { height:38px; }
-  .wardrobe-grid .room-shop-item img,.wardrobe-grid .wardrobe-none,.wardrobe-grid .lou-avatar { height:52px; }
+  .room-shop-item img { height:38px; }
+  .wardrobe-grid .room-shop-item img,.wardrobe-grid .lou-avatar { height:52px; }
   .room-editor-layout { gap:7px; }
 }
 @media(max-height:440px) { .room-dialog-header { position:static; } }

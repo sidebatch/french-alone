@@ -1,13 +1,14 @@
 /* Offline app shell. Keep this worker inside the repository's own Pages scope. */
 const CACHE_PREFIX = 'french-alone:' + self.registration.scope + ':';
-const CACHE_NAME = CACHE_PREFIX + '2026-11-16-release-1.15.0';
+const CACHE_NAME = CACHE_PREFIX + '2026-11-16-release-1.16.0';
 const APP_FILES = [
   './', './index.html', './style.css', './pwa.css', './product.css', './app.js', './core.js', './data.js',
   './wardrobe.js', './room-catalog.js', './room-core.js', './room-art.js', './room.js', './room.css',
   './records-core.js', './records.js', './record-card.js', './records.css',
   './practice-content.js','./practice-intermediate.js','./practice-lessons.js','./practice-goals.js','./grammar-data.js','./grammar-extra-data.js','./grammar-reference-basics.js','./grammar-reference-verbs.js','./grammar-reference-syntax.js','./grammar-terms.js','./grammar-core.js','./grammar.js','./grammar.css', './learning.css', './play.css', './practice.js', './practice-core.js', './practice-data.js', './pwa.js', './feedback.js', './ux.css', './study-viewport.js',
   './companion.js', './companion.css', './polish.css', './assets/lou-sprites-v2.webp', './manifest.webmanifest', './icon.svg',
-  ...['mariniere','baker-apron','denim','rose-knit','star-cape'].flatMap(id=>[
+  ...['mariniere','baker-apron','denim','rose-knit','star-cape','cloud-pajamas','citron-raincoat',
+    'picnic-dress','academy-blazer','lavender-tutu','velvet-tux','lunar-suit'].flatMap(id=>[
     `./assets/lou-outfits/${id}.webp`, `./assets/lou-outfits/${id}-thumb.webp`
   ]),
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'

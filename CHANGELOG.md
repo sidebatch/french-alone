@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.16.0 — 2026-11-16
+
+- Add seven outfits in all four poses, four eyewear designs and five beret accessories to Lou’s wardrobe. Mint cloud pajamas are free. The other pieces cost one to six study stamps.
+- Browse six wearable pieces per page. Paging keeps the fitting-room preview, and equipped items can be removed at the mirror.
+
 ## 1.15.0 — 2026-11-16
 
 - Keep the lesson start and room shortcuts within reach on the home screen. Give Lou’s room one scrolling surface on small screens, with six decorations per page and expandable placement controls.
