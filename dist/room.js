@@ -10,7 +10,7 @@ const TABS = {owned:'내 소품',shop:'소품 가게',wardrobe:'옷장',themes:'
 export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=>{}}) {
   let state=readRoom(storage,getDays()),memoryOnly=false,draft=null,baseLayout='',returnFocus=null;
   let tab='owned',category='전체',selected='lou',preview=null,previewId=null,drag=null,discard=false;
-  let slot='body',page=0;
+  let slot='body',page=0,discardReturn=null;
   const dialog=document.querySelector('#room-dialog');
   const days=()=>getDays();
   const balance=()=>wallet(state,days()).balance;
@@ -58,9 +58,10 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   function toolbar() {
     const placement=selectedPlacement();
     if(!placement)return '<p class="room-control-hint">방 안의 소품을 선택해 보세요.</p>';
+    const layer=draft.items.findIndex(item=>item.uid===selected);
     return `
       <div class="room-transform-controls"><label>크기 <output>${Math.round(placement.scale*100)}%</output><input aria-label="선택한 소품 크기" data-room-control="scale" type="range" min="60" max="160" step="5" value="${Math.round(placement.scale*100)}"></label><label>각도 <output>${placement.rotation}°</output><input aria-label="선택한 소품 각도" data-room-control="rotation" type="range" min="-30" max="30" step="5" value="${placement.rotation}"></label></div>
-      <div class="room-object-actions"><button data-action="room-flip">좌우 반전</button><button data-action="room-forward" ${['lou','preview'].includes(selected)?'disabled':''}>앞으로</button><button data-action="room-backward" ${['lou','preview'].includes(selected)?'disabled':''}>뒤로</button><button data-action="room-remove" ${selected==='lou'?'disabled':''}>${selected==='preview'?'미리보기 닫기':'보관함으로'}</button></div>
+      <div class="room-object-actions"><button data-action="room-flip" aria-label="선택한 소품 좌우 반전">뒤집기</button><button data-action="room-forward" ${layer<0||layer===draft.items.length-1?'disabled':''}>앞으로</button><button data-action="room-backward" ${layer<=0?'disabled':''}>뒤로</button><button data-action="room-remove" ${selected==='lou'?'disabled':''} aria-label="${selected==='preview'?'미리보기 닫기':'선택한 소품을 보관함으로 옮기기'}">${selected==='preview'?'닫기':'보관함'}</button></div>
       <div class="room-nudge" role="group" aria-label="선택한 소품 위치 이동"><span>조금씩 이동</span>${[['left','←','왼쪽'],['up','↑','위'],['down','↓','아래'],['right','→','오른쪽']].map(([id,label,name])=>`<button data-action="room-nudge" data-value="${id}" aria-label="${name}로 이동">${label}</button>`).join('')}</div>`;
   }
   function shopPreview() {
@@ -166,12 +167,15 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   }
   function open(initialTab='owned') {
     latest();syncGifts();draft=structuredClone(state.layout);baseLayout=JSON.stringify(state.layout);
-    preview=null;previewId=null;selected='lou';discard=false;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
+    preview=null;previewId=null;selected='lou';discard=false;discardReturn=null;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
     render(null,true);dialog.showModal();dialog.scrollTop=0;dialog.querySelector('[data-action="room-close"]').focus({preventScroll:true});
   }
   function close(force=false) {
     if(!dialog.open)return;
-    if(!force&&dirty()){discard=true;render('room-keep',true);return;}
+    if(!force&&dirty()){
+      if(!discard)discardReturn={top:dialog.scrollTop,expanded:Boolean(dialog.querySelector('.placement-tools')?.open)};
+      discard=true;render('room-keep',true);return;
+    }
     dialog.close();draft=null;drag=null;preview=null;discard=false;onChange();
     if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});
     else document.querySelector(returnFocus?.dataset.action==='room-closet'?'[data-action="room-closet"]':'[data-action="room-open"]')?.focus({preventScroll:true});
@@ -184,12 +188,13 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     status(selected==='preview'?'미리 보는 소품이에요. 마음에 들면 방에 놓아 보세요.':'배치를 바꿨어요. 저장하면 홈과 인증 카드에 담겨요.');
   }
   function placePreview() {
-    if(!preview||!owned().has(preview.itemId))return;
-    if(draft.items.length>=MAX_ROOM_ITEMS){status('한 방에는 24개까지 놓을 수 있어요. 소품을 보관함으로 옮겨 주세요.',true);return;}
+    if(!preview||!owned().has(preview.itemId))return false;
+    if(draft.items.length>=MAX_ROOM_ITEMS){status('한 방에는 24개까지 놓을 수 있어요. 소품을 보관함으로 옮겨 주세요.',true);return false;}
     const uid=`item-${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
     const item={...preview,uid};
     if(roomItem(item.itemId).category==='러그')draft.items.unshift(item);else draft.items.push(item);
     selected=uid;preview=null;previewId=null;render();status('방에 놓았어요.');
+    return true;
   }
   async function buy() {
     const itemId=previewId;if(!itemId)return;
@@ -200,8 +205,9 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
       persist();
       const clothing=wearable(itemId);
       if(clothing){draft.look[clothing.slot]=itemId;previewId=null;}
-      else if(preview?.itemId===itemId)placePreview();
-      render();status(`구매 완료 · ${shopItem(itemId).name}. 꾸미기를 저장하면 홈에서 볼 수 있어요.`);
+      const placed=clothing||placePreview();
+      render();
+      status(placed?`구매 완료 · ${shopItem(itemId).name}. 꾸미기를 저장하면 홈에서 볼 수 있어요.`:`구매 완료 · ${shopItem(itemId).name}. 내 소품에 보관했어요. 방의 소품을 보관함으로 옮기면 놓을 수 있어요.`,!placed);
     };
     try {
       if(window.navigator.locks?.request)await window.navigator.locks.request('french-alone-room-purchase',purchase);else purchase();
@@ -221,7 +227,15 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     if(action==='room-open'||action==='room-closet'){open(action==='room-closet'?'wardrobe':'owned');return;}
     if(!dialog.open)return;
     if(action==='room-close'){close();return;}if(action==='room-discard'){close(true);return;}
-    if(action==='room-keep'){discard=false;render('room-save');return;}if(action==='room-save'){save();return;}
+    if(action==='room-keep'){
+      discard=false;render();
+      const tools=dialog.querySelector('.placement-tools');
+      if(tools)tools.open=Boolean(discardReturn?.expanded);
+      dialog.scrollTop=discardReturn?.top||0;discardReturn=null;
+      (dialog.querySelector('.placement-tools[open]>summary')||dialog.querySelector('.room-tabs [aria-pressed="true"]'))?.focus({preventScroll:true});
+      return;
+    }
+    if(action==='room-save'){save();return;}
     if(action==='room-buy'){button.disabled=true;void buy();return;}
     if(action==='room-slot'&&(Object.hasOwn(SLOTS,value)||value==='appearance')){slot=value;page=0;previewId=null;render();return;}
     if(action==='room-pose'&&Object.hasOwn(POSES,value)){draft.look.pose=value;render();return;}

@@ -30,4 +30,5 @@
   .reference-group .grammar-list { gap:6px; }
   .grammar-search { margin-bottom:12px; }
   .grammar-entry { min-height:58px; }
+  .grammar-entry,#grammar-results>.empty-state .secondary-button { scroll-margin-bottom:calc(96px + env(safe-area-inset-bottom)); }
 }

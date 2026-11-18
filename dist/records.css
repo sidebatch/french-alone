@@ -9,11 +9,13 @@
 @media(max-width:650px){.learning-records{border-radius:20px}.records-heading{padding:22px 19px 15px;align-items:flex-start;flex-direction:column;gap:13px}.records-heading h2{font-size:21px}.records-heading .secondary-button{padding:9px 13px;font-size:11px}.record-calendar{padding:3px 14px 22px}.calendar-heading{padding:0 4px}.calendar-heading h3{font-size:16px}.calendar-controls{gap:0}.calendar-controls .text-link{margin-right:2px}.calendar-weekdays,.calendar-dates{gap:2px}.calendar-date{min-height:47px;font-size:13px;border-radius:10px}.month-totals{padding:0 4px;gap:13px;font-size:10px;margin-bottom:19px}.month-totals b{font-size:16px}.calendar-legend{font-size:9px;gap:8px;padding:0 4px}.record-detail{padding:24px 22px}.record-detail h3{font-size:20px}.record-day-stats dd{font-size:26px}.record-detail>.primary-button{width:100%;align-self:auto}.record-dialog-header{padding:15px 18px 12px}.record-preview{width:calc(100% - 30px);max-width:330px}.record-export-actions{padding:17px 16px 0}.record-export-status{margin:12px 18px 19px;font-size:10px}}
 
 .records-heading h2 { margin:0; }
+.calendar-controls .text-link { min-width:44px; justify-content:center; }
 .record-day-badge { margin-bottom:12px; }
+.record-detail { scroll-margin-block:16px; }
 .progress-more { margin:12px 0; }
 .progress-more-body { padding:0 clamp(10px,2vw,24px) 16px; }
 .record-preview { max-width:min(365px,calc(80dvh - 155px)); }
-@media(max-width:650px) {
+@media(max-width:760px) {
   .learning-records { margin-bottom:12px; }
   .records-heading { flex-direction:row; flex-wrap:wrap; align-items:center; padding:12px 14px 5px; gap:4px 8px; }
   .records-heading h2 { font-size:18px; }
@@ -23,7 +25,7 @@
   .calendar-legend { margin-top:9px; }
   .month-totals { margin:4px 0 10px; gap:3px 10px; }
   .month-totals b { font-size:14px; }
-  .record-detail { padding:14px 16px; }
+  .record-detail { padding:14px 16px; scroll-margin-bottom:calc(96px + env(safe-area-inset-bottom)); }
   .record-date-label { margin-bottom:9px; }
   .record-streak { margin-bottom:12px; }
   .record-empty>svg { display:none; }

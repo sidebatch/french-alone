@@ -77,6 +77,12 @@ export function createGrammar({storage,icon,escape,onSaveError=()=>{}}) {
     }
   });
   doc.addEventListener('input',event=>{if(event.target.id==='grammar-search'){query=event.target.value;refreshResults();}});
+  doc.addEventListener('keydown',event=>{
+    if(event.target.id!=='grammar-search'||event.key!=='Enter'||event.isComposing)return;
+    event.preventDefault();
+    const result=doc.querySelector('#grammar-results .grammar-entry, #grammar-results summary, #grammar-results .secondary-button');
+    if(result){result.focus({preventScroll:true});result.scrollIntoView?.({block:'nearest',behavior:'instant'});}
+  });
   doc.addEventListener('toggle',event=>{
     const id=event.target.dataset?.grammarTopic;if(!id)return;
     if(event.target.open)openedTopics.add(id);else openedTopics.delete(id);

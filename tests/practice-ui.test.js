@@ -203,6 +203,34 @@ test('IME composition cannot accidentally grade an unfinished answer',async()=>{
   assert.equal(f.$('[data-action="practice-next"]'),null);assert.equal(f.$('.answer-attempt'),null);
   f.$('#practice-input').dispatchEvent(new f.dom.window.Event('compositionend',{bubbles:true}));f.type('veux');assert.ok(f.$('[data-action="practice-next"]'));
 });
+
+test('sentence answers wrap, preserve accent edits on resume, and submit with Enter after composition',async()=>{
+  const f=await setup();f.course('opinion-links');
+  while(f.current().id!=='opinion-links-9')f.answer();
+  const input=f.$('#practice-input');
+  assert.equal(input.tagName,'TEXTAREA');
+  input.value='caf';input.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));input.setSelectionRange(3,3);
+  f.click('[data-action="practice-accents"]');
+  f.click('[data-action="practice-accent"][data-value="é"]');
+  assert.equal(input.value,'café');
+  f.click('#study-dialog [data-action="close"]');
+  f.nav('home');
+  f.click('[data-action="practice-resume"]');
+  const restored=f.$('#practice-input');
+  assert.equal(restored.tagName,'TEXTAREA');assert.equal(restored.value,'café');
+  restored.value=f.current().answer;
+  restored.dispatchEvent(new f.dom.window.Event('input',{bubbles:true}));
+  restored.dispatchEvent(new f.dom.window.Event('compositionstart',{bubbles:true}));
+  restored.dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true,isComposing:true}));
+  assert.equal(f.$('[data-action="practice-next"]'),null);
+  restored.dispatchEvent(new f.dom.window.Event('compositionend',{bubbles:true}));
+  const newline=new f.dom.window.KeyboardEvent('keydown',{key:'Enter',shiftKey:true,bubbles:true,cancelable:true});
+  restored.dispatchEvent(newline);assert.equal(newline.defaultPrevented,false);
+  const submit=new f.dom.window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true});
+  restored.dispatchEvent(submit);
+  assert.equal(submit.defaultPrevented,true);assert.ok(f.$('[data-action="practice-next"]'));
+  assert.equal(f.errors.length,0);
+});
 test('course filters and compact home keep unfinished courses accessible',async()=>{
   const f=await setup();assert.equal(document.querySelectorAll('.practice-pack').length,0);assert.ok(f.$('[data-action="practice-daily"]'));
   f.dom.window.history.replaceState({},'','#lessons');f.dom.window.dispatchEvent(new f.dom.window.HashChangeEvent('hashchange'));

@@ -42,11 +42,12 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
       </div></div>
     </section>`;
   }
-  function refresh(focusSelector) {
+  function refresh(focusSelector, showDetail = false) {
     const root = document.querySelector('#learning-records');
     if (!root) return;
     root.outerHTML = render();
     if (focusSelector) (document.querySelector(`#learning-records ${focusSelector}`) || document.querySelector('#learning-records [data-action="record-today"]'))?.focus({ preventScroll: true });
+    if (showDetail) document.querySelector('#learning-records .record-detail')?.scrollIntoView?.({ block: 'nearest', behavior: 'instant' });
   }
   function releaseCard() {
     if (cardURL) window.URL.revokeObjectURL(cardURL);
@@ -113,7 +114,7 @@ export function createRecords({ getRecords, getRoom = () => null, icon, escape, 
     if (action === 'record-download') { download(); return; }
     if (action === 'record-share') { void share(); return; }
     if (action === 'record-today') { selected = today(); month = currentMonth(); refresh(`[data-value="${selected}"]`); }
-    if (action === 'record-date' && isRecordDate(value) && value <= today()) { selected = value; refresh(`[data-value="${value}"]`); }
+    if (action === 'record-date' && isRecordDate(value) && value <= today()) { selected = value; refresh(`[data-value="${value}"]`, true); }
     if (action === 'record-month' && ['-1', '1'].includes(value)) {
       const target = shiftMonth(month, Number(value));
       if (target < '1900-01' || target > currentMonth()) return;

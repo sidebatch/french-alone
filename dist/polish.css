@@ -286,3 +286,30 @@ main{padding-top:30px}
   .lesson-card{gap:9px;padding:14px 12px}.lesson-card .lesson-icon{width:35px;height:41px}.lesson-card h3{font-size:13px}.lesson-card p{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.primary-button,.practice-pack{transition:none}.primary-button:active,.choice:active:not(:disabled),.practice-pack:hover,.practice-pack:active{transform:none}}
+
+.vocab-top>.search-box { flex:1; max-width:none; min-width:0; }
+.vocab-top .search-box input { flex:1; width:0; font-size:16px; }
+.vocab-top>.primary-button { flex-shrink:0; }
+.topic-review { display:flex; justify-content:flex-end; padding:0 12px 8px; }
+.topic-review .sound-button { min-height:44px; padding:8px 12px; border:1px solid #dce5d1; border-radius:11px; font-size:13px; }
+.home-basic-resume { width:100%; gap:8px; justify-content:flex-start; text-align:left; line-height:1.5; padding:8px 0; }
+.home-basic-resume span { flex:1; }
+.home-basic-resume svg { flex:none; width:16px; height:16px; }
+#study-dialog .review-body .flashcard { min-height:clamp(145px,28dvh,240px); padding:20px; }
+.review-body .flashcard .big-french { font-size:28px; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; }
+.review-body .flashcard .big-french[lang="fr"] { word-break:normal; }
+.review-body .flashcard .pronunciation { color:#64725a; }
+.review-body .flashcard .hint { color:#64725a; margin-top:14px; }
+.review-body .review-note { margin:12px 0 0; text-align:left; }
+.review-body .review-note p { font-size:14px; line-height:1.8; }
+.review-body .study-controls { margin-top:14px; }
+@media(max-width:600px) {
+  .vocab-top { flex-wrap:wrap; gap:8px; }
+  .vocab-top>.search-box { flex:1 1 100%; }
+  .vocab-top>.primary-button { min-height:44px; margin-left:auto; }
+  .review-body .flashcard .big-french { font-size:25px; }
+}
+
+@media(max-width:760px) {
+  #phrase-list summary,#phrase-list .fr,#phrase-list .empty-state { scroll-margin-bottom:calc(96px + env(safe-area-inset-bottom)); }
+}

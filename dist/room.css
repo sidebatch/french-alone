@@ -78,6 +78,7 @@ html:has(#room-dialog[open]) { overflow:hidden; overscroll-behavior:none; }
 .room-transform-controls output { float:right; }
 .room-transform-controls input { display:block; width:100%; min-height:32px; margin:0; accent-color:#5d7f4f; }
 .room-object-actions,.room-nudge { display:flex; flex-wrap:wrap; align-items:center; gap:5px; }
+.room-object-actions button { white-space:nowrap; }
 .room-object-actions button,.room-nudge button,.wardrobe-poses button,.room-categories button,.room-pager button,.catalog-heading select {
   border:1px solid #d7dfcc; border-radius:10px; background:#fffdf6; color:#536d4a; min-height:40px; font:inherit; font-size:12px; padding:6px 10px;
 }

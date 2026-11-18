@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.0 — 2026-11-18
+
+- Wrap sentence answers as learners type. Preserve accent editing, drafts and Enter-to-check while protecting unfinished IME input.
+- Widen vocabulary search and finish vocabulary and grammar searches with Enter. Add short reviews within each vocabulary topic and show flashcard usage notes on demand.
+- Resume unfinished basic lessons from the home screen. Reveal a selected calendar day's details above the mobile navigation.
+- Restore expanded placement controls and scroll position when continuing room decoration. Disable unavailable layering actions and explain purchases kept in a full room's inventory.
+
 ## 1.17.0 — 2026-11-17
 
 - Start monthly calendars and weekly learning records on Sunday, including keyboard navigation.

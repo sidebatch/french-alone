@@ -12,7 +12,7 @@ import { createRecords } from './records.js';
 import { createRoom } from './room.js';
 import { stampsForQuestions } from './room-core.js';
 
-const APP_VERSION = '1.17.0';
+const APP_VERSION = '1.18.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -67,12 +67,13 @@ function heading(title) {return `<div class="page-heading"><h1>${title}</h1><spa
 function renderHome() {
   const resume=practice.resumeInfo(),progress=practice.dailyProgress(),stamp=progress.questions>=3;
   const next=practice.recommended();
+  const basicResume=lessons.find(lesson=>state.lessonProgress[lesson.id]);
   const roomMarkup='<div class="home-room-view"><div class="room-entry-actions" role="group" aria-label="루의 방"><button data-action="room-open">'+icon('home')+'방 꾸미기</button><button data-action="room-closet">'+icon('bag')+'루의 옷장</button></div>'+room.renderScene(stamp?'complete':'wave')+'</div>';
   return '<div class="page-heading home-heading play-home-heading"><div><h1>루와, 가볍게 한 판.</h1></div><a class="home-streak" href="#progress">'+icon('flame')+streak(state)+'일</a></div>'+
     practice.renderLevelPicker()+'<div class="play-home-grid"><section class="hero play-home-hero" aria-label="오늘의 한 판"><div class="today-line"><span>'+icon('sparkles')+(resume?'이어서 한 판':stamp?'오늘도 해냈어요':practice.level()==='intermediate'?'오늘의 중급 한 판':'오늘의 한 판')+'</span><span class="stamp-label '+(stamp?'is-done':'')+'">'+icon(stamp?'check':'sun')+(stamp?'오늘 스탬프 '+stampsForQuestions(progress.questions)+'개':'오늘 '+Math.min(progress.questions,3)+' / 3')+'</span></div><div class="home-highlights"><div class="home-lesson-actions">'+
     '<div class="home-mission"><h2>'+(resume?'멈춘 곳부터 이어가요.':stamp?'한 번 더 해볼까요?':'다섯 문제면 충분해요.')+'</h2><p>'+(resume?escape(resume.title)+' · '+(resume.total-resume.index)+'문제 남음':practice.level()==='intermediate'?escape(next.title)+' · 읽고, 직접 쓰기':'<span lang="fr">'+escape(next.pattern.split('+')[0].trim())+'</span> · 읽고, 맞추고, 직접 쓰기')+'</p></div>'+
     '<button class="primary-button home-play" data-action="'+(resume?'practice-resume':'practice-daily')+'">'+(resume?'이어서 학습하기':'5문제 시작')+icon('arrow')+'</button>'+
-    '<div class="home-play-meta"><span>'+icon('check')+'자동 저장</span><button class="text-link" data-action="practice-light">가볍게 3문제</button></div></div>'+roomMarkup+'</div></section>'+
+    '<div class="home-play-meta"><span>'+icon('check')+'자동 저장</span><button class="text-link" data-action="practice-light">가볍게 3문제</button></div>'+(basicResume?'<button class="home-basic-resume text-link" data-action="lesson" data-id="'+basicResume.id+'">'+icon('book')+'<span>'+escape(basicResume.subtitle)+' 이어하기</span>'+icon('chevron')+'</button>':'')+'</div>'+roomMarkup+'</div></section>'+
     '<aside class="play-home-side">'+room.renderSummary()+
     '<section class="side-card goal-card home-week"><div class="goal-heading"><h2>이번 주의 발자국</h2><a class="text-link" href="#progress">기록 보기'+icon('chevron')+'</a></div><div class="goal-days">'+weekDates().map((d,i)=>'<div class="day '+(today(d)===today()?'today ':'')+(state.activity[today(d)]?'done':'')+'" aria-label="'+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+(state.activity[today(d)]?'학습 완료':'학습 기록 없음')+'">'+WEEKDAYS[i]+'<span>'+(state.activity[today(d)]?icon('check'):d.getDate())+'</span></div>').join('')+'</div>'+(state.activity[today()]?'<button class="home-record-link" data-action="record-open">'+icon('sparkles')+'오늘 학습 인증</button>':'')+'</section></aside></div>'+
     '<nav class="home-destinations" aria-label="다른 학습"><a href="#lessons" data-action="open-practice"><span>'+icon('book')+'</span><div><b>코스 골라보기</b><small>21개 코스 · 210문제</small></div>'+icon('chevron')+'</a><a href="#vocabulary" data-action="open-saved"><span>'+icon('cards')+'</span><div><b>나의 단어장</b><small>저장한 표현 '+state.favorites.length+'개</small></div>'+icon('chevron')+'</a><a href="#lessons" data-action="open-basics"><span>'+icon('sun')+'</span><div><b>기초 표현</b><small>짧게 익히는 한마디</small></div>'+icon('chevron')+'</a></nav>';
@@ -100,7 +101,7 @@ function phraseListHTML() {
   if(!grouped)return deck.map(card).join('');
   return lessons.map(lesson=>{
     const items=getPhrases(lesson.id);
-    return `<details class="reference-group vocab-group" data-vocab-topic="${lesson.id}" ${openVocabTopics.has(lesson.id)?'open':''}><summary>${escape(lesson.subtitle)}<small>${items.length}개 표현</small></summary><div class="phrase-group-items">${items.map(card).join('')}</div></details>`;
+    return `<details class="reference-group vocab-group" data-vocab-topic="${lesson.id}" ${openVocabTopics.has(lesson.id)?'open':''}><summary>${escape(lesson.subtitle)}<small>${items.length}개 표현</small></summary><div class="topic-review"><button type="button" class="sound-button" data-action="review-topic" data-id="${lesson.id}" aria-label="${escape(lesson.subtitle)} ${items.length}개 표현 복습">${icon('cards')}${items.length}개 표현 복습</button></div><div class="phrase-group-items">${items.map(card).join('')}</div></details>`;
   }).join('');
 }
 function rememberVocabTopics(){
@@ -188,7 +189,7 @@ function renderReview() {
     content.innerHTML=`${dialogHeader('복습 완료')}<div class="dialog-body center"><div class="lesson-companion">${companionMessage("complete",room.avatar)}</div><h3 class="dialog-title">복습 완료</h3><p class="explanation">${s.known} / ${s.deck.length}개 기억</p></div><div class="dialog-footer">${s.retry.length?'<button class="secondary-button" data-action="review-retry">낯선 표현만 다시</button>':''}<button class="primary-button" data-action="close">복습 마치기 ${icon('check')}</button></div>`;
   } else {
     const p=s.deck[s.index];
-    content.innerHTML=`${dialogHeader('한마디 복습',(s.index+1)/s.deck.length*100,`${s.index+1} / ${s.deck.length}`)}<div class="dialog-body center"><div class="dialog-eyebrow">뜻 떠올리기</div><button class="flashcard ${s.flipped?'is-flipped':''}" data-action="flip" aria-label="${s.flipped?'프랑스어 보기':'카드를 눌러 뜻 확인'}"><span class="big-french" ${s.flipped?'':'lang="fr"'}>${escape(s.flipped?p.ko:p.fr)}</span><span class="pronunciation">${s.flipped?renderGrammarText(p.note,escape):`[ ${escape(p.pronunciation)} ]`}</span><span class="hint">${s.flipped?'프랑스어 보기':'뜻 보기'} ↻</span></button><div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div></div><div class="dialog-footer flash-actions"><button class="secondary-button" data-action="review-answer" data-known="false" ${!s.flipped?'disabled':''}>아직 낯설어요</button><button class="primary-button" data-action="review-answer" data-known="true" ${!s.flipped?'disabled':''}>기억나요 ${icon('check')}</button></div>`;
+    content.innerHTML=`${dialogHeader('한마디 복습',(s.index+1)/s.deck.length*100,`${s.index+1} / ${s.deck.length}`)}<div class="dialog-body center review-body"><div class="dialog-eyebrow">뜻 떠올리기</div><button class="flashcard ${s.flipped?'is-flipped':''}" data-action="flip" aria-label="${s.flipped?'프랑스어 보기':'카드를 눌러 뜻 확인'}"><span class="big-french" ${s.flipped?'':'lang="fr"'}>${escape(s.flipped?p.ko:p.fr)}</span>${s.flipped?'':`<span class="pronunciation">[ ${escape(p.pronunciation)} ]</span>`}<span class="hint">${s.flipped?'프랑스어 보기':'뜻 보기'} ↻</span></button>${s.flipped?`<details class="review-note lesson-explanation"><summary>용법 보기</summary><p>${renderGrammarText(p.note,escape)}</p></details>`:''}<div class="study-controls"><button class="sound-button" data-action="speak" data-id="${p.id}">${icon('sound')}발음 듣기</button>${favoriteButton(p.id)}</div></div><div class="dialog-footer flash-actions"><button class="secondary-button" data-action="review-answer" data-known="false" ${!s.flipped?'disabled':''}>아직 낯설어요</button><button class="primary-button" data-action="review-answer" data-known="true" ${!s.flipped?'disabled':''}>기억나요 ${icon('check')}</button></div>`;
   }
   focusDialog();
 }
@@ -261,7 +262,8 @@ document.addEventListener('click',event=>{
     case 'review-lesson':if(session?.deck)startReview(session.deck);break;
     case 'review-mistakes':if(session?.type==='lesson')startReview(session.deck.filter(p=>session.answers.some(a=>a.id===p.id&&!a.correct)));break;
     case 'review':startReview();break;
-    case 'flip':if(session?.type==='review'){session.flipped=!session.flipped;renderReview();}break;
+    case 'review-topic':if(lessons.some(lesson=>lesson.id===id))startReview(getPhrases(id));break;
+    case 'flip':if(session?.type==='review'){session.flipped=!session.flipped;renderReview();content.querySelector('.flashcard')?.focus({preventScroll:true});}break;
     case 'review-answer': {
       if(session?.type!=='review'||!session.flipped||session.done)break;
       const p=session.deck[session.index];
@@ -294,6 +296,16 @@ function updateSoundControls(){
   slider.closest('.settings-sound-panel').classList.toggle('is-muted',!state.effects);
   document.querySelectorAll('[data-action="preview-feedback"]').forEach(button=>{button.disabled=!state.effects||!state.effectsVolume;});
 }
+document.addEventListener('keydown',event=>{
+  if(event.target.id!=='phrase-search'||event.key!=='Enter'||event.isComposing)return;
+  event.preventDefault();
+  const result=$('#phrase-list summary, #phrase-list .expression .fr, #phrase-list .empty-state');
+  if(result){
+    if(!result.matches('summary'))result.setAttribute('tabindex','-1');
+    result.focus({preventScroll:true});result.scrollIntoView?.({block:'nearest',behavior:'instant'});
+  }
+  else event.target.blur();
+});
 document.addEventListener('change',event=>{
   if(event.target.id==='slow-speech'){state.slow=event.target.checked;persist();}
   if(event.target.id==='feedback-sounds'){

@@ -7,7 +7,7 @@ import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLeve
 import { stampsForQuestions } from './room-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
-import { showPracticeAnswer } from './study-viewport.js';
+import { fitPracticeInput, showPracticeAnswer } from './study-viewport.js';
 
 export function createPractice({ storage, content, dialogHeader, openDialog, closeDialog, focusDialog, icon, escape, speak, playFeedback=()=>{}, onFinish, onSaveError, onLevelChange=()=>{}, openGrammar=()=>{}, renderMascot=mascot, rewardNote=()=>'' }) {
   let state=readPractice(storage), drafts=readPracticeDrafts(storage), session=null, saveFailed=false;
@@ -80,7 +80,11 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   function inputHTML(q) {
     const placeholder=q.mode==='word'?'배운 단어':q.cue?'여기에 답을 써요':'프랑스어로 써보세요';
     const letters=['é','è','ê','ë','à','â','ç','î','ï','ô','ù','û','ü','œ','’'];
-    return `<div class="entry-line"><form id="practice-form"><label class="visually-hidden" for="practice-input">${modeLabel(q)}</label><input id="practice-input" class="practice-input" lang="fr" type="text" maxlength="180" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="practice-goal typing-help" placeholder="${placeholder}" value="${escape(session.draft)}"></form>
+    const attributes=`id="practice-input" class="practice-input" lang="fr" maxlength="180" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="practice-goal typing-help" placeholder="${placeholder}"`;
+    const field=!q.cue&&q.mode!=='word'
+      ? `<textarea ${attributes} rows="2">${escape(session.draft)}</textarea>`
+      : `<input ${attributes} type="text" value="${escape(session.draft)}">`;
+    return `<div class="entry-line"><form id="practice-form"><label class="visually-hidden" for="practice-input">${modeLabel(q)}</label>${field}</form>
       <button type="button" class="accent-toggle" data-action="practice-accents" aria-label="프랑스어 악센트 글자" aria-expanded="false" aria-controls="accent-keys">é</button></div>
       <div id="accent-keys" class="accent-keys" role="group" aria-label="프랑스어 글자 입력" hidden>${letters.map(letter=>`<button type="button" data-action="practice-accent" data-value="${letter}" aria-label="${letter} 입력">${letter}</button>`).join('')}</div>
       <small id="typing-help">대소문자·마침표는 자유롭게</small>`;
@@ -137,6 +141,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     if(input){
       input.disabled=finished;input.setAttribute('aria-invalid',String(session.status==='wrong'));
       if(session.status==='revealed')input.value=q.answer;
+      fitPracticeInput(input);
       const toggle=content.querySelector('[data-action="practice-accents"]');toggle.disabled=finished;
       content.querySelectorAll('[data-action="practice-accent"]').forEach(button=>button.disabled=finished);
       const paletteOpen=session.accentOpen&&!finished;
@@ -331,13 +336,18 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   document.addEventListener('input',event=>{
     if(event.target.id==='practice-input'&&session&&!session.summary){
       session.draft=event.target.value;
+      fitPracticeInput(event.target);
       if(session.status==='alternative'||session.status==='wrong'){session.status='idle';session.message='';session.explain=false;render();return;}
       content.querySelector('[form="practice-form"]').disabled=!session.draft.trim();stash();
     }
   });
   document.addEventListener('compositionstart',event=>{if(event.target.id==='practice-input'&&session)session.composing=true;});
   document.addEventListener('compositionend',event=>{if(event.target.id==='practice-input'&&session)session.composing=false;});
-  document.addEventListener('keydown',event=>{if(event.target.id==='practice-input'&&event.key==='Enter'&&(event.isComposing||event.keyCode===229))event.preventDefault();});
+  document.addEventListener('keydown',event=>{
+    if(event.target.id!=='practice-input'||event.key!=='Enter')return;
+    if(event.isComposing||event.keyCode===229||session?.composing){event.preventDefault();return;}
+    if(event.target.tagName==='TEXTAREA'&&!event.shiftKey){event.preventDefault();check();}
+  });
   document.addEventListener('submit',event=>{if(event.target.id==='practice-form'){event.preventDefault();check();}});
   return {
     key:PRACTICE_KEY,draftKey:PRACTICE_DRAFT_KEY,

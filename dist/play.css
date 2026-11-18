@@ -52,6 +52,8 @@
 .question-copy { margin-bottom:14px; }
 .entry-line { display:flex; align-items:stretch; gap:6px; }
 .entry-line form { flex:1; min-width:0; margin:0; }
+.game-body textarea.practice-input { display:block; resize:none; overflow:hidden; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+.entry-line:has(textarea) .accent-toggle { align-self:flex-start; min-height:44px; }
 .entry-line .accent-toggle { align-self:stretch; min-width:44px; margin:0; font:italic 21px Georgia,serif; }
 .game-body #typing-help { display:block; margin:5px 0 0; font-size:11px; line-height:1.4; color:#647557; }
 .game-body .accent-keys { display:flex; flex-wrap:wrap; overflow:visible; margin:0; gap:4px; padding:7px 0 0; }

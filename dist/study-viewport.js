@@ -1,3 +1,9 @@
+export function fitPracticeInput(input) {
+  if(input?.tagName!=='TEXTAREA')return;
+  input.style.height='auto';
+  input.style.height=`${input.scrollHeight+input.offsetHeight-input.clientHeight}px`;
+}
+
 // Keep the submitted answer and its correction together inside the scrolling body.
 export function showPracticeAnswer(body) {
   const question=body?.querySelector('.practice-question');
@@ -29,9 +35,10 @@ export function bindStudyViewport(dialog) {
     dialog.style.setProperty('--study-top', `${Math.round(viewport?.offsetTop || 0)}px`);
     dialog.classList.toggle('compact-study',height<=520);
     dialog.classList.toggle('visual-keyboard',height<win.innerHeight-48);
+    const input = dialog.querySelector('#practice-input');
+    fitPracticeInput(input);
     if (!dialog.open || !dialog.classList.contains('typing-focused')) return;
     const body = dialog.querySelector('.practice-body');
-    const input = dialog.querySelector('#practice-input');
     if (input && input === dialog.ownerDocument.activeElement)showPracticeAnswer(body);
   }
   function schedule() {

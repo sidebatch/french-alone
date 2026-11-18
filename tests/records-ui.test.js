@@ -27,6 +27,8 @@ function setup(options = {}) {
 
 test('calendar selects dates, navigates months by keyboard, and blocks future days', () => {
   const f = setup();
+  const revealed = [];
+  f.w.HTMLElement.prototype.scrollIntoView = function () { revealed.push(this.className); };
   assert.equal(f.$('[data-action="record-month"][data-value="1"]').disabled, true);
   assert.match(f.$('.record-detail').textContent, /3문제/);
   f.click('[data-action="record-month"][data-value="-1"]');
@@ -34,11 +36,13 @@ test('calendar selects dates, navigates months by keyboard, and blocks future da
   assert.match(f.$('.record-empty').textContent, /쉬어 간 하루/);
   const month=f.$('[data-action="record-date"]').dataset.value.slice(0,7);
   f.click(`[data-action="record-date"][data-value="${month}-15"]`);
+  assert.deepEqual(revealed,['record-detail'],'choosing a date reveals its updated details');
   const middle=new Date(`${month}-15T12:00:00`);
   f.w.document.activeElement.dispatchEvent(new f.w.KeyboardEvent('keydown',{key:'Home',bubbles:true}));
   assert.equal(f.w.document.activeElement.dataset.value,`${month}-${String(15-middle.getDay()).padStart(2,'0')}`);
   f.w.document.activeElement.dispatchEvent(new f.w.KeyboardEvent('keydown',{key:'End',bubbles:true}));
   assert.equal(f.w.document.activeElement.dataset.value,`${month}-${String(21-middle.getDay()).padStart(2,'0')}`);
+  assert.equal(revealed.length,1,'arrow-key navigation keeps the learner in the calendar');
   assert.equal(f.$('.calendar-weekdays').textContent,'일월화수목금토');
   const selected = f.$('[data-action="record-date"][aria-pressed="true"]');
   selected.dispatchEvent(new f.w.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));

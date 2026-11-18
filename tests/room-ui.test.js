@@ -114,6 +114,37 @@ test('free themes, keyboard movement, scaling and flipping survive a saved room'
   const layout=f.saved().layout;assert.equal(layout.wall,'rose');assert.equal(layout.floor,'white');
   assert.equal(layout.lou.x,49);assert.equal(layout.lou.scale,.8);assert.equal(layout.lou.flipped,true);assert.equal(f.ui.balance(),0);f.dom.window.close();
 });
+
+test('continuing decoration restores expanded placement controls and the previous scroll position',()=>{
+  const f=setup();f.click('[data-action="room-open"]');
+  f.click('.placement-tools summary');
+  f.click('[data-action="room-flip"]');
+  const dialog=f.$('#room-dialog');dialog.scrollTop=85;
+  f.click('[data-action="room-close"]');assert.ok(f.$('.room-discard-prompt'));
+  f.click('[data-action="room-keep"]');
+  assert.equal(f.$('.placement-tools').open,true);
+  assert.equal(dialog.scrollTop,85);
+  assert.equal(f.w.document.activeElement,f.$('.placement-tools summary'));
+  f.click('[data-action="room-save"]');assert.equal(f.saved().layout.lou.flipped,true);
+  f.dom.window.close();
+});
+
+test('a full room keeps purchases in inventory and explains where the item went',async()=>{
+  const f=setup();f.click('[data-action="room-open"]');f.click('[data-action="room-save"]');
+  const state=f.saved(),template=state.layout.items[0];
+  state.layout.items=Array.from({length:24},(_,index)=>({...template,uid:'full-'+index}));
+  f.w.localStorage.setItem(ROOM_KEY,JSON.stringify(state));f.ui.reload();
+  f.click('[data-action="room-open"]');f.click('[data-action="room-tab"][data-value="shop"]');
+  f.preview('tulips');f.click('[data-action="room-buy"]');await tick();
+  assert.equal(f.ui.balance(),2);
+  assert.ok(f.saved().purchases.tulips);
+  assert.equal(f.$('[data-action="room-place"]').disabled,true);
+  assert.equal(f.$('.room-status').classList.contains('visually-hidden'),false);
+  assert.match(f.$('.room-status').textContent,/내 소품에 보관/);
+  assert.equal(f.saved().layout.items.length,24);
+  f.click('[data-action="room-close"]');assert.equal(f.ui.isOpen(),false);
+  f.dom.window.close();
+});
 test('insufficient funds disables purchase while allowing previews and a saved goal',()=>{
   const f=setup({count:0});f.click('[data-action="room-open"]');f.click('[data-action="room-tab"][data-value="shop"]');
   f.preview('sofa');assert.equal(f.$('[data-action="room-buy"]').disabled,true);
