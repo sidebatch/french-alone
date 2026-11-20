@@ -11,13 +11,16 @@ import { learningRecords, WEEKDAYS, weekDates } from './records-core.js';
 import { createRecords } from './records.js';
 import { createRoom } from './room.js';
 import { stampsForQuestions } from './room-core.js';
+import { createRecordStorage } from './record-storage.js';
+import { createRecordBackup } from './record-backup.js';
 
-const APP_VERSION = '1.19.0';
+const APP_VERSION = '1.20.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let storage;
-try { storage = window.localStorage; } catch { storage = {getItem:()=>null,setItem:()=>{throw new Error('unavailable');}}; }
+let rawStorage;
+try { rawStorage = window.localStorage; } catch { rawStorage = {getItem:()=>{throw new Error('unavailable');}}; }
+const storage = createRecordStorage(rawStorage,{schedule:window.setTimeout.bind(window),cancel:window.clearTimeout.bind(window)});
 let state = readState(storage);
 let page = 'home', lessonView = 'practice', lessonFilter = '전체', vocabFilter = '전체 표현', query = '', session = null, restoreFocus = null, toastTimer;
 const openVocabTopics = new Set();
@@ -26,22 +29,31 @@ const dialog = $('#study-dialog');
 const content = $('#dialog-content');
 bindStudyViewport(dialog);
 let storageWarning = false;
-const grammar=createGrammar({storage,icon,escape,onSaveError:()=>{storageWarning=true;toast('열람 기록을 이 기기에 저장하지 못했어요.');}});
+const grammar=createGrammar({storage,icon,escape,onSaveError:saveError});
 const practice = createPractice({
   storage, content, dialogHeader, focusDialog, icon, escape,
   openDialog:()=>{session=null;dialog.dataset.view='practice';if(window.speechSynthesis)window.speechSynthesis.cancel();openDialog();},
   closeDialog, speak:speakText, playFeedback:kind=>playFeedback(kind,state.effects,state.effectsVolume),
   openGrammar:(id,options)=>grammar.open(id,options),
-  onSaveError:()=>{storageWarning=true;toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');},
+  onSaveError:saveError,
   onLevelChange:()=>renderPage(),
   rewardNote:()=>room.rewardNote(), renderMascot:mood=>room.avatar(mood),
   onFinish:summary=>{if(summary.duplicate)return;const activity=state.activity[summary.date||today()] ||= {xp:0,words:0,basicQuestions:0,basicRounds:0};activity.xp+=summary.xp;activity.words+=summary.newSentences;persist();room.onProgress();}
 });
-const room = createRoom({storage,getDays:()=>practice.dayRecords(),icon,onChange:()=>renderPage(),onSaveError:()=>{storageWarning=true;}});
+const room = createRoom({storage,getDays:()=>practice.dayRecords(),icon,onChange:()=>renderPage(),onSaveError:saveError});
 const records = createRecords({getRecords:()=>learningRecords(state.activity,practice.dayRecords()),getRoom:date=>room.snapshot(date),icon,escape});
+const recordBackup = createRecordBackup({storage,version:APP_VERSION,dialog,content,dialogHeader,openDialog,focusDialog,escape,onRestored:()=>window.location.reload()});
+storage.onIssue(updateStorageNotice);
+function saveError() {storageWarning=true;toast(storage.issue()?.message||'기기에 기록을 저장하지 못했어요. 설정에서 기록 확인·백업을 열어 주세요.');}
+function updateStorageNotice() {
+  document.querySelector('#storage-notice')?.remove();
+  const issue=storage.issue();if(!issue&&!storage.backupWarning())return;
+  $('#main').insertAdjacentHTML('afterbegin',`<aside id="storage-notice" class="storage-notice" role="status"><p>${escape(issue?.message||'자동 보관본을 읽거나 저장하지 못했어요. 남은 기록을 백업 파일로 보관해 주세요.')}</p><button class="secondary-button" data-action="backup-open">기록 확인·백업</button></aside>`);
+  if(issue)document.querySelectorAll('.autosave-label').forEach(label=>{label.textContent='저장 중단';});
+}
 function persist() {
   try {storage.setItem(STORAGE_KEY,JSON.stringify(state));}
-  catch {storageWarning=true; toast('브라우저 저장 공간을 사용할 수 없어 이번 방문 동안만 진도가 유지돼요.');}
+  catch {saveError();}
   updateHeader();
 }
 function toast(message) {
@@ -73,10 +85,10 @@ function renderHome() {
     practice.renderLevelPicker()+'<div class="play-home-grid"><section class="hero play-home-hero" aria-label="오늘의 한 판"><div class="today-line"><span>'+icon('sparkles')+(resume?'이어서 한 판':stamp?'오늘도 해냈어요':practice.level()==='intermediate'?'오늘의 중급 한 판':'오늘의 한 판')+'</span><span class="stamp-label '+(stamp?'is-done':'')+'">'+icon(stamp?'check':'sun')+(stamp?'오늘 스탬프 '+stampsForQuestions(progress.questions)+'개':'오늘 '+Math.min(progress.questions,3)+' / 3')+'</span></div><div class="home-highlights"><div class="home-lesson-actions">'+
     '<div class="home-mission"><h2>'+(resume?'멈춘 곳부터 이어가요.':stamp?'한 번 더 해볼까요?':'다섯 문제면 충분해요.')+'</h2><p>'+(resume?escape(resume.title)+' · '+(resume.total-resume.index)+'문제 남음':practice.level()==='intermediate'?escape(next.title)+' · 읽고, 직접 쓰기':'<span lang="fr">'+escape(next.pattern.split('+')[0].trim())+'</span> · 읽고, 맞추고, 직접 쓰기')+'</p></div>'+
     '<button class="primary-button home-play" data-action="'+(resume?'practice-resume':'practice-daily')+'">'+(resume?'이어서 학습하기':'5문제 시작')+icon('arrow')+'</button>'+
-    '<div class="home-play-meta"><span>'+icon('check')+'자동 저장</span><button class="text-link" data-action="practice-light">가볍게 3문제</button></div>'+(basicResume?'<button class="home-basic-resume text-link" data-action="lesson" data-id="'+basicResume.id+'">'+icon('book')+'<span>'+escape(basicResume.subtitle)+' 이어하기</span>'+icon('chevron')+'</button>':'')+'</div>'+roomMarkup+'</div></section>'+
+    '<div class="home-play-meta"><span>'+icon('check')+(storage.issue()?'저장 중단':'자동 저장')+'</span><button class="text-link" data-action="practice-light">가볍게 3문제</button></div>'+(basicResume?'<button class="home-basic-resume text-link" data-action="lesson" data-id="'+basicResume.id+'">'+icon('book')+'<span>'+escape(basicResume.subtitle)+' 이어하기</span>'+icon('chevron')+'</button>':'')+'</div>'+roomMarkup+'</div></section>'+
     '<aside class="play-home-side">'+room.renderSummary()+
     '<section class="side-card goal-card home-week"><div class="goal-heading"><h2>이번 주의 발자국</h2><a class="text-link" href="#progress">기록 보기'+icon('chevron')+'</a></div><div class="goal-days">'+weekDates().map((d,i)=>'<div class="day '+(today(d)===today()?'today ':'')+(state.activity[today(d)]?'done':'')+'" aria-label="'+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+(state.activity[today(d)]?'학습 완료':'학습 기록 없음')+'">'+WEEKDAYS[i]+'<span>'+(state.activity[today(d)]?icon('check'):d.getDate())+'</span></div>').join('')+'</div>'+(state.activity[today()]?'<button class="home-record-link" data-action="record-open">'+icon('sparkles')+'오늘 학습 인증</button>':'')+'</section></aside></div>'+
-    '<nav class="home-destinations" aria-label="다른 학습"><a href="#lessons" data-action="open-practice"><span>'+icon('book')+'</span><div><b>코스 골라보기</b><small>21개 코스 · 210문제</small></div>'+icon('chevron')+'</a><a href="#vocabulary" data-action="open-saved"><span>'+icon('cards')+'</span><div><b>나의 단어장</b><small>저장한 표현 '+state.favorites.length+'개</small></div>'+icon('chevron')+'</a><a href="#lessons" data-action="open-basics"><span>'+icon('sun')+'</span><div><b>기초 표현</b><small>짧게 익히는 한마디</small></div>'+icon('chevron')+'</a></nav>';
+    '<nav class="home-destinations" aria-label="다른 학습"><a href="#lessons" data-action="open-practice"><span>'+icon('book')+'</span><div><b>코스 골라보기</b><small>21개 코스 · 420문제</small></div>'+icon('chevron')+'</a><a href="#vocabulary" data-action="open-saved"><span>'+icon('cards')+'</span><div><b>나의 단어장</b><small>저장한 표현 '+state.favorites.length+'개</small></div>'+icon('chevron')+'</a><a href="#lessons" data-action="open-basics"><span>'+icon('sun')+'</span><div><b>기초 표현</b><small>짧게 익히는 한마디</small></div>'+icon('chevron')+'</a></nav>';
 }
 function renderLessons() {
   const tabs = `<div class="learning-tabs" role="group" aria-label="학습 종류"><button data-action="lesson-view" data-value="practice" aria-pressed="${lessonView==='practice'}">문장 연습 <span>${practice.questionCount()}문제</span></button><button data-action="lesson-view" data-value="basics" aria-pressed="${lessonView==='basics'}">기초 표현 <span>${phrases.length}개</span></button></div>`;
@@ -124,12 +136,13 @@ function renderPage() {
   const route=location.hash.slice(1);page=Object.hasOwn(labels,route)?route:'home';
   $('#page-label').textContent=labels[page];document.title=`${labels[page]} · French Alone`;
   document.querySelectorAll('[data-nav]').forEach(a=>{const active=a.dataset.nav===page;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  $('#main').innerHTML=({home:renderHome,lessons:renderLessons,vocabulary:renderVocabulary,grammar:grammar.renderLibrary,progress:renderProgress}[page])();$('#main').insertAdjacentHTML('beforeend',`<footer class="app-version-footer">French Alone v${APP_VERSION} <span>·</span> © 2026 sidebatch</footer>`);updateHeader();document.documentElement.classList.add('app-ready');$('#main').dataset.page=page;
+  $('#main').innerHTML=({home:renderHome,lessons:renderLessons,vocabulary:renderVocabulary,grammar:grammar.renderLibrary,progress:renderProgress}[page])();$('#main').insertAdjacentHTML('beforeend',`<footer class="app-version-footer">French Alone v${APP_VERSION} <span>·</span> © 2026 sidebatch</footer>`);updateHeader();updateStorageNotice();document.documentElement.classList.add('app-ready');$('#main').dataset.page=page;
 }
 function openDialog() {
   if(!dialog.open){restoreFocus=document.activeElement;dialog.showModal();}
 }
 function closeDialog() {
+  recordBackup.close();
   if(window.speechSynthesis)window.speechSynthesis.cancel();
   const notice=$('#toast');if(notice?.parentElement===dialog)document.body.append(notice);
   dialog.close();delete dialog.dataset.view;session=null;practice.stop();renderPage();
@@ -138,7 +151,7 @@ function closeDialog() {
   (restoreFocus?.isConnected?restoreFocus:replacement||$('#main')).focus({preventScroll:true});
 }
 function dialogHeader(title,percent=0,label='',autosave=false) {
-  return `<div class="dialog-header"><h2 id="dialog-title">${title}</h2><div class="dialog-header-meta">${autosave?`<span class="autosave-label">${icon('check')}자동 저장</span>`:''}${label?`<span class="dialog-step">${label}</span>`:''}</div><button class="icon-button" data-action="close" aria-label="${autosave?'저장하고 학습 닫기':'학습 닫기'}">${icon('close')}</button></div>${percent?`<div class="progress-track dialog-progress" role="progressbar" aria-label="학습 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:''}`;
+  return `<div class="dialog-header"><h2 id="dialog-title">${title}</h2><div class="dialog-header-meta">${autosave?`<span class="autosave-label">${icon('check')}${storage.issue()?'저장 중단':'자동 저장'}</span>`:''}${label?`<span class="dialog-step">${label}</span>`:''}</div><button class="icon-button" data-action="close" aria-label="${autosave?'저장하고 학습 닫기':'학습 닫기'}">${icon('close')}</button></div>${percent?`<div class="progress-track dialog-progress" role="progressbar" aria-label="학습 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:''}`;
 }
 function focusDialog() {content.querySelector('.dialog-body')?.setAttribute('tabindex','-1'); content.querySelector('.dialog-body')?.focus({preventScroll:true});}
 function saveLessonDraft() {
@@ -194,7 +207,7 @@ function renderReview() {
   focusDialog();
 }
 function renderSettings() {
-  content.innerHTML=`${dialogHeader('설정')}<div class="dialog-body settings-body"><div class="settings-brand"><span class="brand-mark" aria-hidden="true">f<span>✦</span></span><div><h3>French Alone</h3><p>v${APP_VERSION} · © 2026 sidebatch</p></div></div><section class="settings-section"><h3>학습</h3><div class="settings-option"><label for="slow-speech">조금 천천히 듣기</label><input type="checkbox" role="switch" id="slow-speech" ${state.slow?'checked':''}></div><div class="settings-option"><label for="feedback-sounds">학습 효과음</label><input type="checkbox" role="switch" id="feedback-sounds" ${state.effects?'checked':''}></div><details class="settings-sound-tools help-item"><summary>효과음 크기 · 미리듣기</summary><div class="settings-sound-panel ${state.effects?"":"is-muted"}"><label class="sound-volume-label" for="effects-volume">효과음 크기<output id="effects-volume-value" for="effects-volume">${state.effectsVolume}%</output></label><input id="effects-volume" type="range" min="0" max="100" step="5" value="${state.effectsVolume}" ${state.effects?"":"disabled"}><div class="sound-previews" role="group" aria-label="효과음 미리듣기">${[["correct","정답"],["wrong","다시 도전"],["complete","완료"]].map(([kind,label])=>`<button type="button" data-action="preview-feedback" data-value="${kind}" ${state.effects&&state.effectsVolume?"":"disabled"}>${icon("sound")}${label}</button>`).join("")}</div><p class="sound-volume-note">기기 음량도 함께 적용돼요.</p></div></details><button class="settings-row-button" data-action="speak" data-id="greetings-0">${icon('sound')}프랑스어 발음 확인${icon('chevron')}</button><button class="settings-row-button" data-action="install-help">${icon('book')}앱 설치 · 오프라인 안내${icon('chevron')}</button></section><section class="settings-section"><h3>도움말</h3><details class="help-item"><summary>학습 기록은 어디에 저장되나요?</summary><p>진도와 단어장은 현재 기기에 저장돼요. 다른 기기와 자동으로 연결되지는 않아요. 브라우저의 데이터를 삭제하면 기록도 삭제됩니다.</p></details><details class="help-item"><summary>학습을 중간에 닫아도 되나요?</summary><p>진행 중인 학습은 자동으로 저장돼요. 홈에서 이어서 풀 수 있어요.</p></details><details class="help-item"><summary>발음이 들리지 않아요.</summary><p>기기의 볼륨과 무음 설정을 확인해 주세요. 기기에 프랑스어 음성이 없으면 언어 설정에서 음성을 추가해야 할 수 있어요.</p></details></section><section class="settings-section settings-data"><h3>나의 학습 기록</h3>${storageWarning?'<div class="inline-alert">현재 기기에 기록을 저장하지 못하고 있어요. 브라우저 저장 공간 설정을 확인해 주세요.</div>':''}<button class="danger-button" data-action="reset-confirm">학습 기록 초기화</button><div id="reset-area"></div></section></div><div class="dialog-footer"><button class="primary-button" data-action="close">완료${icon('check')}</button></div>`;focusDialog();
+  content.innerHTML=`${dialogHeader('설정')}<div class="dialog-body settings-body"><div class="settings-brand"><span class="brand-mark" aria-hidden="true">f<span>✦</span></span><div><h3>French Alone</h3><p>v${APP_VERSION} · © 2026 sidebatch</p></div></div><section class="settings-section"><h3>학습</h3><div class="settings-option"><label for="slow-speech">조금 천천히 듣기</label><input type="checkbox" role="switch" id="slow-speech" ${state.slow?'checked':''}></div><div class="settings-option"><label for="feedback-sounds">학습 효과음</label><input type="checkbox" role="switch" id="feedback-sounds" ${state.effects?'checked':''}></div><details class="settings-sound-tools help-item"><summary>효과음 크기 · 미리듣기</summary><div class="settings-sound-panel ${state.effects?"":"is-muted"}"><label class="sound-volume-label" for="effects-volume">효과음 크기<output id="effects-volume-value" for="effects-volume">${state.effectsVolume}%</output></label><input id="effects-volume" type="range" min="0" max="100" step="5" value="${state.effectsVolume}" ${state.effects?"":"disabled"}><div class="sound-previews" role="group" aria-label="효과음 미리듣기">${[["correct","정답"],["wrong","다시 도전"],["complete","완료"]].map(([kind,label])=>`<button type="button" data-action="preview-feedback" data-value="${kind}" ${state.effects&&state.effectsVolume?"":"disabled"}>${icon("sound")}${label}</button>`).join("")}</div><p class="sound-volume-note">기기 음량도 함께 적용돼요.</p></div></details><button class="settings-row-button" data-action="speak" data-id="greetings-0">${icon('sound')}프랑스어 발음 확인${icon('chevron')}</button><button class="settings-row-button" data-action="install-help">${icon('book')}앱 설치 · 오프라인 안내${icon('chevron')}</button></section><section class="settings-section"><h3>도움말</h3><details class="help-item"><summary>학습 기록은 어디에 저장되나요?</summary><p>진도·스탬프·구매 아이템은 현재 기기에 저장돼요. 기록 확인·백업에서 파일을 저장하거나 불러올 수 있어요. 자동 보관본도 브라우저 데이터를 지우면 함께 사라지니 백업 파일을 따로 보관해 주세요.</p></details><details class="help-item"><summary>학습을 중간에 닫아도 되나요?</summary><p>진행 중인 학습은 자동으로 저장돼요. 홈에서 이어서 풀 수 있어요.</p></details><details class="help-item"><summary>발음이 들리지 않아요.</summary><p>기기의 볼륨과 무음 설정을 확인해 주세요. 기기에 프랑스어 음성이 없으면 언어 설정에서 음성을 추가해야 할 수 있어요.</p></details></section><section class="settings-section settings-data"><h3>나의 학습 기록</h3><button class="settings-row-button" data-action="backup-open">${icon('book')}기록 확인·백업${icon('chevron')}</button>${storageWarning?'<div class="inline-alert">현재 기기에 기록을 저장하지 못하고 있어요. 브라우저 저장 공간 설정을 확인해 주세요.</div>':''}<button class="danger-button" data-action="reset-confirm">학습 기록 초기화</button><div id="reset-area"></div></section></div><div class="dialog-footer"><button class="primary-button" data-action="close">완료${icon('check')}</button></div>`;focusDialog();
 }
 function speak(id) {
   const p=phraseById(id);if(p)speakText(p.fr);
@@ -274,13 +287,17 @@ document.addEventListener('click',event=>{
       renderReview();break;
     }
     case 'review-retry':if(session?.retry)startReview(session.retry);break;
-    case 'settings':practice.stop();session=null;dialog.dataset.view='settings';openDialog();renderSettings();break;
+    case 'settings':recordBackup.close();practice.stop();session=null;dialog.dataset.view='settings';openDialog();renderSettings();break;
+    case 'backup-open':practice.stop();session=null;recordBackup.open();break;
     case 'install-help':closeDialog();$('#install-app')?.click();break;
     case 'open-saved':vocabFilter='저장한 표현';break;
     case 'clear-search':query='';renderPage();$('#phrase-search')?.focus();break;
-    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">학습 기록·단어장·보유 소품·방 배치가 모두 삭제돼요. 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
+    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">학습 기록·단어장·보유 소품·방 배치와 이 기기의 자동 보관본이 모두 삭제돼요. 따로 저장한 백업 파일이 없으면 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
     case 'reset-cancel':$('#reset-area').innerHTML='';break;
-    case 'reset':state=freshState();practice.reset();grammar.reset();records.reset();room.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
+    case 'reset':
+      try {storage.clearBackupsForReset();}
+      catch(error){toast(error.message);break;}
+      state=freshState();practice.reset();grammar.reset();records.reset();room.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
   }
 });
 document.addEventListener('input',event=>{
@@ -317,4 +334,6 @@ document.addEventListener('change',event=>{
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
 window.addEventListener('hashchange',()=>{grammar.close(false);renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
 window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===room.key||event.key===null)&&!dialog.open&&!grammar.isOpen()&&!records.isOpen()&&!room.isOpen()){state=readState(storage);practice.reload();room.reload();renderPage();}});
+window.addEventListener('pagehide',()=>storage.checkpoint());
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')storage.checkpoint();});
 renderPage();

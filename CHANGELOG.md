@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.20.0 — 2026-11-20
+
+- Add device-only record inspection, automatic local snapshots and JSON backup export/import. Keep the existing five record keys and require a preview and explicit restore action before replacing progress. No account, record server or cloud transfer is added.
+- Protect original records from fresh-state writes after read errors, malformed data or unsupported versions. Detect stale writers before saving, show storage failures, and preserve damaged raw values for export.
+- Save a recovery copy before applying a backup. Roll back partial failures, preserve a journal if interrupted, and expose the pre-restore copy for inspection or undo. Reject unrelated or incomplete backup files without changing progress.
+- Keep the latest complete snapshot and up to three daily first copies, reducing snapshot count under storage pressure. Offer persistent-storage requests where supported. Explain that local copies share browser storage and a separately saved file is needed after site-data deletion.
+- Cache the new tools for offline use. Verify mobile-size file export, explicit reset and offline restore of all five records. The reported Android record loss remains unconfirmed on the affected device; this update cannot reconstruct records already erased without a surviving copy.
+
 ## 1.19.0 — 2026-11-20
 
 - Add 210 authored follow-up exercises across all 21 courses, bringing the bank to 420 questions (180 beginner, 240 intermediate). Reuse learned patterns in new situations, with 147 additional full-sentence writing prompts, 42 blanks and 21 arrangements.

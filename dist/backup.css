@@ -1,0 +1,27 @@
+#study-dialog[data-view="backup"]{height:min(780px,90dvh);max-height:90dvh;overflow:hidden}
+.backup-body{display:block;max-width:100%;text-align:left;word-break:keep-all;overflow-wrap:anywhere}
+.backup-body h3{font-size:1.03rem;margin:0 0 10px}
+.backup-body p{font-size:.88rem;line-height:1.65;margin:8px 0}
+.backup-kicker{color:var(--primary,#396b53);font-weight:700;font-size:.75rem!important}
+.backup-counts{font-weight:700;font-variant-numeric:tabular-nums}
+.backup-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.backup-actions>*{flex:1 1 155px;min-height:44px;justify-content:center}
+.backup-note{color:var(--muted,#65736c);font-size:.78rem!important}
+.backup-copies{margin-top:22px;border-top:1px solid var(--line,#e4e8df);padding-top:18px}
+.backup-copies h3 small{font-size:.8rem;font-weight:400;margin-left:5px}
+.backup-copy{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line,#e4e8df)}
+.backup-copy>div:first-child{min-width:0}
+.backup-copy b,.backup-copy time,.backup-copy small{display:block;line-height:1.55}
+.backup-copy b{font-size:.86rem}.backup-copy time,.backup-copy small{font-size:.76rem;color:var(--muted,#65736c)}
+.backup-copy-actions{display:flex;flex-direction:column;flex-shrink:0;align-items:center;gap:6px}
+.backup-copy-actions button{min-height:40px}
+.backup-confirm,.backup-message{background:#f2f5ed;border:1px solid #d7e1cb;border-radius:12px;padding:14px;margin:14px 0}
+.backup-details{border-top:1px solid var(--line,#e4e8df);padding:14px 0;font-size:.83rem}
+.backup-details summary{cursor:pointer;font-weight:600;line-height:1.6}
+.backup-details dl>div{display:flex;justify-content:space-between;gap:12px;margin:10px 0}
+.backup-details dd{margin:0;text-align:right}
+.backup-details textarea{width:100%;min-height:160px;margin-top:12px;font:inherit;line-height:1.5}
+.storage-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff4dc;border:1px solid #ecd6a5;border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.storage-notice p{margin:0;font-size:.83rem;line-height:1.5}.storage-notice button{flex-shrink:0;min-height:44px}
+@media(max-width:380px){.storage-notice{align-items:stretch;flex-direction:column}.backup-body{padding-left:18px;padding-right:18px}}
+@media(max-width:760px){#study-dialog[data-view="backup"]{inset:auto 0 0;margin:0;width:100%;max-width:none;height:min(830px,92dvh);max-height:92dvh;border:0;border-radius:23px 23px 0 0}}
