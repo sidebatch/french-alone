@@ -16,10 +16,10 @@ test('accepted word orders retain the time, object, tense and conditional meanin
 const load=state=>readPractice({getItem:()=>JSON.stringify(state)});
 const results=deck=>deck.map(q=>({id:q.id,correct:true,independent:q.kind==='input'}));
 
-test('intermediate content adds four coherent units and 120 questions without replacing beginner IDs',()=>{
+test('intermediate content adds four coherent units and 240 questions without replacing beginner IDs',()=>{
   assert.equal(practiceUnits.filter(u=>u.level==='intermediate').length,4);
   assert.equal(practicePacks.filter(p=>p.level==='intermediate').length,12);
-  assert.equal(practiceQuestions.filter(q=>q.level==='intermediate').length,120);
+  assert.equal(practiceQuestions.filter(q=>q.level==='intermediate').length,240);
   assert.deepEqual(practicePacks.filter(p=>p.level==='beginner').map(p=>p.id),['want','can','like','be','have','go','order-food','need','where']);
   for(const p of practicePacks.filter(p=>p.level==='intermediate')){
     assert.ok(p.guide.rule&&p.guide.caution);assert.equal(p.questions.filter(q=>q.kind==='input').length,6);
@@ -66,7 +66,7 @@ test('review and daily mixing stay within the selected level',()=>{
   for(const id of ['want','past-events'])recordPractice(state,results(practicePacks.find(p=>p.id===id).questions),{packId:id,date:'2026-11-11'});
   state.level='intermediate';const deck=dailyDeck(state,date);
   assert.ok(deck.every(q=>q.level==='intermediate'));assert.equal(deck.filter(q=>state.cards[q.id]).length,2);
-  assert.deepEqual(deck.slice(2).map(q=>q.id),['past-movement-1','past-movement-2','past-movement-3']);
+  assert.deepEqual(deck.slice(2).map(q=>q.id),['past-events-extra-1','past-events-extra-2','past-events-extra-3']);
   assert.ok(reviewDeck(state,date,'intermediate').every(q=>q.level==='intermediate'&&q.kind==='input'&&!q.model));
   assert.ok(reviewDeck(state,date,'beginner').every(q=>q.level==='beginner'));
 });

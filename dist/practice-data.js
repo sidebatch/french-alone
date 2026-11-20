@@ -1,15 +1,22 @@
 import { extraPackSpecs, patternGuides, practiceUnits as beginnerUnits } from './practice-content.js';
 import { intermediatePackSpecs, intermediateUnits } from './practice-intermediate.js';
+import { reinforcementSpecs } from './practice-reinforcement.js';
 export const practiceUnits = [...beginnerUnits.map(unit=>({...unit,level:'beginner'})),...intermediateUnits];
 // Authored exercises. Existing question IDs are kept for saved progress.
-const makePack = (meta, questions) => ({ level:'beginner', ...meta, guide: meta.guide || patternGuides[meta.id], questions: questions.map((q, index) => ({
-  id: `${meta.id}-${index + 1}`, packId: meta.id, level:meta.level||'beginner',
-  phase: index < 2 ? '패턴 발견' : index < 8 ? '꺼내 보고 바꿔 보기' : '내 말로 완성',
+const makePack = (meta, questions) => {
+ const decorate=(q,index,extra=false)=>({
+  id: `${meta.id}-${extra?'extra-':''}${index + 1}`, packId: meta.id, level:meta.level||'beginner',
+  phase: extra?(index<3?'패턴 다시 익히기':index<5?'혼자 문장 완성':'상황 바꿔 쓰기'):(index < 2 ? '패턴 발견' : index < 8 ? '꺼내 보고 바꿔 보기' : '내 말로 완성'),
+  ...(extra?{reinforcement:true,focusId:`${meta.id}-${q.focus}`} : {}),
   ...q,
   ...(meta.id === 'order-food' && q.mode !== 'word' ? {
-    accepted: [...new Set([...(q.accepted || []), ...['plaît','plait'].map(verb => q.full.replace(/\.$/, ', s’il vous ' + verb + '.'))])]
+    accepted: [...new Set([...(q.accepted || []), ...[q.full,...(q.accepted||[])].flatMap(sentence=>['plaît','plait'].map(verb => sentence.replace(/\.$/, ', s’il vous ' + verb + '.')))])]
   } : {})
-})) });
+ });
+ return {level:'beginner',...meta,guide:meta.guide||patternGuides[meta.id],
+   questions:questions.map((q,i)=>decorate(q,i)),
+   reinforcement:(reinforcementSpecs[meta.id]||[]).map((q,i)=>decorate(q,i,true))};
+};
 
 export const practicePacks = [
   makePack({ id: 'want', title: '오늘은 그냥 쉬고 싶어', subtitle: '하고 싶은 말에 Je veux 붙이기', pattern: 'Je veux + 동사원형', icon: 'sun', color: 'peach', promise: '하고 싶은 것과 하고 싶지 않은 것을 말해요.' }, [
@@ -51,5 +58,5 @@ export const practicePacks = [
   ...extraPackSpecs.map(([meta, questions]) => makePack(meta, questions)),
   ...intermediatePackSpecs.map(([meta, questions]) => makePack(meta, questions))
 ];
-export const practiceQuestions = practicePacks.flatMap(pack => pack.questions);
+export const practiceQuestions = practicePacks.flatMap(pack => [...pack.questions,...pack.reinforcement]);
 export const questionById = id => practiceQuestions.find(q => q.id === id);

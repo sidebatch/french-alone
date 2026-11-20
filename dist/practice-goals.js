@@ -1,4 +1,5 @@
 // Each group shares a learning objective, including when a card returns as a writing exercise.
+import {reinforcementSpecs} from './practice-reinforcement.js';
 const goals = new Map();
 function setGoal(pack, numbers, text) {
   for (const number of numbers) goals.set(pack + '-' + number, text);
@@ -72,6 +73,9 @@ setGoal('necessity', [1,2,4,7,8,9], 'Il faut que 뒤에 접속법을 써서 필�
 setGoal('necessity', [3], '다른 사람에게 바라는 행동을 말할 때 쓰는 접속법을 떠올려 봐요.');
 setGoal('necessity', [5,6,10], 'Je veux que 뒤에 접속법을 써서 상대에게 바라는 것을 말해 봐요.');
 
+for(const [id,questions] of Object.entries(reinforcementSpecs))questions.forEach((q,i)=>{
+  goals.set(id+'-extra-'+(i+1),goals.get(id+'-'+q.focus));
+});
 export const goalForQuestion = id => goals.get(id);
 
 // Only authored answers with the right meaning receive this feedback.

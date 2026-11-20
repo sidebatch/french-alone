@@ -3,7 +3,7 @@ import { renderMiniLesson } from './practice-lessons.js';
 import { goalForQuestion } from './practice-goals.js';
 import { grammarsForQuestion } from './grammar-data.js';
 import { renderGrammarText } from './grammar-terms.js';
-import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, normalizeAnswer, isCorrect, alternativeFeedback, recordPractice, answerFeedback } from './practice-core.js';
+import { PRACTICE_KEY, PRACTICE_DRAFT_KEY, ROUND_SIZES, isRecallRound, roundLevel, readPracticeDrafts, freshPractice, readPractice, dueQuestions, reviewDeck, dailyDeck, dailyProgress, asRecall, supportTiles, nextPack, independentSentences, normalizeAnswer, isCorrect, alternativeFeedback, recordPractice, answerFeedback, reinforcementCourse, reinforcementDeck } from './practice-core.js';
 import { stampsForQuestions } from './room-core.js';
 import { shuffle } from './core.js';
 import { mascot } from './companion.js';
@@ -15,7 +15,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   const saveError=()=>{if(!saveFailed)onSaveError();saveFailed=true;};
   const save=()=>{try{storage.setItem(PRACTICE_KEY,JSON.stringify(state));}catch{saveError();}};
   const saveDrafts=()=>{try{storage.setItem(PRACTICE_DRAFT_KEY,JSON.stringify({version:1,sessions:drafts}));}catch{saveError();}};
-  const titleFor=id=>({daily:'오늘의 5문제',light:'가볍게 3문제','daily-intermediate':'중급 5문제','light-intermediate':'가볍게 중급 3문제',retry:'다시 도전','retry-intermediate':'중급 다시 도전',review:'기억을 깨우는 복습','review-intermediate':'중급 표현 복습'}[id]||practicePacks.find(p=>p.id===id)?.title);
+  const titleFor=id=>({daily:'오늘의 5문제',light:'가볍게 3문제','daily-intermediate':'중급 5문제','light-intermediate':'가볍게 중급 3문제',retry:'다시 도전','retry-intermediate':'중급 다시 도전',review:'기억을 깨우는 복습','review-intermediate':'중급 표현 복습'}[id]||(reinforcementCourse(id)?reinforcementCourse(id).title+' · 더 연습':practicePacks.find(p=>p.id===id)?.title));
   const levelPacks=()=>practicePacks.filter(pack=>pack.level===state.level);
   const quickId=mode=>mode+(state.level==='intermediate'?'-intermediate':'');
   const levelDue=()=>dueQuestions(state,undefined,state.level);
@@ -33,7 +33,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
   };
   const active=()=>session?.deck[session.index];
   const packDone=pack=>state.completed.includes(pack.id);
-  const packStarted=pack=>Boolean(drafts[pack.id])||(!packDone(pack)&&pack.questions.some(q=>state.cards[q.id]));
+  const packStarted=pack=>Boolean(drafts[pack.id]||drafts['reinforce-'+pack.id])||(!packDone(pack)&&pack.questions.some(q=>state.cards[q.id]));
   const done=()=>['correct','revealed'].includes(session.status);
   const tileMode=()=>active().kind==='order'||session.supported;
   const answerValue=()=>tileMode()?session.selected.map(i=>session.tiles[i]).join(session.supported?supportTiles(active()).joiner:' '):active().kind==='choice'?session.choice:session.draft;
@@ -53,6 +53,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     });
     else if(id==='retry'||id==='retry-intermediate')deck=retryQuestions?.map(asRecall);
     else if(ROUND_SIZES[id])deck=dailyDeck(state,undefined,ROUND_SIZES[id],roundLevel(id));
+    else if(reinforcementCourse(id))deck=reinforcementDeck(state,id);
     else if(id==='review'||id==='review-intermediate')deck=reviewDeck(state,undefined,roundLevel(id)).slice(0,5);
     else deck=pack?.questions.map(q=>({...q,transfer:q.transfer===true&&!state.cards[q.id]}));
     if(!deck?.length)return;
@@ -124,10 +125,11 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
       const goal='<div class="practice-goal">'+renderMascot('idle')+'<p id="practice-goal"><span class="visually-hidden">루의 연습 목표. </span>'+escape(goalForQuestion(q.id))+'</p></div>';
       const interaction=tileMode()?tilesHTML():q.kind==='choice'?choicesHTML(q):inputHTML(q);
       const glossary=q.glossary?'<p class="practice-glossary">'+escape(q.glossary).replace(/^새 단어: /,'')+'</p>':'';
+      const context=q.context?'<p class="practice-context"><span>상황</span> '+escape(q.context)+'</p>':'';
       content.innerHTML=dialogHeader(session.title,1,(session.index+1)+' / '+session.deck.length,!saveFailed)+
         `<div class="dialog-body practice-body game-body" data-practice-question="${q.id}">
           <div class="exercise-heading"><span class="exercise-mode">${modeLabel(q)}</span><span class="exercise-stage">${q.transfer?'새 문장 도전':q.phase}</span><button class="notes-toggle" data-action="practice-notes" aria-expanded="false" aria-controls="question-notes">${glossary?'연습 목표·단어':'연습 목표'}</button></div>
-          <div class="practice-question"><div class="question-copy"><h3 class="practice-prompt">${escape(q.ko)}</h3><div id="question-notes">${goal}${glossary}</div>${q.cue?'<p class="practice-cue" lang="fr"></p>':''}</div>
+          <div class="practice-question"><div class="question-copy">${context}<h3 class="practice-prompt">${escape(q.ko)}</h3><div id="question-notes">${goal}${glossary}</div>${q.cue?'<p class="practice-cue" lang="fr"></p>':''}</div>
           <div class="answer-zone" id="practice-answer">${interaction}</div><div class="feedback-strip" id="practice-feedback" hidden><p class="feedback-message" id="practice-message" role="status"></p><div id="word-feedback"></div></div></div>
           <section id="practice-explanation" class="explanation-sheet" tabindex="-1" aria-label="문제 해설" hidden></section></div>
           <div class="dialog-footer practice-footer game-footer"></div>`;
@@ -211,16 +213,21 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     const s=session.summary,retry=session.results.filter(r=>r.needsReview||!r.correct).map(r=>questionById(r.id));
     const progress=dailyProgress(state);
     const growth=s.recovered?'막혔던 '+s.recovered+'개를 혼자 풀었어요.':s.newSentences?'새 문장 '+s.newSentences+'개를 혼자 썼어요.':s.newQuestions?'처음 푼 문제 '+s.newQuestions+'개 완료!':'기억을 한 번 더 단단하게.';
-    const target=retry.length?'헷갈린 '+retry.length+'문제 다시 도전':'다음 5문제';
+    const course=practicePacks.find(pack=>pack.id===session.packId)||reinforcementCourse(session.packId);
+    const moreId=course?.reinforcement.some(q=>!state.cards[q.id])?'reinforce-'+course.id:null;
+    const target=retry.length?'헷갈린 '+retry.length+'문제 다시 도전':moreId?'이 표현 더 연습 · 5문제':'다음 5문제';
     content.innerHTML=dialogHeader('한 판 완료')+'<div class="dialog-body practice-body practice-completion game-result center"><div class="result-mascot">'+renderMascot('complete')+'</div><p class="completion-eyebrow">'+s.total+'문제 완료</p><h3 class="dialog-title" tabindex="-1">한 판 해냈어요!</h3><p class="result-growth">'+escape(growth)+'</p><div class="result-stats"><div><strong>'+s.correct+' / '+s.total+'</strong><span>완성한 문제</span></div><div><strong class="completion-reward">'+(s.xp?'+'+s.xp:'0')+' XP</strong><span>이번에 쌓은 경험치</span></div></div><div class="result-stamp">'+icon('check')+(progress.questions>=3?'오늘 스탬프 '+stampsForQuestions(progress.questions)+'개':'오늘 '+progress.questions+' / 3문제')+'</div>'+'<p class="next-gift">'+escape(rewardNote())+'</p>'+'<button class="text-link result-record-link" data-action="record-open" data-value="'+s.date+'">오늘 학습 인증 '+icon('sparkles')+'</button>'+(retry.length?'<details class="practice-recap"><summary>다시 볼 표현 '+retry.length+'개</summary>'+retry.map(q=>'<article><b lang="fr">'+escape(q.full)+'</b><p>'+escape(q.ko)+'</p></article>').join('')+'</details>':'')+(saveFailed?'<p class="inline-alert">지금은 이 기기에 기록을 저장하지 못하고 있어요.</p>':'')+'</div><div class="dialog-footer practice-footer game-result-footer"><button class="primary-button" data-action="'+(retry.length?'practice-retry':'practice-more')+'">'+target+icon('arrow')+'</button><button class="text-link" data-action="practice-close">오늘은 여기까지</button></div>';
     focusDialog();content.querySelector('.dialog-title')?.focus({preventScroll:true});
+    if(!retry.length&&moreId){const button=content.querySelector('[data-action="practice-more"]');button.dataset.action='practice-reinforce';button.dataset.id=moreId;}
   }
   function packCard(pack) {
     const done=packDone(pack),paused=drafts[pack.id],recommended=nextPack(state).id===pack.id;
     const seen=pack.questions.filter(q=>state.cards[q.id]).length;
     const pct=paused?Math.round(paused.index/pack.questions.length*100):done?100:Math.round(seen/pack.questions.length*100);
     const topic=pack.level==='intermediate'?'<span class="practice-topic">'+escape(pack.subtitle)+'</span>':'<span class="practice-pattern" lang="fr">'+escape(pack.pattern.split('+')[0].trim())+'</span>';
-    return '<button class="practice-pack '+(packStarted(pack)?'in-progress':done?'is-complete':'')+'" data-action="practice-start" data-id="'+pack.id+'"><span class="pack-icon '+pack.color+'">'+icon(pack.icon)+'</span><span class="pack-copy"><small>'+(paused?'이어서 학습':done?'한 판 완료':seen?'학습 중':recommended?'오늘의 추천':'시작 전')+'</small><h3>'+escape(pack.title)+'</h3><span class="pack-detail">'+topic+'<span>'+(paused?(paused.index+1)+' / '+pack.questions.length+'문제':pack.questions.length+'문제 · 3–5분')+'</span></span><span class="pack-progress" aria-label="'+pct+'% 완료"><i style="width:'+pct+'%"></i></span></span><span class="pack-arrow">'+icon(done&&!paused?'check':'chevron')+'</span></button>';
+    const extraId='reinforce-'+pack.id,extraDraft=drafts[extraId],extraSeen=pack.reinforcement.filter(q=>state.cards[q.id]).length;
+    const extra=done||extraDraft||extraSeen?'<button class="pack-reinforce" data-action="practice-reinforce" data-id="'+extraId+'" aria-label="'+escape(pack.title)+' 더 연습"><span>'+(extraDraft?'응용 이어하기':extraSeen===pack.reinforcement.length?'응용 다시 연습':'응용 5문제')+'</span><small>'+(extraDraft?(extraDraft.index+1)+' / '+extraDraft.questionIds.length+'문제':extraSeen+' / '+pack.reinforcement.length+'문제')+'</small>'+icon('chevron')+'</button>':'';
+    return '<div class="practice-pack-group"><button class="practice-pack '+(packStarted(pack)?'in-progress':done?'is-complete':'')+'" data-action="practice-start" data-id="'+pack.id+'"><span class="pack-icon '+pack.color+'">'+icon(pack.icon)+'</span><span class="pack-copy"><small>'+(paused?'이어서 학습':done?'기본 연습 완료':seen?'학습 중':recommended?'오늘의 추천':'시작 전')+'</small><h3>'+escape(pack.title)+'</h3><span class="pack-detail">'+topic+'<span>'+(paused?(paused.index+1)+' / '+pack.questions.length+'문제':'기본 '+pack.questions.length+' · 응용 '+pack.reinforcement.length+'문제')+'</span></span><span class="pack-progress" aria-label="기본 연습 '+pct+'% 완료"><i style="width:'+pct+'%"></i></span></span><span class="pack-arrow">'+icon(done&&!paused?'check':'chevron')+'</span></button>'+extra+'</div>';
   }
   function renderLibrary({compact=false}={}) {
     const packsInLevel=levelPacks(),units=practiceUnits.filter(unit=>unit.level===state.level);
@@ -278,6 +285,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     }
     if(action==='practice-resume'){const paused=resumeInfo();if(paused)start(paused.packId);return;}
     if(action==='practice-start'){start(button.dataset.id||nextPack(state).id);return;}
+    if(action==='practice-reinforce'){start(button.dataset.id,true);return;}
     if(action==='practice-daily'){start(quickId('daily'));return;}
     if(action==='practice-light'){start(quickId('light'));return;}
     if(action==='practice-due'){start(quickId('review'));return;}
@@ -354,7 +362,7 @@ export function createPractice({ storage, content, dialogHeader, openDialog, clo
     stop:()=>{stash();session=null;content.closest('dialog')?.classList.remove('typing-focused');},
     reset:()=>{state=freshPractice();drafts={};session=null;libraryUnit='all';libraryStatus='all';save();saveDrafts();},
     reload:()=>{state=readPractice(storage);drafts=readPracticeDrafts(storage);},
-    questionCount:()=>practicePacks.reduce((n,p)=>n+p.questions.length,0),
+    questionCount:()=>practicePacks.reduce((n,p)=>n+p.questions.length+p.reinforcement.length,0),
     resumeInfo,dueCount:()=>levelDue().length,recommended:()=>nextPack(state),dailyProgress:()=>dailyProgress(state),
     dayRecords:()=>structuredClone(state.days),
     level:()=>state.level,levelPackCount:()=>levelPacks().length,renderLevelPicker,

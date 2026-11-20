@@ -1,5 +1,6 @@
 // Short, authored lessons selected by question ID, never by course-wide fallback.
 import {renderGrammarText} from './grammar-terms.js';
+import {reinforcementSpecs} from './practice-reinforcement.js';
 const lesson=(title,rule,forms,example,caution)=>({title,rule,forms,example:{fr:example[0],ko:example[1]},caution});
 export const miniLessons = {
   vouloir:lesson('veux는 vouloir가 바뀐 형태예요','“원하다”의 기본형은 vouloir예요. 주어에 맞춰 바꾼 뒤 원하는 행동을 동사원형으로 붙여요.',
@@ -274,6 +275,9 @@ export const courseLessonIds = {
   necessity:['subjVenir','subjEtre','subjFaire','subjFaire','subjVenir','subjVenir','subjEtre','subjPartir','subjEtre','subjAvoir']
 };
 export const questionLessonIds=Object.fromEntries(Object.entries(courseLessonIds).flatMap(([id,ids])=>ids.map((lessonId,i)=>[id+'-'+(i+1),lessonId])));
+for(const [id,questions] of Object.entries(reinforcementSpecs))questions.forEach((q,i)=>{
+  questionLessonIds[id+'-extra-'+(i+1)]=courseLessonIds[id][q.focus-1];
+});
 export const lessonForQuestion=id=>miniLessons[questionLessonIds[id]];
 
 export function renderMiniLesson(id,escape) {

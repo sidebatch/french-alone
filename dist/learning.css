@@ -15,6 +15,11 @@
 .unit-heading p{font-size:11px;color:#7a866d;line-height:1.8;margin:4px 0 0}.unit-heading>small{font-size:12px;white-space:nowrap;color:#839174}
 .pack-progress{display:block;height:4px;background:#edf1e6;border-radius:9px;overflow:hidden;margin-top:10px;max-width:190px}
 .pack-progress i{display:block;height:100%;background:#92ad76;border-radius:9px}.practice-pack.is-complete .pack-progress i{background:#6c8a55}
+.practice-pack-group{min-width:0}.practice-pack-group>.practice-pack{width:100%}
+.pack-reinforce{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin-top:4px;padding:8px 14px;border:0;border-radius:12px;background:#f0f3e9;color:#3e5835;text-align:left;font:inherit;cursor:pointer}
+.pack-reinforce span{font-size:13px;font-weight:700}.pack-reinforce small{margin-left:auto;font-size:11px}.pack-reinforce svg{width:16px;height:16px;flex-shrink:0}
+.pack-reinforce:focus-visible{outline:3px solid #708b55;outline-offset:2px}
+.practice-context{margin:0 0 6px;color:#68785f;font-size:12px;line-height:1.5}.practice-context span{font-weight:700;margin-right:4px}
 .practice-library[data-compact="false"] .practice-pack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .practice-library[data-compact="false"] .practice-pack{padding:18px 16px;min-width:0}.practice-library[data-compact="false"] .pack-icon{width:42px;height:47px;flex-shrink:0}
 .practice-library[data-compact="false"] .pack-copy h3{font-size:14px}.practice-library[data-compact="false"] .pack-arrow{width:24px;height:24px}

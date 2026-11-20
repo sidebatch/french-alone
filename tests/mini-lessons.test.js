@@ -6,7 +6,7 @@ import {miniLessons,courseLessonIds,questionLessonIds,lessonForQuestion,renderMi
 test('every exercise has an explicit focused lesson and every authored lesson is used',()=>{
   assert.deepEqual(Object.keys(courseLessonIds).sort(),practicePacks.map(p=>p.id).sort());
   assert.deepEqual(Object.keys(questionLessonIds).sort(),practiceQuestions.map(q=>q.id).sort());
-  assert.equal(practiceQuestions.length,210);
+  assert.equal(practiceQuestions.length,420);
   assert.deepEqual([...new Set(Object.values(questionLessonIds))].sort(),Object.keys(miniLessons).sort());
   for(const p of practicePacks){assert.equal(courseLessonIds[p.id].length,p.questions.length);assert.ok(new Set(courseLessonIds[p.id]).size>=3,p.id+' must not repeat one course overview');}
   for(const [id,l] of Object.entries(miniLessons)){

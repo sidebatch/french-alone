@@ -100,6 +100,55 @@ async function setup(initialPractice,initialDrafts,initialGrammar) {
   return {dom,$,click,type,choose,pick,current,answer,nav,course,errors,saved:()=>JSON.parse(dom.window.localStorage.getItem(PRACTICE_KEY))};
 }
 
+test('all 210 follow-ups can be completed in five-question rounds with matching lessons and grammar',async()=>{
+  const initial=freshPractice();
+  for(const pack of practicePacks)recordPractice(initial,pack.questions.map(q=>({id:q.id,correct:true,independent:false})),{packId:pack.id});
+  const f=await setup(initial);
+  for(const pack of practicePacks){
+    f.nav('lessons');f.click('[data-action="practice-level"][data-value="'+pack.level+'"]');
+    f.click('[data-action="practice-reinforce"][data-id="reinforce-'+pack.id+'"]');
+    for(let n=0;n<10;n++){
+      assert.equal(f.current().id,pack.reinforcement[n].id);
+      assert.equal(f.$('.practice-prompt').textContent,f.current().ko);
+      if(f.current().context){assert.equal(f.$('.practice-context').textContent,'상황 '+f.current().context);assert.ok(!f.current().ko.includes(': '));}
+      assert.match(f.$('.dialog-step')?.textContent||f.$('#study-dialog').textContent, /[1-5] \/ 5/);
+      f.answer(q=>{
+        assert.ok(f.$('#practice-goal').textContent.includes(goalForQuestion(q.id)));
+        f.click('[data-action="practice-why"]');
+        assert.equal(f.$('[data-mini-lesson]').dataset.miniLesson,questionLessonIds[q.id]);
+        assert.ok(f.$('[data-action="practice-grammar"]'));
+      });
+      if(n===4)f.click('#study-dialog [data-action="practice-reinforce"]');
+    }
+    assert.equal(f.current(),undefined);f.click('[data-action="practice-close"]');
+    assert.match(f.$('[data-action="practice-reinforce"][data-id="reinforce-'+pack.id+'"]').textContent,/10 \/ 10/);
+  }
+  assert.equal(Object.keys(f.saved().cards).length,420);
+  assert.equal(f.saved().completed.length,21);
+  assert.deepEqual(f.errors,[]);
+});
+
+test('follow-up rounds resume exact input and retry errors without changing basic-course achievements',async()=>{
+  const initial=freshPractice(),pack=practicePacks[0];
+  recordPractice(initial,pack.questions.map(q=>({id:q.id,correct:true,independent:false})),{packId:pack.id});
+  let f=await setup(initial);f.nav('lessons');
+  f.click('[data-action="practice-reinforce"][data-id="reinforce-want"]');
+  f.answer();f.type('ne');
+  assert.equal(f.current().id,'want-extra-2');
+  f.click('#study-dialog [data-action="close"]');
+  const drafts=JSON.parse(f.dom.window.localStorage.getItem(PRACTICE_DRAFT_KEY));
+  f.nav('lessons');f.$('.course-filter-tools').open=true;f.click('[data-action="practice-status"][data-value="active"]');
+  assert.ok(f.$('[data-action="practice-reinforce"][data-id="reinforce-want"]'));
+  f=await setup(f.saved(),drafts);f.click('[data-action="practice-resume"]');
+  assert.equal(f.current().id,'want-extra-2');assert.equal(f.$('#practice-input').value,'ne');
+  while(f.current())f.answer();
+  assert.equal(f.saved().runs.at(-1).total,5);
+  assert.deepEqual(f.saved().completed,['want']);
+  f.click('[data-action="practice-retry"]');assert.equal(f.current().id,'want-extra-2');f.answer();
+  assert.equal(f.saved().runs.at(-1).total,1);
+  assert.deepEqual(f.errors,[]);
+});
+
 test('short rounds retain the input, resume assisted tiles and retry only the difficult question',async()=>{
   const f=await setup();f.click('[data-action="practice-daily"]');f.answer();
   const input=f.$('#practice-input');f.type('veu');assert.equal(f.$('#practice-input'),input);
@@ -276,7 +325,7 @@ test('a round handles wrong answers, hints, tile undo, independent transfer, con
   assert.equal(saved().runs.length,1);assert.equal(saved().runs[0].independent,4);assert.equal(saved().runs[0].xp,70);assert.equal(saved().runs[0].transfer,true);
   assert.equal(saved().cards['want-2'].strength,0);assert.equal(saved().cards['want-10'].strength,1);
   const baseline=JSON.parse(f.dom.window.localStorage.getItem(STORAGE_KEY));assert.equal(Object.values(baseline.activity)[0].xp,70);assert.equal(Object.values(baseline.activity)[0].words,2);
-  click('[data-action="practice-close"]');f.nav('home');assert.ok($('.stamp-label.is-done'));click('[data-action="practice-daily"]');assert.equal(current().id,'can-1');click('#study-dialog [data-action="close"]');assert.equal(saved().runs.length,1);
+  click('[data-action="practice-close"]');f.nav('home');assert.ok($('.stamp-label.is-done'));click('[data-action="practice-daily"]');assert.equal(current().id,'want-extra-1');click('#study-dialog [data-action="close"]');assert.equal(saved().runs.length,1);
   assert.equal($('#study-dialog').open,false);assert.ok($('.lou-room.has-plant'));
   click('[data-action="settings"]');click('[data-action="reset-confirm"]');click('[data-action="reset"]');assert.deepEqual(saved().cards,{});assert.deepEqual(saved().runs,[]);assert.equal(f.errors.length,0);
 });

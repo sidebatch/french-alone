@@ -47,7 +47,7 @@ test('course completion outlives the capped history and legacy progress migrates
   assert.equal(loaded.runs.length,200);assert.deepEqual(loaded.completed,['want','can']);assert.equal(nextPack(loaded).id,'like');
 });
 test('twenty-one authored rounds move from guided choices to recall and novel combinations',()=>{
-  assert.equal(practicePacks.length,21);assert.equal(practiceQuestions.length,210);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,210);
+  assert.equal(practicePacks.length,21);assert.equal(practiceQuestions.length,420);assert.equal(new Set(practiceQuestions.map(q=>q.id)).size,420);
   for(const pack of practicePacks){
     assert.equal(pack.questions.length,10);assert.equal(pack.questions[0].kind,'choice');assert.equal(pack.questions[4].kind,'choice');
     const last=pack.questions.at(-1);assert.equal(last.kind,'input');assert.equal(last.transfer,true);assert.ok(last.glossary);assert.equal(last.cue,undefined);

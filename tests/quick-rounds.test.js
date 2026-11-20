@@ -17,7 +17,7 @@ test('two short rounds follow authored order and complete exactly one course',()
   assert.deepEqual(second.map(q=>q.id),practicePacks[0].questions.slice(5).map(q=>q.id));
   recordPractice(state,results(second),{packId:'daily',date,runId:'second'});
   assert.deepEqual(state.completed,['want']);
-  assert.equal(dailyDeck(reload(state),date)[0].id,'can-1');
+  assert.equal(dailyDeck(reload(state),date)[0].id,'want-extra-1');
 });
 
 test('daily review makes room for new content and promotes credited cards to unaided typing',()=>{
@@ -26,12 +26,12 @@ test('daily review makes room for new content and promotes credited cards to una
   const deck=dailyDeck(state,date);
   assert.equal(deck.length,5);
   assert.equal(deck.filter(q=>state.cards[q.id]).length,2);
-  assert.deepEqual(deck.slice(2).map(q=>q.id),['can-1','can-2','can-3']);
+  assert.deepEqual(deck.slice(2).map(q=>q.id),['want-extra-1','want-extra-2','want-extra-3']);
   for(const q of deck.slice(0,2)){
     assert.equal(q.kind,'input');assert.equal(q.model,undefined);
     assert.equal(q.choices,undefined);assert.equal(q.tiles,undefined);
   }
-  assert.equal(deck[2].kind,'choice');assert.ok(deck[2].choices.includes(deck[2].answer));
+  assert.equal(deck[2].kind,'input');assert.ok(deck[2].cue);
   assert.equal(dailyDeck(state,date,3).length,3);
 });
 

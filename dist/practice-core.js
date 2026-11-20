@@ -5,9 +5,11 @@ import { alternativeForQuestion } from './practice-goals.js';
 export const PRACTICE_KEY = 'bonjour-practice-v1';
 export const PRACTICE_DRAFT_KEY = 'bonjour-practice-drafts-v1';
 export const ROUND_SIZES = {daily:5,light:3,'daily-intermediate':5,'light-intermediate':3};
-export const QUICK_MODES = [...Object.keys(ROUND_SIZES),'review-intermediate','retry','retry-intermediate'];
+export const reinforcementCourse = id => practicePacks.find(pack=>'reinforce-'+pack.id===id);
+export const REINFORCEMENT_MODES = practicePacks.map(pack=>'reinforce-'+pack.id);
+export const QUICK_MODES = [...Object.keys(ROUND_SIZES),'review-intermediate','retry','retry-intermediate',...REINFORCEMENT_MODES];
 export const isRecallRound = id => ['review','review-intermediate','retry','retry-intermediate'].includes(id);
-export const roundLevel = id => id.endsWith('-intermediate')?'intermediate':'beginner';
+export const roundLevel = id => reinforcementCourse(id)?.level||(id.endsWith('-intermediate')?'intermediate':'beginner');
 export const freshPractice = () => ({ version: 1, level:'beginner', cards: {}, runs: [], completed: [], days: {} });
 export function normalizeAnswer(value) {
   return String(value).normalize('NFC').toLocaleLowerCase('fr').replace(/[’‘ʼ`]/g,"'")
@@ -37,6 +39,18 @@ export function dailyDeck(state, date=today(), size=5, level=state.level||'begin
     .sort((a,b)=>state.cards[a.id].due.localeCompare(state.cards[b.id].due)||state.cards[a.id].strength-state.cards[b.id].strength);
   selected.push(...known.slice(0,size-selected.length));
   return selected.map(q=>state.cards[q.id]?.credited?asRecall(q):({...q,transfer:q.transfer===true&&!state.cards[q.id]}));
+}
+export function reinforcementDeck(state, packId, date=today()) {
+  const pack=practicePacks.find(pack=>pack.id===packId)||reinforcementCourse(packId);
+  if(!pack)return [];
+  const pool=pack.reinforcement,unseen=pool.filter(q=>!state.cards[q.id]);
+  const due=dueQuestions(state,date,pack.level).filter(q=>q.reinforcement&&q.packId===pack.id);
+  const selected=due.slice(0,unseen.length?2:5);
+  selected.push(...unseen.slice(0,5-selected.length));
+  const known=pool.filter(q=>state.cards[q.id]&&!selected.some(item=>item.id===q.id))
+    .sort((a,b)=>state.cards[a.id].due.localeCompare(state.cards[b.id].due)||state.cards[a.id].strength-state.cards[b.id].strength);
+  selected.push(...known.slice(0,5-selected.length));
+  return selected.map(q=>state.cards[q.id]?.credited?asRecall(q):({...q}));
 }
 export const dailyProgress = (state,date=today()) => ({questions:state.days[date]?.questions||0,rounds:state.days[date]?.rounds||0,days:Object.values(state.days).filter(day=>day.questions>=3).length});
 // Align tokens against the nearest accepted answer. Missing words get their own
@@ -131,10 +145,11 @@ export function readPracticeDrafts(storage) {
     const raw=JSON.parse(storage.getItem(PRACTICE_DRAFT_KEY));if(raw?.version!==1)return drafts;
     for(const packId of [...practicePacks.map(pack=>pack.id),'review',...QUICK_MODES]) {
       const item=raw.sessions?.[packId];if(!item||item.packId!==packId)continue;
-      const pack=practicePacks.find(p=>p.id===packId);
+      const pack=practicePacks.find(p=>p.id===packId),reinforcement=reinforcementCourse(packId);
       const ids=item.questionIds;
       if(!Array.isArray(ids)||!ids.length||ids.length>10||new Set(ids).size!==ids.length||ids.some(id=>!questionById(id)))continue;
       if(pack&&(ids.length!==pack.questions.length||ids.some((id,i)=>id!==pack.questions[i].id)))continue;
+      if(reinforcement&&(ids.length!==5||ids.some(id=>!reinforcement.reinforcement.some(q=>q.id===id))))continue;
       if(ROUND_SIZES[packId]&&(ids.length!==ROUND_SIZES[packId]||ids.some(id=>questionById(id).level!==roundLevel(packId))))continue;
       if(!Number.isInteger(item.index)||item.index<0||item.index>=ids.length||!Array.isArray(item.results)||item.results.length!==item.index)continue;
       if(item.results.some((r,i)=>r?.id!==ids[i]||typeof r.correct!=='boolean'||typeof r.independent!=='boolean'||r.independent&&!r.correct))continue;
@@ -165,8 +180,10 @@ export function readPracticeDrafts(storage) {
 export const independentSentences = state => [...new Set(practiceQuestions.filter(q=>!q.cue&&q.mode!=='word'&&state.cards[q.id]?.independent).map(q=>normalizeAnswer(q.full)))];
 export function recordPractice(state, results, {packId, date=today(), continued=false,runId}={}) {
   const special=packId==='review'||QUICK_MODES.includes(packId);
+  const reinforcement=reinforcementCourse(packId);
   if(!validDate(date) || !results.length || results.length > 10 || (!special&&results.length!==practicePacks.find(p=>p.id===packId)?.questions.length) || (ROUND_SIZES[packId]&&(results.length!==ROUND_SIZES[packId]||results.some(r=>questionById(r.id)?.level!==roundLevel(packId))))||new Set(results.map(r=>r.id)).size !== results.length ||
     ![...practicePacks.map(p=>p.id),'review',...QUICK_MODES].includes(packId) || results.some(r=>!questionById(r.id) || (!special && questionById(r.id).packId!==packId))) throw Error('Invalid practice results');
+  if(reinforcement&&(results.length!==5||results.some(r=>!reinforcement.reinforcement.some(q=>q.id===r.id))))throw Error('Invalid reinforcement results');
   if(runId&&state.runs.some(run=>run.runId===runId))return {...state.runs.find(run=>run.runId===runId),xp:0,newSentences:0,recovered:0,newQuestions:0,duplicate:true};
   const before = new Set(independentSentences(state));
   const transfer=!isRecallRound(packId)&&results.some(r=>questionById(r.id).transfer&&!state.cards[r.id]&&r.correct&&r.independent);

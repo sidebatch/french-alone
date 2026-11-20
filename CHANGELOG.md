@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.19.0 — 2026-11-20
+
+- Add 210 authored follow-up exercises across all 21 courses, bringing the bank to 420 questions (180 beginner, 240 intermediate). Reuse learned patterns in new situations, with 147 additional full-sentence writing prompts, 42 blanks and 21 arrangements.
+- Add five-question follow-up rounds from completed course cards and completion screens. Include follow-ups after their basic course in daily rounds, with existing due-review limits, hints, retries, XP and stamps.
+- Connect every new prompt to a targeted learning goal, mini lesson and grammar reference. Register alternatives for time and conditional-clause placement, gender agreement, question word order and polite orders.
+- Keep all original question IDs, completed basic courses and paused ten-question sessions. Save and restore each course's follow-up draft separately, validate round membership and guard replayed rewards.
+- Cache the additional content for offline use. Verify 142 automated tests and complete all 210 follow-ups in Chrome, including narrow mobile layouts.
+
 ## 1.18.0 — 2026-11-18
 
 - Wrap sentence answers as learners type. Preserve accent editing, drafts and Enter-to-check while protecting unfinished IME input.
