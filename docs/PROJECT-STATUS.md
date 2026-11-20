@@ -7,8 +7,8 @@
 | 공개 앱 | [French Alone](https://sidebatch.github.io/french-alone/) |
 | 앱 버전 | v1.19.0 |
 | 배포일 | 2026년 11월 20일 |
-| 앱 기준 변경 | [v1.19.0 변경 이력](../CHANGELOG.md) |
-| 배포 결과 | [GitHub Pages 배포 기록](https://github.com/sidebatch/french-alone/actions/workflows/pages.yml) |
+| 앱 기준 변경 | [acbea70](https://github.com/sidebatch/french-alone/commit/acbea70123ee07de67285f5fa8f57e5d6ce4b847) |
+| 배포 결과 | [GitHub Pages 배포 성공](https://github.com/sidebatch/french-alone/actions/runs/44690129588) |
 | 저장 방식 | 기기·브라우저의 localStorage에 진도·초안·문법 열람·구매·방 배치를 저장 |
 | 설치·오프라인 | 홈 화면 설치 지원. 최초 온라인 준비 후 학습·문법·꾸미기·인증 카드 생성 가능 |
 | 음성 | 기기에서 제공하는 프랑스어 음성으로 선택적 듣기 제공 |
@@ -90,7 +90,7 @@
 
 v1.19.0에서 코드 구문 검사 34개와 **142개 자동 테스트**를 통과했습니다. 추가 210문항의 구조·해설·목표·허용 답안, 틀린 시제·일치 거절, 기존 기록 보존, 5문제 응용의 저장·복습·재도전·중복 보상 방지를 확인했습니다.
 
-실제 Chrome에서 보강 210문제를 모두 완료하고, 320px·390px 화면에서 가로 넘침과 실행 오류가 없음을 확인했습니다. 오프라인에서 보강 문제를 열고, 320×420 입력 화면에서 오답을 수정하고 새로고침 후 답안을 이어가는 흐름도 확인했습니다. 문서 14개의 로컬 링크 63개와 콘텐츠 수량을 확인했습니다. [배포 기록](https://github.com/sidebatch/french-alone/actions/workflows/pages.yml)
+실제 Chrome에서 보강 210문제를 모두 완료하고, 320px·390px 화면에서 가로 넘침과 실행 오류가 없음을 확인했습니다. 오프라인에서 보강 문제를 열고, 320×420 입력 화면에서 오답을 수정하고 새로고침 후 답안을 이어가는 흐름도 확인했습니다. 문서 14개의 로컬 링크 62개와 콘텐츠 수량을 확인했습니다. 공개 주소에서도 v1.19.0·420문제와 오프라인 응용·답안 복원을 확인했습니다. [배포 기록](https://github.com/sidebatch/french-alone/actions/runs/44690129588)
 
 실기기 Android/iPhone의 키보드·설치 창·음성·스피커·공유 대상 선택과 사진 저장은 후속 확인 대상입니다. 실제 재방문율·완주율·학습 효과는 사용자 관찰이 필요합니다.
 
