@@ -1,5 +1,16 @@
 # Lou mascot — 1.3.1
 
+This document records the original mascot generation. The current v1.18.0 app also includes 30 wearables, three coat patterns and four selectable poses, with an automatic pose option. See the [current project status](PROJECT-STATUS.md) for the shipped wardrobe and room features.
+
+## Current rendering assets
+
+- `dist/wardrobe.js` defines 12 outfits, eight eyewear designs, ten headpieces, coat patterns and pose selection.
+- `dist/assets/lou-outfits/<id>.webp` contains each outfit fitted to all four Lou poses. The matching `<id>-thumb.webp` file serves wardrobe thumbnails.
+- `renderAvatar` supplies the home, fitting-room and learning views. `drawRoom` in `dist/room-art.js` draws the saved room and look into certificate images.
+- These local assets are included in `dist/sw.js` for offline use. Update the cached asset list when adding outfit files.
+
+## Original mascot
+
 App asset: `dist/assets/lou-sprites-v2.webp` (losslessly encoded from the generated PNG for a smaller download).
 
 Original asset: `docs/assets/lou-sprites-v2-source.png` (transparent PNG; original generated pixels preserved).
