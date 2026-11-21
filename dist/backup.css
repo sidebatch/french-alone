@@ -21,6 +21,9 @@
 .backup-details dl>div{display:flex;justify-content:space-between;gap:12px;margin:10px 0}
 .backup-details dd{margin:0;text-align:right}
 .backup-details textarea{width:100%;min-height:160px;margin-top:12px;font:inherit;line-height:1.5}
+.auto-file-section{border:1px solid #d7e1cb;border-radius:14px;background:#f2f5ed;padding:15px;margin:16px 0}
+.auto-file-state{font-weight:600}.auto-file-section small{font-size:.76rem;color:var(--muted,#65736c)}
+.auto-file-section .backup-actions{margin-bottom:8px}.auto-file-section .backup-note{margin-bottom:0}
 .storage-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff4dc;border:1px solid #ecd6a5;border-radius:12px;padding:12px 16px;margin-bottom:16px}
 .storage-notice p{margin:0;font-size:.83rem;line-height:1.5}.storage-notice button{flex-shrink:0;min-height:44px}
 @media(max-width:380px){.storage-notice{align-items:stretch;flex-direction:column}.backup-body{padding-left:18px;padding-right:18px}}

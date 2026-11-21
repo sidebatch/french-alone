@@ -1,6 +1,6 @@
 import {RECORD_KEYS,RECORD_LABELS,MAX_BACKUP_BYTES,parseBackup,summarizeRecords} from './record-storage.js';
 
-export function createRecordBackup({storage,version,dialog,content,dialogHeader,openDialog,focusDialog,escape,onRestored}) {
+export function createRecordBackup({storage,version,dialog,content,dialogHeader,openDialog,focusDialog,escape,onRestored,autoFile=null}) {
   const doc=content.ownerDocument, win=doc.defaultView;
   let pending=null, entries=[], generation=0;
   const dateLabel = value => Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '날짜 확인 필요';
@@ -9,6 +9,21 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
     return `학습 ${s.days}일 · ${s.xp} XP · 스탬프 ${s.stamps}개 · 구매 ${s.purchases}개${s.drafts?` · 이어하기 ${s.drafts}개`:''}`;
   };
   function active() {return dialog.open && dialog.dataset.view==='backup';}
+  function automaticPanel() {
+    const info=autoFile?.state();if(!info)return '';
+    if(!info.supported)return '<section class="auto-file-section"><h3>파일 하나로 자동 백업</h3><p>현재 브라우저는 파일 자동 갱신을 지원하지 않아요. 지원되는 최신 Chrome에서 사용할 수 있어요. 브라우저를 옮기기 전에는 현재 기록을 파일로 저장해 주세요.</p></section>';
+    const labels={off:'아직 연결하지 않았어요',ready:'파일에 저장됨',pending:'최신 기록 저장 대기',saving:'파일에 저장 중',permission:'파일 접근 허용 필요',conflict:'사용할 기록 확인 필요',error:'자동 파일 백업 멈춤',choosing:'연결할 기록 확인 중',paused:'파일 연결 확인 필요',restarting:'선택한 파일로 다시 여는 중'};
+    const attention=['permission','conflict','error','paused'].includes(info.phase);
+    return `<section class="auto-file-section"><h3>파일 하나로 자동 백업</h3><p class="auto-file-state" role="status">${escape(labels[info.phase]||info.phase)}${info.name?` · <b>${escape(info.name)}</b>`:''}</p>${info.savedAt?`<small>최근 파일 저장 ${escape(dateLabel(info.savedAt))}</small>`:''}<p>한 번 연결하면 같은 파일을 자동 갱신하고, 앱을 켤 때 먼저 읽어요. 이전 정상 기록도 이 파일 안에 함께 보관해요.</p>${info.message?`<p class="${attention?'inline-alert':'backup-note'}">${escape(info.message)}</p>`:''}
+      <div class="backup-actions">${info.connected?`${attention?'<button class="primary-button" type="button" data-action="auto-retry">파일 연결 다시 확인</button>':''}<button class="secondary-button" type="button" data-action="auto-disconnect">자동 백업 연결 해제</button>`:'<button class="primary-button" type="button" data-action="auto-new">자동 백업 파일 지정</button><button class="secondary-button" type="button" data-action="auto-open">기존 파일 연결</button>'}</div>
+      ${info.connected&&attention?'<button class="text-link" type="button" data-action="auto-open">파일 다시 선택</button>':''}<p class="backup-note">파일을 옮기거나 접근 권한·앱 데이터를 삭제하면 파일을 다시 연결해야 할 수 있어요. 연결 해제나 앱 초기화로 이 파일을 삭제하지 않아요.</p></section>`;
+  }
+  function autoPreview() {
+    const choice=autoFile?.preview();if(!choice)return;
+    content.querySelector('#auto-file-preview').innerHTML=`<section class="backup-confirm" tabindex="-1"><h3>자동 백업 파일 연결</h3><p><b>${escape(choice.handle.name)}</b></p>${choice.file.backup?`<p>파일 기록: ${escape(summary(choice.file.backup.data))}<br>${escape(dateLabel(choice.file.backup.exportedAt))}</p>`:'<p>새 파일이에요. 현재 기록부터 자동으로 보관해요.</p>'}<p>현재 기기: ${escape(summary(choice.device))}</p><p>${choice.file.backup?'파일 기록으로 시작하면 현재 기기 기록을 보관한 뒤 앱을 다시 열어 불러와요. 현재 기록으로 시작하면 파일 안에 이전 기록을 남기고 현재 내용을 저장해요.':'이 파일 하나에 계속 저장해요. 새 백업 파일을 매번 만들지 않아요.'}</p><div class="backup-actions">${choice.file.backup?'<button class="primary-button" type="button" data-action="auto-use-file">파일 기록으로 시작</button>':''}<button class="${choice.file.backup?'secondary':'primary'}-button" type="button" data-action="auto-use-device">${choice.file.backup?'현재 기록으로 시작':'이 파일로 자동 백업 시작'}</button><button class="text-link" type="button" data-action="auto-cancel">취소</button></div></section>`;
+    const panel=content.querySelector('#auto-file-preview .backup-confirm');panel.focus({preventScroll:true});panel.scrollIntoView?.({block:'nearest'});
+  }
+  autoFile?.onChange(()=>{if(active()){const panel=content.querySelector('#auto-file-panel');if(panel)panel.innerHTML=automaticPanel();}});
   function render(message='') {
     const status=storage.inspect();entries=status.backups;
     const available=Object.values(status.statuses).filter(value=>value==='ok').length;
@@ -17,9 +32,10 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
     content.innerHTML=dialogHeader('기록 확인·백업')+`<div class="dialog-body backup-body">
       <section class="backup-overview"><p class="backup-kicker">서버 없이 · 내 기기에 보관</p><h3>${status.blocked?'원본 보호 중':allMissing?'기록 확인이 필요해요':'기록을 안전하게 챙겨요'}</h3><p>${escape(warning)}</p>
       <p class="backup-counts">${escape(summary(status.data))}</p>${status.blocked?'<p>보호 중에는 새 기록을 저장하지 않아요. 먼저 파일로 보관하거나 아래 보관본을 확인해 주세요.</p>':''}${Object.values(status.statuses).some(value=>['invalid','version'].includes(value))?'<p>읽지 못한 항목도 원본 그대로 파일에 담아요. 형식이 손상된 원본 파일은 바로 복원되지 않을 수 있어요.</p>':''}</section>
-      <div class="backup-actions"><button type="button" class="primary-button" data-action="backup-export">백업 파일 저장</button><button type="button" class="secondary-button" data-action="backup-import">파일에서 불러오기</button></div>
+      <div id="auto-file-panel">${automaticPanel()}</div><div id="auto-file-preview"></div>
+      <details class="backup-details manual-file-tools"><summary>파일을 직접 저장·불러오기</summary><div class="backup-actions"><button type="button" class="primary-button" data-action="backup-export">백업 파일 저장</button><button type="button" class="secondary-button" data-action="backup-import">파일에서 불러오기</button></div>
       <input id="backup-file" type="file" accept=".json,application/json" hidden>
-      <p class="backup-note">파일은 기기에 저장해요. 브라우저 데이터가 지워져도 되찾으려면 <b>다운로드한 파일을 앱 밖에 보관</b>해 주세요. 다른 기기에서는 이 파일을 불러오면 돼요.</p>
+      <p class="backup-note">직접 저장은 누를 때마다 별도 파일을 내려받아요. 자동 백업을 연결했다면 매번 직접 저장할 필요가 없어요.</p></details>
       <p id="backup-message" role="status" class="backup-message" ${message?'':'hidden'}>${escape(message)}</p>
       <div id="backup-preview"></div>
       <section class="backup-copies"><h3>이 기기의 보관본 <small>${entries.length}개</small></h3>
@@ -30,7 +46,7 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
       <p>${available} / 5개 항목을 읽었어요. ‘기록 없음’만으로 삭제 원인을 알 수는 없어요.</p><button class="secondary-button" type="button" data-action="backup-diagnostics">확인 내용 복사</button><textarea id="backup-diagnostics" aria-label="공유할 확인 내용" readonly hidden></textarea></details>
       <details class="backup-details"><summary>기기의 자동 정리 방지</summary><p>지원하는 브라우저에 기록을 자동 정리 대상에서 빼 달라고 요청해요. 사용자가 직접 데이터를 삭제하는 것까지 막지는 못해요.</p><button type="button" class="secondary-button" data-action="backup-persist">기기 저장 보호 요청</button></details>
       </div><div class="dialog-footer"><button type="button" class="secondary-button" data-action="settings">설정으로</button><button type="button" class="primary-button" data-action="close">닫기</button></div>`;
-    focusDialog();
+    focusDialog();if(autoFile?.preview())autoPreview();
   }
   function notify(message) {
     if (!active()) return;
@@ -40,7 +56,7 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
   function preview(backup,label) {
     pending={data:backup.data,at:backup.exportedAt||backup.at,label};
     const current=storage.inspect();
-    content.querySelector('#backup-preview').innerHTML=`<section class="backup-confirm" aria-labelledby="backup-confirm-title" tabindex="-1"><h3 id="backup-confirm-title">${escape(label)}</h3><p>${escape(dateLabel(pending.at))}</p><p class="backup-counts">${escape(summary(pending.data))}</p><p>현재 기록(${escape(summary(current.data))})을 이 기록으로 바꿔요. 서로 합치지는 않아요. 바꾸기 전 원본도 기기에 따로 보관해요.</p><div class="backup-actions"><button class="primary-button" type="button" data-action="backup-restore">이 기록으로 복원</button><button class="secondary-button" type="button" data-action="backup-cancel">취소</button></div></section>`;
+    content.querySelector('#backup-preview').innerHTML=`<section class="backup-confirm" aria-labelledby="backup-confirm-title" tabindex="-1"><h3 id="backup-confirm-title">${escape(label)}</h3><p>${escape(dateLabel(pending.at))}</p><p class="backup-counts">${escape(summary(pending.data))}</p><p>현재 기록(${escape(summary(current.data))})을 이 기록으로 바꿔요. 서로 합치지는 않아요. 바꾸기 전 원본도 기기에 따로 보관해요.${autoFile?.state().connected?' 연결된 자동 백업 파일은 그대로 두고 연결을 해제해요.':''}</p><div class="backup-actions"><button class="primary-button" type="button" data-action="backup-restore">이 기록으로 복원</button><button class="secondary-button" type="button" data-action="backup-cancel">취소</button></div></section>`;
     const panel=content.querySelector('.backup-confirm');panel.focus({preventScroll:true});panel.scrollIntoView?.({block:'nearest'});
   }
   function download(text) {
@@ -57,13 +73,14 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
       `브라우저: ${win.navigator.userAgent}`,`보호: ${status.blocked?.kind||'없음'}`,
       ...RECORD_KEYS.map(key=>`${RECORD_LABELS[key]}: ${status.statuses[key]}`),
       summary(status.data),`기억한 문항 ${status.summary.cards}개 / 기초 완료 ${status.summary.lessons}개 / 저장 표현 ${status.summary.favorites}개 / 문법 열람 ${status.summary.grammar}개`,
-      `보관본: ${status.backups.length}개 / 자동 보관 오류: ${status.backupProblem?'있음':'없음'}`].join('\n');
+      `보관본: ${status.backups.length}개 / 자동 보관 오류: ${status.backupProblem?'있음':'없음'}`,
+      `자동 파일: ${autoFile?.state().phase||'없음'} / 최근 저장: ${autoFile?.state().savedAt||'없음'}`].join('\n');
   }
   content.addEventListener('click',async event=>{
     const button=event.target.closest('[data-action]');
     if (!active() || !button || button.disabled) return;
     const action=button.dataset.action;
-    if (!action.startsWith('backup-')) return;
+    if (!action.startsWith('backup-')&&!action.startsWith('auto-')) return;
     try {
       if (action==='backup-export') download(storage.exportCurrent(version));
       else if (action==='backup-import') content.querySelector('#backup-file').click();
@@ -73,10 +90,28 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
         const entry=entries[Number(button.dataset.index)];if(entry?.restorable)preview(entry,entry.label);
       } else if (action==='backup-cancel') {pending=null;content.querySelector('#backup-preview').replaceChildren();}
       else if (action==='backup-restore' && pending) {
-        button.disabled=true;storage.restore(pending.data);pending=null;
+        const target=pending.data;button.disabled=true;if(autoFile?.state().connected)await autoFile.disconnect();storage.restore(target);pending=null;
         notify('기록을 복원했어요. 앱을 다시 열고 있어요.');
         onRestored();
-      } else if (action==='backup-diagnostics') {
+      } else if (action==='auto-new'||action==='auto-open') {
+        const token=++generation;
+        const options={types:[{description:'French Alone 백업',accept:{'application/json':['.json']}}],excludeAcceptAllOption:true};
+        const handle=action==='auto-new'?await win.showSaveFilePicker({...options,suggestedName:'french-alone-backup.json'}):(await win.showOpenFilePicker({...options,multiple:false}))[0];
+        if(token!==generation||!active())return;
+        content.querySelector('#auto-file-preview')?.replaceChildren();
+        await autoFile.choose(handle);
+        if(token!==generation||!active()){autoFile.cancelChoice();return;}
+        autoPreview();
+      } else if(action==='auto-use-file'||action==='auto-use-device') {
+        button.disabled=true;
+        const reload=await autoFile.connect(action==='auto-use-file'?'file':'device');
+        if(autoFile.state().phase==='permission'){button.disabled=false;return;}
+        if(reload)onRestored();
+        else {content.querySelector('#auto-file-preview')?.replaceChildren();notify('자동 백업을 연결했어요. 이제 같은 파일에 계속 저장해요.');content.querySelector('.backup-body')?.scrollTo?.({top:0,behavior:'instant'});}
+      } else if(action==='auto-cancel') {autoFile.cancelChoice();content.querySelector('#auto-file-preview').replaceChildren();}
+      else if(action==='auto-disconnect') {button.disabled=true;await autoFile.disconnect();content.querySelector('#auto-file-preview')?.replaceChildren();notify('자동 백업 연결을 해제했어요. 기존 파일은 그대로 남아 있어요.');}
+      else if(action==='auto-retry') {if(await autoFile.retry())onRestored();}
+      else if (action==='backup-diagnostics') {
         const text=diagnosticText(),area=content.querySelector('#backup-diagnostics');area.hidden=false;area.value=text;
         try {await win.navigator.clipboard.writeText(text);notify('확인 내용을 복사했어요. 이 내용을 대화에 붙여 넣어 주세요.');}
         catch {area.focus();area.select();notify('아래 확인 내용을 길게 눌러 복사해 주세요.');}
@@ -87,7 +122,7 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
           notify(accepted?'이 브라우저에서 자동 정리 방지를 허용했어요. 백업 파일도 함께 보관해 주세요.':'브라우저가 아직 저장 보호를 허용하지 않았어요. 백업 파일을 따로 보관해 주세요.');
         }
       }
-    } catch (error) {notify(error.message);if(button.isConnected)button.disabled=false;}
+    } catch (error) {if(error.name!=='AbortError')notify(error.message);if(button.isConnected)button.disabled=false;}
   });
   content.addEventListener('change',async event=>{
     if (event.target.id!=='backup-file' || !active()) return;
@@ -102,7 +137,7 @@ export function createRecordBackup({storage,version,dialog,content,dialogHeader,
   });
   return {
     open(){generation++;pending=null;dialog.dataset.view='backup';openDialog();render();},
-    close(){generation++;pending=null;},
+    close(){generation++;pending=null;if(autoFile?.preview()&&['choosing','permission'].includes(autoFile.state().phase))autoFile.cancelChoice();},
     diagnosticText
   };
 }

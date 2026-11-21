@@ -74,7 +74,7 @@ export function parseBackup(text) {
 }
 
 export function createRecordStorage(raw, {now=()=>new Date(),schedule=setTimeout,cancel=clearTimeout}={}) {
-  let blocked=null, backupProblem=false, listener=()=>{}, timer=null, stopped=false;
+  let blocked=null, backupProblem=false, listener=()=>{}, savedListener=()=>{}, timer=null, stopped=false;
   let expected={};
   const fail = (kind,message) => {
     if (!blocked) { blocked={kind,message}; listener(); }
@@ -170,7 +170,7 @@ export function createRecordStorage(raw, {now=()=>new Date(),schedule=setTimeout
     const checked=capture();
     if (Object.values(checked.statuses).includes('unavailable') || !same(checked.data,data)) throw new Error('기록 저장을 확인하지 못했어요.');
   }
-  function restore(data) {
+  function restore(data,{resume=false}={}) {
     if (!validData(data)) throw new Error('이 보관본은 바로 복원할 수 없어요. 원본 파일을 먼저 저장해 주세요.');
     if (timer!==null) {cancel(timer);timer=null;}
     const before=capture();
@@ -189,7 +189,7 @@ export function createRecordStorage(raw, {now=()=>new Date(),schedule=setTimeout
       fail('restore','복원을 끝내지 못했어요. 복원 전 보관본을 확인해 주세요.');
       throw new Error(rolledBack?'복원에 실패해 이전 기록으로 되돌렸어요. 백업 파일을 보관하고 다시 열어 주세요.':'복원이 중단됐어요. 초기화하지 말고 ‘복원하기 전 기록’을 파일로 저장해 주세요.');
     }
-    expected={...data};blocked=null;stopped=true;
+    expected={...data};blocked=null;stopped=!resume;
   }
   function clearBackupsForReset() {
     if (timer!==null) {cancel(timer);timer=null;}
@@ -239,11 +239,13 @@ export function createRecordStorage(raw, {now=()=>new Date(),schedule=setTimeout
       expected[key]=value;
       if (timer!==null) cancel(timer);
       timer=schedule(checkpoint,700);
+      savedListener();
     },
     inspect,checkpoint,restore,exportCurrent,exportData,clearBackupsForReset,
     issue:()=>blocked,
     backupWarning:()=>backupProblem,
     onIssue(fn){listener=fn;},
+    onSaved(fn){savedListener=fn;},
     dispose(){stopped=true;if(timer!==null)cancel(timer);}
   };
 }

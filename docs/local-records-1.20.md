@@ -1,5 +1,7 @@
 # v1.20.0 · 서버 없는 기록 보관과 복원
 
+이 문서는 v1.20 도입 기록입니다. v1.21부터는 [지정한 파일 하나의 자동 갱신·실행 시 불러오기](local-records-1.21.md)를 추가했습니다.
+
 2026년 11월 20일. 별도 계정·데이터 서버·클라우드 전송 없이, 기존 기기 기록을 보호하고 파일로 옮길 수 있도록 추가했습니다. 학습 콘텐츠와 보상 규칙은 v1.19.0과 같습니다.
 
 공개 앱: [French Alone](https://sidebatch.github.io/french-alone/) · [v1.20.0 배포 성공](https://github.com/sidebatch/french-alone/actions/runs/44783008366) · 앱 소스 [12b595c](https://github.com/sidebatch/french-alone/commit/12b595c48a27a2b6f2d77a888f3b8c767ca0acba)

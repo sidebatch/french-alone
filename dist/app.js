@@ -13,14 +13,18 @@ import { createRoom } from './room.js';
 import { stampsForQuestions } from './room-core.js';
 import { createRecordStorage } from './record-storage.js';
 import { createRecordBackup } from './record-backup.js';
+import { browserAutoFile } from './record-autofile.js';
 
-const APP_VERSION = '1.20.0';
+const APP_VERSION = '1.21.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let rawStorage;
 try { rawStorage = window.localStorage; } catch { rawStorage = {getItem:()=>{throw new Error('unavailable');}}; }
 const storage = createRecordStorage(rawStorage,{schedule:window.setTimeout.bind(window),cancel:window.clearTimeout.bind(window)});
+const autoFile=browserAutoFile(storage,APP_VERSION,window);
+if(autoFile.state().supported&&$('.app-loading p'))$('.app-loading p').textContent='기기 기록과 연결된 백업 파일을 확인하고 있어요';
+await autoFile.initialize();
 let state = readState(storage);
 let page = 'home', lessonView = 'practice', lessonFilter = '전체', vocabFilter = '전체 표현', query = '', session = null, restoreFocus = null, toastTimer;
 const openVocabTopics = new Set();
@@ -42,14 +46,18 @@ const practice = createPractice({
 });
 const room = createRoom({storage,getDays:()=>practice.dayRecords(),icon,onChange:()=>renderPage(),onSaveError:saveError});
 const records = createRecords({getRecords:()=>learningRecords(state.activity,practice.dayRecords()),getRoom:date=>room.snapshot(date),icon,escape});
-const recordBackup = createRecordBackup({storage,version:APP_VERSION,dialog,content,dialogHeader,openDialog,focusDialog,escape,onRestored:()=>window.location.reload()});
+const recordBackup = createRecordBackup({storage,version:APP_VERSION,dialog,content,dialogHeader,openDialog,focusDialog,escape,autoFile,onRestored:()=>window.location.reload()});
 storage.onIssue(updateStorageNotice);
+autoFile.onChange(updateStorageNotice);
 function saveError() {storageWarning=true;toast(storage.issue()?.message||'기기에 기록을 저장하지 못했어요. 설정에서 기록 확인·백업을 열어 주세요.');}
 function updateStorageNotice() {
   document.querySelector('#storage-notice')?.remove();
-  const issue=storage.issue();if(!issue&&!storage.backupWarning())return;
-  $('#main').insertAdjacentHTML('afterbegin',`<aside id="storage-notice" class="storage-notice" role="status"><p>${escape(issue?.message||'자동 보관본을 읽거나 저장하지 못했어요. 남은 기록을 백업 파일로 보관해 주세요.')}</p><button class="secondary-button" data-action="backup-open">기록 확인·백업</button></aside>`);
+  const issue=storage.issue(),file=autoFile.state(),attention=['permission','conflict','error','paused'].includes(file.phase);
+  const label=$('.home-play-meta > span');if(label)label.textContent=issue?'저장 중단':file.connected?(file.phase==='ready'?'기기·파일 저장됨':attention?'기기 저장 · 백업 확인':'파일 저장 중'):'자동 저장';
+  if(!issue&&!storage.backupWarning()&&!attention)return;
+  $('#main').insertAdjacentHTML('afterbegin',`<aside id="storage-notice" class="storage-notice" role="status"><p>${escape(issue?.message||(attention?file.message:'자동 보관본을 읽거나 저장하지 못했어요. 남은 기록을 백업 파일로 보관해 주세요.'))}</p><button class="secondary-button" data-action="backup-open">기록 확인·백업</button></aside>`);
   if(issue)document.querySelectorAll('.autosave-label').forEach(label=>{label.textContent='저장 중단';});
+  else if(attention&&file.connected)document.querySelectorAll('.autosave-label').forEach(label=>{label.textContent='파일 백업 확인';});
 }
 function persist() {
   try {storage.setItem(STORAGE_KEY,JSON.stringify(state));}
@@ -222,7 +230,7 @@ function speakText(text) {
   window.speechSynthesis.speak(utterance);
   return true;
 }
-document.addEventListener('click',event=>{
+document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const {action,id,value}=button.dataset;
   switch(action) {
@@ -292,10 +300,10 @@ document.addEventListener('click',event=>{
     case 'install-help':closeDialog();$('#install-app')?.click();break;
     case 'open-saved':vocabFilter='저장한 표현';break;
     case 'clear-search':query='';renderPage();$('#phrase-search')?.focus();break;
-    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">학습 기록·단어장·보유 소품·방 배치와 이 기기의 자동 보관본이 모두 삭제돼요. 따로 저장한 백업 파일이 없으면 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
+    case 'reset-confirm':$('#reset-area').innerHTML='<div class="inline-alert">학습 기록·단어장·보유 소품·방 배치와 이 기기의 자동 보관본이 모두 삭제돼요. 자동 백업 파일 연결도 해제하며, 따로 저장한 파일 자체는 남겨요. 파일이 없으면 되돌릴 수 없어요.<br><button class="danger-button" data-action="reset" style="margin-top:12px">모든 기록 삭제하기</button> <button class="secondary-button" data-action="reset-cancel">취소</button></div>';break;
     case 'reset-cancel':$('#reset-area').innerHTML='';break;
     case 'reset':
-      try {storage.clearBackupsForReset();}
+      try {if(autoFile.state().connected)await autoFile.disconnect();storage.clearBackupsForReset();}
       catch(error){toast(error.message);break;}
       state=freshState();practice.reset();grammar.reset();records.reset();room.reset();persist();closeDialog();toast('기록을 초기화했어요. 새로운 시작을 응원해요.');break;
   }
@@ -334,6 +342,7 @@ document.addEventListener('change',event=>{
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
 window.addEventListener('hashchange',()=>{grammar.close(false);renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});});
 window.addEventListener('storage',event=>{if((event.key===STORAGE_KEY||event.key===practice.key||event.key===practice.draftKey||event.key===room.key||event.key===null)&&!dialog.open&&!grammar.isOpen()&&!records.isOpen()&&!room.isOpen()){state=readState(storage);practice.reload();room.reload();renderPage();}});
-window.addEventListener('pagehide',()=>storage.checkpoint());
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')storage.checkpoint();});
+window.addEventListener('pagehide',()=>{storage.checkpoint();void autoFile.flush();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){storage.checkpoint();void autoFile.flush();}});
 renderPage();
+autoFile.start();

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.21.0 — 2026-11-21
+
+- Add optional automatic backup to one user-selected file. Reuse its file handle for updates, verify each completed write, and keep one previous record inside the same JSON document without producing numbered downloads.
+- Read the connected file before initializing learning state. Recover missing local records, preserve newer local work after interrupted file saves, and require a choice when file and device histories diverge or an older file replaces the last saved one.
+- Persist the selected handle and last verified state in IndexedDB. Check actual browser support and permission on launch, protect concurrent writes with Web Locks, and show explicit permission or write failures without discarding local progress.
+- Keep existing manual backups compatible. Disconnect automatic backup before manual replacement or reset while retaining the external file. Keep the backup dialog to one scrolling body with fixed close controls.
+- Verify 187 automated tests, 37 syntax checks and mobile-size browser flows using real file handles with a simulated native picker. Actual Android file selection and persistent permissions still require device verification.
+
 ## 1.20.0 — 2026-11-20
 
 - Add device-only record inspection, automatic local snapshots and JSON backup export/import. Keep the existing five record keys and require a preview and explicit restore action before replacing progress. No account, record server or cloud transfer is added.
