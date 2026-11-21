@@ -48,7 +48,7 @@ export function sanitizeLook(raw, owned) {
 }
 
 // 안경과 모자는 포즈별 얼굴 위치에 맞춘다. 옷은 네 포즈가 담긴 착용 이미지에 포함된다.
-const defs='<linearGradient id="metal" x2=".8" y2="1"><stop stop-color="#fff1b4"/><stop offset=".45" stop-color="#dfb858"/><stop offset="1" stop-color="#ab752f"/></linearGradient>';
+const defs='<filter id="accessory-depth" x="-25%" y="-35%" width="155%" height="180%"><feDropShadow dx=".5" dy="1" stdDeviation=".65" flood-color="#533724" flood-opacity=".32"/></filter><linearGradient id="lens-light" x2=".7" y2="1"><stop stop-color="#fffbed" stop-opacity=".7"/><stop offset=".4" stop-color="#d4e7df" stop-opacity=".12"/><stop offset="1" stop-color="#8caeab" stop-opacity=".2"/></linearGradient><linearGradient id="metal" x2=".8" y2="1"><stop stop-color="#fff1b4"/><stop offset=".45" stop-color="#dfb858"/><stop offset="1" stop-color="#ab752f"/></linearGradient>';
 const lenses=(shape,color,lens)=>`<path d="M-42 -7l9 3M-12 0q12-7 24 0M34-4l9-5" fill="none" stroke="${color}" stroke-width="2.2"/><g stroke="${color}" stroke-width="2.1" fill="${lens}">${[-24,24].map(x=>`<g transform="translate(${x})">${shape}</g>`).join('')}</g>`;
 const art={
   'blossom-glasses':lenses(
@@ -65,7 +65,7 @@ const art={
   'silver-aviators':`<defs><linearGradient id="smoke" x2="0" y2="1"><stop stop-color="#436575" stop-opacity=".86"/><stop offset="1" stop-color="#a4c9c4" stop-opacity=".56"/></linearGradient></defs>
     <path d="m-43-6 8 3m70-1 8-4M-11-3q11-8 22 0m-23-5q12-7 24 0" fill="none" stroke="#788b8d" stroke-width="2"/>
     ${[1,-1].map(sign=>`<g transform="scale(${sign} 1)"><path d="M-38-6q13-7 26-1 2 10-7 16-7 6-14 1-5-4-5-16Z" fill="url(#smoke)" stroke="#697d81" stroke-width="2.3"/><path d="M-35-5q9-4 18-3" stroke="#e2ece6" stroke-width="1.3"/><path d="m-31 0 5-3" stroke="#e7f4f0" stroke-width="1.4"/></g>`).join('')}`,
-  'round-glasses':lenses('<circle r="12"/>','#644a40','#dfefee26'),
+  'round-glasses':lenses('<circle r="12"/><path d="M-7-5q2-4 6-4" stroke="#fff6d8" stroke-width="1.4"/>','#684a33','url(#lens-light)'),
   'honey-glasses':lenses('<rect x="-12" y="-9" width="24" height="18" rx="7"/>','#bc8a47','#755232b8'),
   'heart-glasses':lenses('<path d="M0 10q-17-11-11-17 5-6 11 0 7-7 12-1 6 6-12 18Z"/>','#b6506c','#f4a2b755'),
   'cat-glasses':lenses('<path d="m-13-9 24 1q2 18-10 17-10 0-14-18Z"/>','#487f78','#a3d6c83d'),
@@ -104,8 +104,8 @@ const thumbnailBoxes={
   'opera-monocle':'7 -16 44 54','pearl-tiara':'-30 -19 60 33'
 };
 const svgURL=(box,content)=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="${box}" fill="none" stroke-linejoin="round" stroke-linecap="round"><defs>${defs}</defs>${content}</svg>`);
-const outfitAsset = (id,suffix='') => new URL(`./assets/lou-outfits/${id}${suffix}.webp`,import.meta.url).href;
-const baseSprite = new URL('./assets/lou-sprites-v2.webp',import.meta.url).href;
+const outfitAsset = (id,suffix='') => new URL(`./assets/lou-outfits-v3/${id}${suffix}.webp`,import.meta.url).href;
+const baseSprite = new URL('./assets/lou-sprites-v3.webp',import.meta.url).href;
 export function avatarSprite(look) {
   return wearable(look?.body)?.slot==='body'?outfitAsset(look.body):baseSprite;
 }
@@ -131,7 +131,7 @@ export function lookLayers(look,pose) {
     if(!layerCache.has(key)){
       const [x,y,angle]=anchors[pose][slot];
       const at=slot==='head'&&id==='chef-hat'?'translate(0 0) scale(.83)':slot==='head'&&id.endsWith('-pin')?'translate(13 1)':'';
-      const layer=`<g transform="translate(${x} ${y}) rotate(${angle}) ${at}">${art[id]}</g>`;
+      const layer=`<g filter="url(#accessory-depth)" transform="translate(${x} ${y}) rotate(${angle}) ${at}">${art[id]}</g>`;
       layerCache.set(key,svgURL('0 0 200 200',layer));
     }
     return [{id,src:layerCache.get(key)}];

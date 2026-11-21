@@ -15,7 +15,7 @@ import { createRecordStorage } from './record-storage.js';
 import { createRecordBackup } from './record-backup.js';
 import { browserAutoFile } from './record-autofile.js';
 
-const APP_VERSION = '1.21.0';
+const APP_VERSION = '1.22.0';
 const $ = selector => document.querySelector(selector);
 const icon = (name, cls='') => `<svg aria-hidden="true" class="${cls}"><use href="#i-${name}"/></svg>`;
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

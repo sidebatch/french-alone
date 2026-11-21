@@ -1,5 +1,5 @@
 /* Lou: four expressive poses, one shared, offline-ready texture. */
-.mascot{display:block;flex-shrink:0;width:100%;aspect-ratio:1;background-image:url('./assets/lou-sprites-v2.webp');background-repeat:no-repeat;background-size:200% 200%;pointer-events:none}
+.mascot{display:block;flex-shrink:0;width:100%;aspect-ratio:1;background-image:url('./assets/lou-sprites-v3.webp');background-repeat:no-repeat;background-size:200% 200%;pointer-events:none}
 .lou-wave{background-position:0 0}.lou-happy{background-position:100% 0}.lou-think{background-position:0 100%}.lou-celebrate{background-position:100% 100%}
 .mascot-wave{animation:lou-hello .7s ease-out both}
 .mascot-correct,.mascot-complete{animation:lou-pop .55s ease-out both}

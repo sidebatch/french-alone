@@ -38,13 +38,27 @@ const art = {
 };
 export function itemSVG(id) {
   const item=roomItem(id);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${item?.w||200}" height="${item?.h||200}" viewBox="${id==='lights'?'0 0 340 85':'0 0 200 200'}" preserveAspectRatio="none" fill="none" stroke-linecap="round" stroke-linejoin="round">${art[id]||''}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${item?.w||200}" height="${item?.h||200}" viewBox="${id==='lights'?'0 0 340 85':'0 0 200 200'}" preserveAspectRatio="none" fill="none" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="craft" x="-15%" y="-15%" width="130%" height="135%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="bump"/><feSpecularLighting in="bump" surfaceScale="3" specularConstant=".24" specularExponent="12" lighting-color="#fff4d8" result="light"><feDistantLight azimuth="225" elevation="45"/></feSpecularLighting><feComposite in="light" in2="SourceAlpha" operator="in" result="shine"/><feBlend in="SourceGraphic" in2="shine" mode="screen"/><feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-color="#503c29" flood-opacity=".18"/></filter></defs><g filter="url(#craft)">${art[id]||''}</g></svg>`;
 }
 const imageURLs = new Map(ROOM_ITEMS.map(item=>[item.id,`data:image/svg+xml;charset=utf-8,${encodeURIComponent(itemSVG(item.id))}`]));
 export const itemImage = id => imageURLs.get(id);
 export function roomBackgroundSVG(layout) {
   const wall=WALLS.find(w=>w.id===layout.wall)||WALLS[0],floor=FLOORS.find(f=>f.id===layout.floor)||FLOORS[0];
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"><rect width="800" height="500" fill="${wall.color}"/><rect y="355" width="800" height="145" fill="${floor.color}"/><path d="M0 355h800" stroke="#fff9e3" stroke-width="12"/><path d="M0 405h800M0 460h800M130 360v45M480 360v45M300 405v55M670 405v55M100 460v40M490 460v40" stroke="#957a58" stroke-opacity=".15" stroke-width="3"/><rect x="603" y="64" width="125" height="175" rx="58" fill="#fff9ed"/><rect x="614" y="75" width="103" height="152" rx="49" fill="${layout.wall==='night'?'#9aa7c1':'#cbdedb'}"/><circle cx="680" cy="112" r="20" fill="#e9cd88"/><path d="M665 72v157M608 150h115" stroke="#fff9ed" stroke-width="9"/><rect x="595" y="234" width="141" height="12" rx="4" fill="#fff9ed"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"><defs>
+    <radialGradient id="wall-light" cx=".25" cy=".16" r=".95"><stop stop-color="#fff9e9" stop-opacity=".36"/><stop offset="1" stop-color="#453b30" stop-opacity=".15"/></radialGradient>
+    <linearGradient id="floor-light" x2="0" y2="1"><stop stop-color="#66523d" stop-opacity=".2"/><stop offset=".3" stop-color="#fff4dc" stop-opacity=".07"/><stop offset="1" stop-color="#66523d" stop-opacity=".09"/></linearGradient>
+    <linearGradient id="glass" x2=".8" y2="1"><stop stop-color="${layout.wall==='night'?'#64758e':'#bad5d1'}"/><stop offset="1" stop-color="${layout.wall==='night'?'#9eabc5':'#e9eee0'}"/></linearGradient>
+    <filter id="window-shadow" x="-.3" y="-.2" width="1.6" height="1.5"><feDropShadow dx="4" dy="7" stdDeviation="6" flood-color="#594a36" flood-opacity=".18"/></filter></defs>
+    <rect width="800" height="500" fill="${wall.color}"/><rect width="800" height="355" fill="url(#wall-light)"/>
+    <path d="M0 255h800M0 263h800" stroke="#fff7df" stroke-opacity=".28" stroke-width="3"/>
+    <path d="M30 280h160v58H30ZM218 280h160v58H218ZM406 280h160v58H406ZM594 280h176v58H594Z" stroke="#796b50" stroke-opacity=".1" fill="none" stroke-width="2"/>
+    <rect y="355" width="800" height="145" fill="${floor.color}"/><rect y="355" width="800" height="145" fill="url(#floor-light)"/>
+    <path d="M0 405h800M0 460h800M130 360v45M480 360v45M300 405v55M670 405v55M100 460v40M490 460v40" stroke="#775c3f" stroke-opacity=".16" stroke-width="2"/>
+    <path d="M0 352h800" stroke="#b5a489" stroke-opacity=".5" stroke-width="16"/><path d="M0 348h800" stroke="#fff6e2" stroke-width="8"/>
+    <g filter="url(#window-shadow)"><rect x="603" y="64" width="125" height="175" rx="58" fill="#c9b99d"/><rect x="601" y="60" width="125" height="175" rx="58" fill="#fff8e8"/>
+    <rect x="612" y="71" width="103" height="152" rx="49" fill="url(#glass)"/><circle cx="679" cy="110" r="19" fill="#eed89e"/>
+    <path d="m617 182 91-74m-91 105 93-75" stroke="#fffdf1" stroke-opacity=".3" stroke-width="11"/>
+    <path d="M663 68v157M606 147h115" stroke="#fff9ed" stroke-width="8"/><rect x="594" y="230" width="141" height="13" rx="4" fill="#e0ceb0"/><path d="M595 231h138" stroke="#fff9e8" stroke-width="4"/></g></svg>`;
 }
 const backgroundURL = layout => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(roomBackgroundSVG(layout))}`;
 export function placementStyle(item, placement) {

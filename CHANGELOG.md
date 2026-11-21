@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.22.0 — 2026-11-21
+
+- Refine Lou and all 12 fitted outfits from one shared character reference, keeping four poses, existing item IDs, prices and ownership. Ship versioned transparent WebP sheets and thumbnails for offline use.
+- Add soft contact shadows to accessories, lens highlights to round glasses, and shared dimensional lighting for room props, walls, floor and window. Certificate rendering uses the same assets.
+- Present Lou in an atelier fitting stage with a larger optional view and a brief greeting. Hide the catalog during close inspection; preserve purchase rules, unsaved outfits, focus and saved poses when returning.
+- Keep a single scrolling dialog and adapt compact screens. Verify 189 automated tests, 37 syntax checks, four browser viewport sizes, offline saved outfits and canvas room rendering.
+- Document art prompts, asset locations and compatibility in [Lou's atelier](docs/lou-atelier-1.22.md).
+
 ## 1.21.0 — 2026-11-21
 
 - Add optional automatic backup to one user-selected file. Reuse its file handle for updates, verify each completed write, and keep one previous record inside the same JSON document without producing numbered downloads.

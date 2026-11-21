@@ -8,11 +8,36 @@ import { ROOM_KEY } from '../dist/room-core.js';
 import { ROOM_ITEMS } from '../dist/room-catalog.js';
 import { WEARABLES } from '../dist/wardrobe.js';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+
+test('large fitting preview preserves purchase rules, focus and unsaved outfit',()=>{
+  const f=setup({count:1}),click=(a,v)=>f.click(`[data-action="room-${a}"]${v?'[data-value="'+v+'"]':''}`);
+  click('open');click('tab','wardrobe');click('try','citron-raincoat');
+  const before=f.w.localStorage.getItem(ROOM_KEY);
+  click('zoom');assert.equal(f.$('.room-library').hidden,true);
+  assert.equal(f.$('[data-action="room-buy"]').disabled,true);
+  assert.equal(f.w.document.activeElement.dataset.action,'room-zoom');
+  f.$('#room-dialog').dispatchEvent(new f.w.Event('cancel',{cancelable:true}));
+  assert.equal(f.$('#room-dialog').open,true);assert.equal(f.$('.room-library').hidden,false);
+  assert.ok(f.$('.fitting-mirror [data-worn="citron-raincoat"]'));
+  assert.equal(f.w.localStorage.getItem(ROOM_KEY),before);
+  click('untry');click('try','cloud-pajamas');click('zoom');click('save');
+  assert.equal(f.saved().layout.look.body,'cloud-pajamas');
+  click('open');click('tab','wardrobe');assert.equal(f.$('.room-library').hidden,false);
+  f.dom.window.close();
+});
+
+test('greeting is temporary and does not replace the saved pose or outfit',()=>{
+  const f=setup(),click=(a,v)=>f.click(`[data-action="room-${a}"]${v?'[data-value="'+v+'"]':''}`);
+  click('open');click('tab','wardrobe');click('try','cloud-pajamas');click('slot','appearance');click('pose','think');
+  click('greet');assert.equal(f.$('.fitting-mirror .lou-avatar').dataset.pose,'happy');
+  click('save');assert.equal(f.saved().layout.look.pose,'think');assert.equal(f.saved().layout.look.body,'cloud-pajamas');
+  f.dom.window.close();
+});
 test('wardrobe previews, buys, layers and restores an outfit without consuming room slots',async()=>{
   const f=setup(),click=(action,value)=>f.click(`[data-action="room-${action}"]${value?'[data-value="'+value+'"]':''}`);
   click('open');click('tab','wardrobe');click('page','next');click('try','star-cape');
   const dressed=f.$('.fitting-mirror .lou-avatar[data-worn="star-cape"]');
-  assert.match(dressed.style.backgroundImage,/lou-outfits\/star-cape\.webp/);assert.equal(dressed.querySelector('img[data-worn]'),null);assert.equal(f.$('[data-action="room-buy"]').disabled,true);
+  assert.match(dressed.style.backgroundImage,/lou-outfits-v3\/star-cape\.webp/);assert.equal(dressed.querySelector('img[data-worn]'),null);assert.equal(f.$('[data-action="room-buy"]').disabled,true);
   click('goal');assert.equal(f.saved().goal,'star-cape');
   click('try','denim');click('buy');await tick();assert.equal(f.ui.balance(),0);
   click('slot','eyes');click('try','round-glasses');

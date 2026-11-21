@@ -10,7 +10,7 @@ const TABS = {owned:'내 소품',shop:'소품 가게',wardrobe:'옷장',themes:'
 export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=>{}}) {
   let state=readRoom(storage,getDays()),memoryOnly=false,draft=null,baseLayout='',returnFocus=null;
   let tab='owned',category='전체',selected='lou',preview=null,previewId=null,drag=null,discard=false;
-  let slot='body',page=0,discardReturn=null;
+  let slot='body',page=0,discardReturn=null,zoomed=false,greetingTimer=null;
   const dialog=document.querySelector('#room-dialog');
   const days=()=>getDays();
   const balance=()=>wallet(state,days()).balance;
@@ -106,7 +106,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     const caption=piece?`<div class="fitting-caption"><div class="selection-line"><div><small>미리 입기 · 스탬프 ${piece.price}개</small><h3>${piece.name}</h3></div><button class="icon-button" data-action="room-untry" aria-label="미리보기 닫기">${icon('close')}</button></div>
       <div class="room-preview-actions">${canWear?`<button class="primary-button" data-action="room-try" data-value="${piece.id}">입히기</button>`:`<button class="primary-button" data-action="room-buy" ${remaining?'disabled':''}>${remaining?`${remaining}개 더 필요`:'구매하고 입히기'}</button>${wishButton(piece)}`}</div></div>`
       :`<div class="fitting-caption"><small>현재 차림</small><p>${names.length?names.join(' · '):'기본 차림'}</p>${remove?`<div class="room-preview-actions">${remove}</div>`:''}</div>`;
-    return `<div class="fitting-room"><div class="fitting-mirror" role="img" aria-label="${names.join(', ')||'기본 차림'}의 루">${renderAvatar(look)}</div>${caption}</div>`;
+    return `<div class="fitting-room"><div class="fitting-stage"><span class="fitting-label" lang="fr">L’atelier de Lou</span><button class="fitting-zoom" data-action="room-zoom" aria-pressed="${zoomed}" aria-label="${zoomed?'옷 목록으로 돌아가기':'루 크게 보기'}">${zoomed?'목록으로':'크게 보기'}</button><button class="fitting-mirror" data-action="room-greet" aria-label="${names.join(', ')||'기본 차림'}의 루에게 인사하기">${renderAvatar(look)}</button><span class="fitting-greeting" aria-live="polite">오늘은 어떤 차림이 좋을까요?</span></div>${caption}</div>`;
   }
   function wardrobeShelf() {
     const slots=Object.entries({...SLOTS,appearance:'털 · 포즈'}).map(([id,name])=>`<button data-action="room-slot" data-value="${id}" aria-pressed="${slot===id}">${name}</button>`).join('');
@@ -137,6 +137,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   }
   function render(focusAction,resetScroll=false) {
     if(!draft)return;
+    clearTimeout(greetingTimer);
     const top=resetScroll?0:dialog.scrollTop;
     const expanded=!resetScroll&&dialog.querySelector('.placement-tools')?.open;
     const previous=document.activeElement?.closest('#room-dialog [data-action]')?.dataset;
@@ -148,6 +149,8 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
       <p class="room-status ${warning?'':'visually-hidden'}" role="status">${warning}</p>
       <div class="room-editor-layout"><section class="room-workspace">${tab==='wardrobe'?fittingRoom():roomWorkspace(expanded)}</section><section class="room-library" aria-label="${TABS[tab]}">${shelves()}</section></div>`;
     dialog.classList.toggle('is-wardrobe',tab==='wardrobe');
+    dialog.classList.toggle('is-fitting-zoomed',tab==='wardrobe'&&zoomed);
+    dialog.querySelector('.room-library').hidden=tab==='wardrobe'&&zoomed;
     dialog.scrollTop=top;
     if(focusAction)dialog.querySelector(`[data-action="${focusAction}"]:not(:disabled)`)?.focus({preventScroll:true});
     else if(previous?.action){
@@ -167,11 +170,12 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   }
   function open(initialTab='owned') {
     latest();syncGifts();draft=structuredClone(state.layout);baseLayout=JSON.stringify(state.layout);
-    preview=null;previewId=null;selected='lou';discard=false;discardReturn=null;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
+    preview=null;previewId=null;selected='lou';discard=false;discardReturn=null;zoomed=false;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
     render(null,true);dialog.showModal();dialog.scrollTop=0;dialog.querySelector('[data-action="room-close"]').focus({preventScroll:true});
   }
   function close(force=false) {
     if(!dialog.open)return;
+    clearTimeout(greetingTimer);
     if(!force&&dirty()){
       if(!discard)discardReturn={top:dialog.scrollTop,expanded:Boolean(dialog.querySelector('.placement-tools')?.open)};
       discard=true;render('room-keep',true);return;
@@ -226,6 +230,19 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     const {action,value}=button.dataset;
     if(action==='room-open'||action==='room-closet'){open(action==='room-closet'?'wardrobe':'owned');return;}
     if(!dialog.open)return;
+    if(action==='room-zoom'){zoomed=!zoomed;render('room-zoom',true);return;}
+    if(action==='room-greet'){
+      clearTimeout(greetingTimer);
+      const piece=wearable(previewId),look=piece?{...draft.look,[piece.slot]:piece.id}:draft.look;
+      button.innerHTML=renderAvatar({...look,pose:'happy'},'correct');
+      dialog.querySelector('.fitting-greeting').textContent='이 차림, 마음에 들어요. Merci !';
+      greetingTimer=setTimeout(()=>{
+        if(!button.isConnected)return;
+        button.innerHTML=renderAvatar(look);
+        dialog.querySelector('.fitting-greeting').textContent='오늘은 어떤 차림이 좋을까요?';
+      },1800);
+      return;
+    }
     if(action==='room-close'){close();return;}if(action==='room-discard'){close(true);return;}
     if(action==='room-keep'){
       discard=false;render();
@@ -252,7 +269,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     if(action==='room-untry'){previewId=null;preview=null;if(selected==='preview')selected='lou';render();return;}
     if(action==='room-unequip'){draft.look[slot]=null;previewId=null;render();return;}
     if(action==='room-place'){placePreview();return;}
-    if(action==='room-tab'&&Object.hasOwn(TABS,value)){tab=value;category='전체';page=0;preview=null;previewId=null;selected='lou';render(null,true);return;}
+    if(action==='room-tab'&&Object.hasOwn(TABS,value)){tab=value;zoomed=false;category='전체';page=0;preview=null;previewId=null;selected='lou';render(null,true);return;}
     if(action==='room-page'){
       page=Math.max(0,page+(value==='next'?1:-1));
       if(tab!=='wardrobe'){previewId=null;preview=null;if(selected==='preview')selected='lou';}
@@ -312,7 +329,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     const value=Number(event.target.value);applyPlacement({[control]:control==='scale'?value/100:value});
     event.target.parentElement.querySelector('output').textContent=control==='scale'?value+'%':value+'°';
   });
-  dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+  dialog.addEventListener('cancel',event=>{event.preventDefault();if(zoomed){zoomed=false;render('room-zoom',true);}else close();});
   window.addEventListener('hashchange',()=>close());
   return {
     key:ROOM_KEY,renderSummary,rewardNote,
