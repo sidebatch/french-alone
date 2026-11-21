@@ -25,7 +25,7 @@
 - **루의 방**은 소품 33종과 착용 아이템 30종을 제공합니다. 옷 12종·안경 8종·머리 장식 10종을 조합하며, 목록은 6개씩 넘겨 봅니다. 배치 도구를 펼친 뒤 편집을 계속하면 작업 위치를 복원합니다.
 - **문제의 목표와 허용 답안**은 420문항에 연결했습니다. 등록된 시간·조건절 위치, 성별, 정중한 주문 등의 대안을 인정합니다. 선택 문제의 완성 문장은 정답 확인 전까지 빈칸으로 표시합니다.
 
-v1.21.0은 **187개 자동 테스트**와 구문 검사 37개로 검증했습니다. Chrome의 320px·390px 화면에서 한 파일의 갱신, 연결 정보를 이용한 오프라인 복원, 권한 재연결, 중단된 저장의 최신 진도 유지와 기존 파일 연결을 확인했습니다. 파일 선택창은 자동화용 선택기로 대체했으므로 실제 Android의 파일 선택·권한 지속과 기존 유실 기록 복구 여부는 아직 확인되지 않았습니다. [검증·지원·한계](docs/local-records-1.21.md)
+v1.21.0은 **187개 자동 테스트**와 구문 검사 37개로 검증했습니다. Chrome의 320px·390px 화면에서 한 파일의 갱신, 연결 정보를 이용한 오프라인 복원, 권한 재연결, 중단된 저장의 최신 진도 유지와 기존 파일 연결을 확인했습니다. 파일 선택창은 자동화용 선택기로 대체했으므로 실제 Android의 파일 선택·권한 지속과 기존 유실 기록 복구 여부는 아직 확인되지 않았습니다. [검증·지원·한계](docs/local-records-1.21.md) · [v1.21.0 배포 성공](https://github.com/sidebatch/french-alone/actions/runs/44872104541)
 
 세부 변경은 [버전별 변경 이력](CHANGELOG.md)에 정리되어 있습니다. 아래 업데이트 항목은 각 버전 도입 당시의 기록입니다.
 
@@ -198,7 +198,7 @@ http://localhost:4173 에 접속합니다. 또는 `dist/`를 정적 웹 호스�
 
 GitHub Pages로 공개 배포된 앱입니다: https://sidebatch.github.io/french-alone/
 
-`main`의 `dist/**`, `package.json`, `package-lock.json`, 배포 워크플로 또는 `scripts/check-deployment.mjs` 변경 시 검사·배포가 실행됩니다. README·docs만 수정한 커밋은 저장소 문서를 갱신합니다. [Deploy GitHub Pages](https://github.com/sidebatch/french-alone/actions/runs/44783008366)에서 배포 결과를 확인하거나 **Run workflow**로 수동 배포할 수 있습니다.
+`main`의 `dist/**`, `package.json`, `package-lock.json`, 배포 워크플로 또는 `scripts/check-deployment.mjs` 변경 시 검사·배포가 실행됩니다. README·docs만 수정한 커밋은 저장소 문서를 갱신합니다. [Deploy GitHub Pages](https://github.com/sidebatch/french-alone/actions/runs/44872104541)에서 배포 결과를 확인하거나 **Run workflow**로 수동 배포할 수 있습니다.
 
 워크플로는 앱 실행에 필요한 `dist/`만 공개합니다. 학습 기록은 방문자의 브라우저에 저장하며, GitHub 계정 로그인은 필요하지 않습니다.
 
