@@ -5,12 +5,14 @@ import { itemImage, renderRoomScene, placementStyle } from './room-art.js';
 import { COATS, SLOTS, POSES, WEARABLES, wearable, clothingImage, renderAvatar } from './wardrobe.js';
 
 const PAGE_SIZE = 6;
-const TABS = {owned:'내 소품',shop:'소품 가게',wardrobe:'옷장',themes:'벽 · 바닥'};
+const TABS = {owned:'내 방',wardrobe:'옷장',shop:'상점',themes:'인테리어'};
+const TITLES = {owned:'루의 방',wardrobe:'루의 옷장',shop:'소품 상점',themes:'방의 분위기'};
+const TAB_ICONS = {owned:'home',wardrobe:'bag',shop:'sparkles',themes:'palette'};
 
 export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=>{}}) {
   let state=readRoom(storage,getDays()),memoryOnly=false,draft=null,baseLayout='',returnFocus=null;
   let tab='owned',category='전체',selected='lou',preview=null,previewId=null,drag=null,discard=false;
-  let slot='body',page=0,discardReturn=null,zoomed=false,greetingTimer=null;
+  let slot='body',page=0,discardReturn=null,zoomed=false,greetingTimer=null,ownedOnly=false;
   const dialog=document.querySelector('#room-dialog');
   const days=()=>getDays();
   const balance=()=>wallet(state,days()).balance;
@@ -79,18 +81,22 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   function catalogPage(items,label) {
     const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE));
     page=Math.min(page,pages-1);
-    const pager=pages>1?`<div class="room-pager" role="group" aria-label="${label} 목록 페이지"><button data-action="room-page" data-value="previous" aria-label="이전 ${label} 페이지" ${page===0?'disabled':''}>‹</button><span aria-live="polite">${page+1} / ${pages}</span><button data-action="room-page" data-value="next" aria-label="다음 ${label} 페이지" ${page+1===pages?'disabled':''}>›</button></div>`:'';
+    const pager=pages>1?`<div class="room-pager" role="group" aria-label="${label} 목록 페이지"><button data-action="room-page" data-value="previous" aria-label="이전 ${label} 페이지" ${page===0?'disabled':''}>${icon('chevronLeft')}</button><span aria-live="polite"><b>${page+1}</b> / ${pages}</span><button data-action="room-page" data-value="next" aria-label="다음 ${label} 페이지" ${page+1===pages?'disabled':''}>${icon('chevronRight')}</button></div>`:'';
     return {pageItems:items.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE),pager};
+  }
+  function productCard(item,{have=false,equipped=false,chosen=false,photo,action}) {
+    const label=equipped?'착용 중':have?'보유 중':item.gift?`${item.gift}일 학습 선물`:item.price===0?'기본 제공':`${item.price}`;
+    const paid=!have&&!item.gift&&item.price>0;
+    return `<button class="room-shop-item ${equipped?'is-equipped':''} ${have?'is-owned':''}" data-action="${action}" data-value="${item.id}" aria-pressed="${chosen}" aria-label="${item.name}, ${paid?'스탬프 ':''}${label}${paid?'개':''}"><span class="product-art">${photo}${chosen?`<span class="product-selected" aria-hidden="true">${icon('check')}</span>`:''}</span><b>${item.name}</b><span class="product-meta ${paid?'is-price':''}">${paid?icon('sparkles'):equipped?icon('check'):''}${label}${paid?'<span class="visually-hidden"> 스탬프</span>':''}</span></button>`;
   }
   function roomCatalog() {
     const inventory=owned();
     const items=ROOM_ITEMS.filter(item=>(tab==='shop'||inventory.has(item.id))&&(category==='전체'||item.category===category));
     const {pageItems,pager}=catalogPage(items,'소품');
-    return `<div class="catalog-heading"><label>분류 <select data-room-category aria-label="소품 분류">${ROOM_CATEGORIES.map(name=>`<option ${name===category?'selected':''}>${name}</option>`).join('')}</select></label>${pager}</div>
+    return `<div class="catalog-heading"><div><h3>${tab==='shop'?'방에 들이고 싶은 소품':'내 소품'}</h3><span class="catalog-count">${items.length}개의 소품</span></div><label><span class="visually-hidden">분류</span><select data-room-category aria-label="소품 분류">${ROOM_CATEGORIES.map(name=>`<option ${name===category?'selected':''}>${name}</option>`).join('')}</select></label></div>
       <div class="room-item-grid">${pageItems.length?pageItems.map(item=>{
-        const label=inventory.has(item.id)?'보유 중':item.gift?`학습 ${item.gift}일 선물`:`스탬프 ${item.price}개`;
-        return `<button class="room-shop-item" data-action="room-preview" data-value="${item.id}" aria-pressed="${item.id===previewId}"><img src="${itemImage(item.id)}" alt="" draggable="false"><b>${item.name}</b><span>${label}</span></button>`;
-      }).join(''):'<p class="room-inventory-empty">아직 보유한 소품이 없어요. 소품 가게에서 골라 보세요.</p>'}</div>`;
+        return productCard(item,{have:inventory.has(item.id),chosen:item.id===previewId,photo:`<img src="${itemImage(item.id)}" alt="" draggable="false">`,action:'room-preview'});
+      }).join(''):`<div class="room-inventory-empty">${icon('home')}<b>${category==='전체'?'첫 소품을 들여볼까요?':'이 분류에는 아직 소품이 없어요'}</b><p>학습으로 모은 스탬프로 방을 채워 보세요.</p><button data-action="room-tab" data-value="shop">상점 둘러보기 ${icon('arrow')}</button></div>`}</div>${pager}`;
   }
   function appearanceControls() {
     return `<div class="wardrobe-appearance"><div class="wardrobe-poses" role="group" aria-label="털 무늬"><b>털 무늬</b>${Object.entries(COATS).map(([id,name])=>`<button data-action="room-coat" data-value="${id}" aria-pressed="${draft.look.coat===id}"><i class="coat-chip coat-${id}"></i>${name}</button>`).join('')}</div>
@@ -105,21 +111,22 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     const remove=draft.look[slot]?`<button class="secondary-button" data-action="room-unequip">${slot==='head'?'장식 빼기':SLOTS[slot]+' 벗기'}</button>`:'';
     const caption=piece?`<div class="fitting-caption"><div class="selection-line"><div><small>미리 입기 · 스탬프 ${piece.price}개</small><h3>${piece.name}</h3></div><button class="icon-button" data-action="room-untry" aria-label="미리보기 닫기">${icon('close')}</button></div>
       <div class="room-preview-actions">${canWear?`<button class="primary-button" data-action="room-try" data-value="${piece.id}">입히기</button>`:`<button class="primary-button" data-action="room-buy" ${remaining?'disabled':''}>${remaining?`${remaining}개 더 필요`:'구매하고 입히기'}</button>${wishButton(piece)}`}</div></div>`
-      :`<div class="fitting-caption"><small>현재 차림</small><p>${names.length?names.join(' · '):'기본 차림'}</p>${remove?`<div class="room-preview-actions">${remove}</div>`:''}</div>`;
-    return `<div class="fitting-room"><div class="fitting-stage"><span class="fitting-label" lang="fr">L’atelier de Lou</span><button class="fitting-zoom" data-action="room-zoom" aria-pressed="${zoomed}" aria-label="${zoomed?'옷 목록으로 돌아가기':'루 크게 보기'}">${zoomed?'목록으로':'크게 보기'}</button><button class="fitting-mirror" data-action="room-greet" aria-label="${names.join(', ')||'기본 차림'}의 루에게 인사하기">${renderAvatar(look)}</button><span class="fitting-greeting" aria-live="polite">오늘은 어떤 차림이 좋을까요?</span></div>${caption}</div>`;
+      :`<div class="fitting-caption fitting-current"><div><small>지금 루의 차림</small><p>${wearable(look.body)?.name||'포근한 기본 차림'}</p></div>${remove?`<div class="room-preview-actions">${remove}</div>`:''}</div>`;
+    const rack=Object.entries(SLOTS).map(([key,label])=>{const worn=wearable(look[key]);return `<button class="look-slot ${worn?'has-item':''}" data-action="room-look-slot" data-value="${key}" aria-label="${label}: ${worn?.name||'착용하지 않음'}. ${label} 고르기" aria-pressed="${slot===key}">${worn?`<img src="${clothingImage(worn.id)}" alt="">`:icon(key==='body'?'shirt':key==='eyes'?'glasses':'crown')}<span>${label}</span></button>`;}).join('');
+    return `<div class="fitting-room"><div class="fitting-stage"><div class="fitting-stage-heading"><span class="fitting-label" lang="fr">L’atelier de Lou</span><button class="fitting-zoom" data-action="room-zoom" aria-pressed="${zoomed}" aria-label="${zoomed?'옷 목록으로 돌아가기':'루 크게 보기'}">${icon(zoomed?'close':'expand')}<span>${zoomed?'목록으로':'크게 보기'}</span></button></div><div class="fitting-display"><button class="fitting-mirror" data-action="room-greet" aria-label="${names.join(', ')||'기본 차림'}의 루에게 인사하기">${renderAvatar(look)}</button><div class="look-rack" aria-label="착용한 아이템">${rack}</div></div><span class="fitting-greeting" aria-live="polite">루를 눌러 인사해 보세요</span></div>${caption}</div>`;
   }
   function wardrobeShelf() {
     const slots=Object.entries({...SLOTS,appearance:'털 · 포즈'}).map(([id,name])=>`<button data-action="room-slot" data-value="${id}" aria-pressed="${slot===id}">${name}</button>`).join('');
     const categories=`<div class="room-categories" role="group" aria-label="옷장 분류">${slots}</div>`;
     if(slot==='appearance')return categories+appearanceControls();
-    const {pageItems,pager}=catalogPage(WEARABLES.filter(piece=>piece.slot===slot),SLOTS[slot]);
     const clothes=ownedClothes(state),equipped=draft.look[slot];
+    const items=WEARABLES.filter(piece=>piece.slot===slot&&(!ownedOnly||clothes.has(piece.id)));
+    const {pageItems,pager}=catalogPage(items,SLOTS[slot]);
     const cards=pageItems.map(piece=>{
-      const label=equipped===piece.id?'착용 중':piece.price===0?'기본 제공':clothes.has(piece.id)?'보유 중':`스탬프 ${piece.price}개`;
       const photo=piece.slot==='body'?renderAvatar({body:piece.id}):`<img src="${clothingImage(piece.id)}" alt="">`;
-      return `<button class="room-shop-item" data-action="room-try" data-value="${piece.id}" aria-pressed="${(previewId||equipped)===piece.id}">${photo}<b>${piece.name}</b><span>${label}</span></button>`;
+      return productCard(piece,{photo,have:clothes.has(piece.id),equipped:equipped===piece.id,chosen:(previewId||equipped)===piece.id,action:'room-try'});
     }).join('');
-    return `<div class="catalog-heading wardrobe-heading">${categories}${pager}</div><div class="room-item-grid wardrobe-grid">${cards}</div>`;
+    return `<div class="wardrobe-heading">${categories}<button class="owned-filter" data-action="room-owned-only" aria-pressed="${ownedOnly}">${icon('check')}내 것만</button></div><div class="room-item-grid wardrobe-grid" aria-label="${ownedOnly?'보유한':'모든'} ${SLOTS[slot]} ${items.length}개">${cards||'<div class="room-inventory-empty"><b>아직 보유한 아이템이 없어요</b><p>내 것만을 해제하고 마음에 드는 아이템을 골라 보세요.</p></div>'}</div>${pager}`;
   }
   function shelves() {
     if(tab==='wardrobe')return wardrobeShelf();
@@ -128,7 +135,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   }
   const placementName=()=>selected==='lou'?'루':roomItem(selectedPlacement()?.itemId)?.name||'소품';
   function roomWorkspace(expanded) {
-    return `<div class="room-stage">${renderRoomScene(sceneLayout(),{editor:true,selected})}</div>${shopPreview()}
+    return `<div class="room-stage"><div class="scene-heading"><span>${tab==='shop'?'우리 방에 미리 놓아보세요':tab==='themes'?'오늘의 방 분위기':'나만의 작은 공간'}</span><span>${draft.items.length} / ${MAX_ROOM_ITEMS}</span></div>${renderRoomScene(sceneLayout(),{editor:true,selected:expanded?selected:null})}</div>${shopPreview()}
       <details class="placement-tools" ${expanded?'open':''}><summary>배치 조정 <span>${placementName()}</span></summary><div class="room-controls">${toolbar()}</div></details>`;
   }
   function refreshControls() {
@@ -143,12 +150,14 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     const previous=document.activeElement?.closest('#room-dialog [data-action]')?.dataset;
     const trying=tab==='wardrobe'&&wearable(previewId);
     const warning=memoryOnly?'이 기기에 저장하지 못해 이번 방문 동안만 유지돼요.':'';
-    dialog.innerHTML=`<header class="room-dialog-header"><button class="icon-button" data-action="room-close" aria-label="꾸미기 닫기">${icon('close')}</button><h2 id="room-title">루의 방</h2><div class="room-wallet" aria-label="보유 스탬프 ${balance()}개">${icon('sparkles')}<b>${balance()}</b><span>스탬프</span></div><button class="primary-button room-save" data-action="room-save" ${trying?'aria-label="미리보기 제외하고 저장"':''}>저장</button></header>
+    dialog.innerHTML=`<div class="studio-top"><header class="room-dialog-header"><button class="icon-button" data-action="room-close" aria-label="꾸미기 닫기">${icon('chevronLeft')}</button><div class="studio-title"><span>LOU · 나의 작은 아틀리에</span><h2 id="room-title">${TITLES[tab]}</h2></div><div class="room-wallet" aria-label="보유 스탬프 ${balance()}개">${icon('sparkles')}<b>${balance()}</b></div><button class="primary-button room-save" data-action="room-save" ${trying?'aria-label="미리보기 제외하고 저장"':''}>저장</button></header>
+      <div class="room-tabs" role="group" aria-label="꾸미기 메뉴">${Object.entries(TABS).map(([id,name])=>`<button data-action="room-tab" data-value="${id}" aria-pressed="${tab===id}">${icon(TAB_ICONS[id])}<span>${name}</span></button>`).join('')}</div></div>
       ${discard?'<div class="room-discard-prompt" role="alert"><p>바꾼 차림과 배치를 저장하지 않고 닫을까요?</p><button class="secondary-button" data-action="room-keep">계속 꾸미기</button><button class="secondary-button" data-action="room-discard">저장하지 않고 닫기</button></div>':''}
-      <div class="room-tabs" role="group" aria-label="꾸미기 메뉴">${Object.entries(TABS).map(([id,name])=>`<button data-action="room-tab" data-value="${id}" aria-pressed="${tab===id}">${name}</button>`).join('')}</div>
       <p class="room-status ${warning?'':'visually-hidden'}" role="status">${warning}</p>
       <div class="room-editor-layout"><section class="room-workspace">${tab==='wardrobe'?fittingRoom():roomWorkspace(expanded)}</section><section class="room-library" aria-label="${TABS[tab]}">${shelves()}</section></div>`;
     dialog.classList.toggle('is-wardrobe',tab==='wardrobe');
+    dialog.dataset.studio=tab;
+    dialog.classList.toggle('is-previewing',Boolean(previewId));
     dialog.classList.toggle('is-fitting-zoomed',tab==='wardrobe'&&zoomed);
     dialog.querySelector('.room-library').hidden=tab==='wardrobe'&&zoomed;
     dialog.scrollTop=top;
@@ -162,7 +171,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   function showPreview() {
     const panel=dialog.querySelector('.room-selection,.fitting-room');
     if(!panel)return;
-    const header=dialog.querySelector('.room-dialog-header');
+    const header=dialog.querySelector('.studio-top');
     const frame=dialog.getBoundingClientRect(),rect=panel.getBoundingClientRect();
     const top=frame.top+(window.getComputedStyle(header).position==='sticky'?header.offsetHeight:0);
     if(rect.top<top)dialog.scrollTop+=rect.top-top;
@@ -170,7 +179,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
   }
   function open(initialTab='owned') {
     latest();syncGifts();draft=structuredClone(state.layout);baseLayout=JSON.stringify(state.layout);
-    preview=null;previewId=null;selected='lou';discard=false;discardReturn=null;zoomed=false;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
+    preview=null;previewId=null;selected='lou';discard=false;discardReturn=null;zoomed=false;ownedOnly=false;tab=initialTab;slot='body';page=0;category='전체';returnFocus=document.activeElement;
     render(null,true);dialog.showModal();dialog.scrollTop=0;dialog.querySelector('[data-action="room-close"]').focus({preventScroll:true});
   }
   function close(force=false) {
@@ -239,7 +248,7 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
       greetingTimer=setTimeout(()=>{
         if(!button.isConnected)return;
         button.innerHTML=renderAvatar(look);
-        dialog.querySelector('.fitting-greeting').textContent='오늘은 어떤 차림이 좋을까요?';
+        dialog.querySelector('.fitting-greeting').textContent='루를 눌러 인사해 보세요';
       },1800);
       return;
     }
@@ -254,7 +263,8 @@ export function createRoom({storage,getDays,icon,onChange=()=>{},onSaveError=()=
     }
     if(action==='room-save'){save();return;}
     if(action==='room-buy'){button.disabled=true;void buy();return;}
-    if(action==='room-slot'&&(Object.hasOwn(SLOTS,value)||value==='appearance')){slot=value;page=0;previewId=null;render();return;}
+    if(action==='room-owned-only'){ownedOnly=!ownedOnly;page=0;render();return;}
+    if((action==='room-slot'||action==='room-look-slot')&&(Object.hasOwn(SLOTS,value)||value==='appearance')){slot=value;page=0;previewId=null;zoomed=false;render();return;}
     if(action==='room-pose'&&Object.hasOwn(POSES,value)){draft.look.pose=value;render();return;}
     if(action==='room-coat'&&Object.hasOwn(COATS,value)){draft.look.coat=value;render();return;}
     if(action==='room-try'&&wearable(value)?.slot===slot){

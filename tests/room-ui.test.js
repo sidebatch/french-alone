@@ -9,6 +9,28 @@ import { ROOM_ITEMS } from '../dist/room-catalog.js';
 import { WEARABLES } from '../dist/wardrobe.js';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 
+test('owned wardrobe filter keeps previews and purchases separate and resets pagination',()=>{
+  const f=setup(),click=(a,v)=>f.click(`[data-action="room-${a}"]${v?'[data-value="'+v+'"]':''}`);
+  click('open');click('tab','wardrobe');click('try','citron-raincoat');click('page','next');
+  const before=f.w.localStorage.getItem(ROOM_KEY);
+  click('owned-only');assert.equal(f.$('[data-action="room-owned-only"]').getAttribute('aria-pressed'),'true');
+  assert.deepEqual([...f.w.document.querySelectorAll('.wardrobe-grid [data-action="room-try"]')].map(e=>e.dataset.value),['cloud-pajamas','mariniere']);
+  assert.equal(f.$('.fitting-mirror .lou-avatar').dataset.worn,'citron-raincoat');
+  assert.equal(f.w.localStorage.getItem(ROOM_KEY),before);
+  click('owned-only');assert.equal(f.$('.room-pager b').textContent,'1');
+  click('untry');click('try','cloud-pajamas');click('save');assert.equal(f.saved().layout.look.body,'cloud-pajamas');
+  f.dom.window.close();
+});
+
+test('equipped-slot shortcuts exit zoom and show the matching category without spending stamps',()=>{
+  const f=setup(),click=(a,v)=>f.click(`[data-action="room-${a}"]${v?'[data-value="'+v+'"]':''}`);
+  click('open');click('tab','wardrobe');click('try','cloud-pajamas');
+  click('look-slot','eyes');assert.equal(f.$('.room-categories [aria-pressed="true"]').dataset.value,'eyes');
+  click('try','round-glasses');click('zoom');click('look-slot','head');
+  assert.equal(f.$('.room-library').hidden,false);assert.equal(f.$('.room-categories [aria-pressed="true"]').dataset.value,'head');
+  assert.equal(f.ui.balance(),3);click('save');assert.equal(f.saved().layout.look.eyes,'round-glasses');f.dom.window.close();
+});
+
 test('large fitting preview preserves purchase rules, focus and unsaved outfit',()=>{
   const f=setup({count:1}),click=(a,v)=>f.click(`[data-action="room-${a}"]${v?'[data-value="'+v+'"]':''}`);
   click('open');click('tab','wardrobe');click('try','citron-raincoat');

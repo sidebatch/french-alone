@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.23.0 — 2026-11-23
+
+- Redesign the room, wardrobe, shop and interior panels with a shared sticky navigation, stamp balance and save action. Use the full mobile viewport and a side-by-side preview/catalog on wider screens.
+- Separate product artwork, names, prices, ownership and equipped states. Put pagination below the six-item gallery and provide a shop shortcut for an empty inventory.
+- Add an owned-only wardrobe filter and equipped-slot shortcuts. Keep paid previews separate from purchases and saved outfits; preserve item IDs, prices, record keys and existing ownership.
+- Compact the fitting stage on shorter phones, keep one scrolling dialog and expose placement tools as needed. Refresh wall/floor swatches and use existing v1.22 artwork.
+- Verify 191 automated tests, 37 syntax checks, six browser viewport sizes, purchases and offline saved room/outfit restoration. Document the interface and device-testing limits in [room interface](docs/room-interface-1.23.md).
+
 ## 1.22.0 — 2026-11-21
 
 - Refine Lou and all 12 fitted outfits from one shared character reference, keeping four poses, existing item IDs, prices and ownership. Ship versioned transparent WebP sheets and thumbnails for offline use.
