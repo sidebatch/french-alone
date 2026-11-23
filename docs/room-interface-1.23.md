@@ -31,6 +31,12 @@
 
 검증은 격리된 Chrome과 테스트 기록으로 진행했습니다. 실제 Android 설치 앱, 사용자의 기존 기록, 확대 글꼴과 보조 기술의 모든 조합을 확인한 것은 아닙니다.
 
+## 공개 배포
+
+2026-11-23, [변경 8c5396c](https://github.com/sidebatch/french-alone/commit/8c5396ceda588452b46ab8179d4e2ae2bfa881d1)를 [GitHub Pages에 배포](https://github.com/sidebatch/french-alone/actions/runs/45206313117)했습니다. 배포 과정의 전체 테스트·구문 검사·공개 PWA 설치 파일 검사도 통과했습니다.
+
+[공개 앱](https://sidebatch.github.io/french-alone/)에서 위 여섯 화면 크기와 구매·꾸미기·저장 흐름을 다시 확인했습니다. 가로 넘침·중첩 스크롤·실행 오류가 없었으며, 오프라인 재실행에서 테스트 기록의 구매 소품·잔액·옷·안경·벽 색을 확인했습니다.
+
 ## 관련 파일
 
 - 화면과 동작: `dist/room.js`
